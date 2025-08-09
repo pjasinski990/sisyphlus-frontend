@@ -17,7 +17,7 @@ export const LoginPage: React.FC = () => {
         login(email, password);
     };
 
-    if (authState.status === 'success' && authState.data?.user) {
+    if (authState.status === 'authenticated' && authState.user) {
         return <Navigate to={buildRoute.home()} replace />;
     }
 
@@ -45,7 +45,7 @@ export const LoginPage: React.FC = () => {
                     />
                 </div>
                 {authState.status === 'error' && (
-                    <div className='text-red-600 text-sm text-center'>{authState.error}</div>
+                    <div className='text-danger text-sm text-center'>{authState.error}</div>
                 )}
                 <div className='pt-2'>
                     <PrimaryButton
@@ -55,10 +55,10 @@ export const LoginPage: React.FC = () => {
                     >
                         {submitLabel}
                     </PrimaryButton>
-                    <div className='mt-2 text-center'>
-                        <span className='text-sm text-p-80'>
+                    <div className='mt-2 text-center mb-8'>
+                        <span className='text-sm'>
                           Don&#39;t have an account?{' '}
-                            <Link to={buildRoute.register()} className='text-a-50 font-semibold hover:underline'>
+                            <Link to={buildRoute.register()} className='text-accent font-semibold hover:underline'>
                             Sign up
                             </Link>
                         </span>

@@ -62,7 +62,7 @@ export const RegisterPage: React.FC = () => {
                     />
                 </div>
                 {(validationError || authState.status === 'error') && (
-                    <div className='text-red-600 text-sm text-center'>{validationError || (authState.status === 'error' ? authState.error : '') }</div>
+                    <div className='text-danger text-sm text-center'>{validationError || (authState.status === 'error' ? authState.error : '') }</div>
                 )}
                 <div className='pt-2'>
                     <PrimaryButton
@@ -72,10 +72,10 @@ export const RegisterPage: React.FC = () => {
                     >
                         {submitLabel}
                     </PrimaryButton>
-                    <div className='mt-2 text-center'>
-                        <span className='text-sm text-p-80'>
+                    <div className='mt-2 text-center mb-8'>
+                        <span className='text-sm'>
                             Already have an account?{' '}
-                            <Link to={buildRoute.login()} className='text-a-50 font-semibold hover:underline'>
+                            <Link to={buildRoute.login()} className='text-accent font-semibold hover:underline'>
                                 Sign in
                             </Link>
                         </span>

@@ -21,36 +21,26 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
 
     return (
         <div className={className}>
-            <header className='w-full min-w-0'>
-                <div className={'flex justify-between items-center border-b border-p-80'}>
+            <header className='w-full min-w-0 bg-surface-2 paper-texture'>
+                <div className={'flex justify-between items-center shadow-xl min-h-20'}>
                     <div className='flex items-center'>
-                        <div className='px-6 py-3'>
-                            <h1 className='text-xl font-semibold'>NEW APP</h1>
-                        </div>
-
-                        <nav className='flex'>
-                            <NavigationButton
-                                label='Home'
+                        <nav className='flex items-center'>
+                            <HomeButton
                                 onClick={goToHome}
                                 isActive={isActivePath('/')}
-                            />
-                            <NavigationButton
-                                label='User'
-                                onClick={goToUser}
-                                isActive={isActivePath('/user')}
                             />
                         </nav>
                     </div>
 
-                    <div className={'flex gap-4 mr-8 items-center'}>
-                        {authState.status === 'success' && authState.data.user ? (
+                    <div className={'flex gap-12 mr-8 items-center'}>
+                        {authState.status === 'authenticated' && authState.user ? (
                             <>
-                                <span className='text-p-50 text-sm'>
-                                    {authState.data.user.email}
+                                <span className='text-sm'>
+                                    {authState.user.email}
                                 </span>
                                 <Tooltip tooltip={'Logout'}>
                                     <button onClick={logout}>
-                                        <LogOutIcon className={'w-6 h-6 stroke-p-50 hover:stroke-a-30 transition-colors cursor-pointer'} />
+                                        <LogOutIcon className={'w-6 h-6 hover:stroke-accent transition-colors cursor-pointer'} />
                                     </button>
                                 </Tooltip>
                             </>
@@ -58,13 +48,13 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
                             <>
                                 <button
                                     onClick={goToLogin}
-                                    className='text-p-50 hover:text-a-30 transition-colors cursor-pointer text-sm'
+                                    className='hover:text-accent transition-colors cursor-pointer text-sm uppercase font-bold'
                                 >
                                     Login
                                 </button>
                                 <button
                                     onClick={goToRegister}
-                                    className='text-p-50 hover:text-a-30 transition-colors cursor-pointer text-sm'
+                                    className='hover:text-accent transition-colors cursor-pointer text-sm uppercase font-bold'
                                 >
                                     Register
                                 </button>
@@ -72,7 +62,7 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
                         )}
                         <Tooltip tooltip={'Settings'}>
                             <button>
-                                <BoltIcon className={'w-6 h-6 stroke-p-50 hover:stroke-a-30 transition-all cursor-pointer hover:rotate-45'} />
+                                <BoltIcon className={'w-6 h-6 hover:stroke-accent transition-all cursor-pointer hover:rotate-45'} />
                             </button>
                         </Tooltip>
                     </div>
@@ -83,35 +73,23 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
 };
 
 interface NavigationButtonProps {
-    label: string;
     onClick: () => void;
     isActive: boolean;
-    disabled?: boolean;
 }
 
-const NavigationButton: React.FC<NavigationButtonProps> = ({
-    label,
+const HomeButton: React.FC<NavigationButtonProps> = ({
     onClick,
     isActive,
-    disabled = false
 }) => {
-    if (disabled) {
-        return (
-            <Tooltip tooltip={`${label} (requires project)`}>
-                <div className='transition-colors duration-200 focus:outline-none cursor-not-allowed border-y-4 border-transparent opacity-50'>
-                    <h3 className={'p-[12px] px-8 tracking-wider text-nowrap uppercase text-p-50'}>{label}</h3>
-                </div>
-            </Tooltip>
-        );
-    }
-
     return (
         <button
             onClick={onClick}
-            className={`transition-colors duration-200 focus:outline-none hover:bg-p-80 cursor-pointer border-y-4 border-t-transparent
-            ${ isActive ? 'border-b-a-50' : 'border-transparent' }`}
+            className={`flex items-center mx-4 transition-colors duration-200 focus:outline-none hover:bg-surface-hover cursor-pointer ${ isActive ? 'text-accent': '' }`}
         >
-            <h3 className={'p-[12px] px-8 tracking-wider text-nowrap uppercase'}>{label}</h3>
+            <div className='mx-4'>
+                <img src="/favicon.svg" alt="Favicon" width={40} height={40} />
+            </div>
+            <h3 className={'py-2 pr-8 tracking-wider text-nowrap uppercase'}>dash</h3>
         </button>
     );
 };
