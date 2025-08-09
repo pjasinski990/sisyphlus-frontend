@@ -1,7 +1,8 @@
 {
-  "name": "sisyplus-frontend",
+  "name": "sisyphlus-frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -21,13 +22,13 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.6.2",
-    "tailwindcss": "^4.1.7",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9.26.0",
     "@tailwindcss/postcss": "^4.1.7",
+    "@tailwindcss/vite": "^4.1.11",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/mime-types": "^3.0.0",
@@ -47,8 +48,8 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^26.1.0",
-    "postcss": "^8.5.3",
     "tailwind-scrollbar": "^4.0.2",
+    "tailwindcss": "^4.1.7",
     "typescript": "^5",
     "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4",

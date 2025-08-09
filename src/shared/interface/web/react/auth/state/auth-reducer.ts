@@ -1,18 +1,15 @@
-import { AuthAction } from './auth-actions';
 import { AuthState } from './auth-state';
+import { AuthAction } from '@/shared/interface/web/react/auth/state/auth-action';
 
 export function authStateReducer(state: AuthState, action: AuthAction): AuthState {
     switch (action.type) {
         case 'REQUEST':
-            return { status: 'loading', loading: true };
+            return { status: 'loading' };
         case 'SUCCESS':
-            return { status: 'success', data: {
-                user: action.payload,
-                source: action.source
-            } };
+            return { status: 'authenticated', user: action.user };
         case 'FAILED':
-            return { status: 'error', error: action.payload };
-        default:
-            return state;
+            return { status: 'error', error: action.error };
+        case 'LOGOUT':
+            return { status: 'unauthenticated' };
     }
 }

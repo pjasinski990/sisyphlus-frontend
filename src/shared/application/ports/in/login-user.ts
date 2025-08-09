@@ -2,5 +2,5 @@ import { AsyncResult } from '@/shared/entities/result';
 import { User } from '@/shared/entities/user';
 
 export interface LoginUser {
-    execute(email: string, password: string): AsyncResult<User, Error>;
+    execute(email: string, password: string): AsyncResult<Error, User>;
 }

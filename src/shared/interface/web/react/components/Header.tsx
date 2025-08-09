@@ -1,27 +1,16 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { useAppNavigation } from '../hooks/useNavigation';
 import { Tooltip } from './Tooltip';
 import { BoltIcon, LogOutIcon } from 'lucide-react';
 import { useAuth } from '../auth/hooks/useAuth';
 import { useAuthActions } from '../auth/hooks/useAuthActions';
-import { useActiveProjectId } from '@/shared/interface/web/react/project/hooks/useActiveProjectId';
+import { useAppNavigation } from '@/shared/interface/web/react/hooks/useNavigation';
 
 export const Header: React.FC<{ className: string }> = ({ className }) => {
     const location = useLocation();
-    const { goToHome, goToChat, goToQuiz, goToLogin, goToRegister } = useAppNavigation();
+    const { goToHome, goToUser, goToLogin, goToRegister } = useAppNavigation();
     const authState = useAuth();
     const { logout } = useAuthActions();
-
-    const currentProjectId = useActiveProjectId();
-
-    const navigateToChat = () => {
-        goToChat();
-    };
-
-    const navigateToQuiz = () => {
-        goToQuiz();
-    };
 
     const isActivePath = (path: string) => {
         if (path === '/') {
@@ -36,7 +25,7 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
                 <div className={'flex justify-between items-center border-b border-p-80'}>
                     <div className='flex items-center'>
                         <div className='px-6 py-3'>
-                            <h1 className='text-xl font-semibold'>AI Reader</h1>
+                            <h1 className='text-xl font-semibold'>NEW APP</h1>
                         </div>
 
                         <nav className='flex'>
@@ -46,16 +35,9 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
                                 isActive={isActivePath('/')}
                             />
                             <NavigationButton
-                                label='Chat'
-                                onClick={navigateToChat}
-                                isActive={isActivePath('/chat')}
-                                disabled={currentProjectId === null}
-                            />
-                            <NavigationButton
-                                label='Quiz'
-                                onClick={navigateToQuiz}
-                                isActive={isActivePath('/quiz')}
-                                disabled={currentProjectId === null}
+                                label='User'
+                                onClick={goToUser}
+                                isActive={isActivePath('/user')}
                             />
                         </nav>
                     </div>

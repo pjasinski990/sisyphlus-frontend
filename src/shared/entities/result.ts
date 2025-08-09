@@ -15,8 +15,4 @@ export function isOk<E, T>(res: Result<E, T>): res is ResultOk<T> {
     return res.ok;
 }
 
-export function isNok<E, T>(res: Result<E, T>): res is ResultError<E> {
-    return !res.ok;
-}
-
 export type AsyncResult<E, T> = Promise<Result<E, T>>;

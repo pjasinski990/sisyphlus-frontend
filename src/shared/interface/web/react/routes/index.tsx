@@ -4,7 +4,6 @@ import { ROUTES } from './routePaths';
 import { HomePage } from './HomePage';
 import { LoginPage } from './LoginPage';
 import { RegisterPage } from './RegisterPage';
-// TODO: Add other route components as they are created
 
 export const routes: RouteObject[] = [
     {
@@ -19,9 +18,4 @@ export const routes: RouteObject[] = [
         path: ROUTES.REGISTER,
         element: <RegisterPage />,
     },
-    // TODO: Add more routes as they are implemented
-    // {
-    //     path: ROUTES.QUIZ,
-    //     element: <Quiz />,
-    // },
-]; 
+];

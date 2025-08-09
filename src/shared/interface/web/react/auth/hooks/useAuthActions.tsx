@@ -1,38 +1,41 @@
-import { useAuthController } from './useAuthController';
-import { useAuthDispatch } from './useAuthDipatch';
-import { useCallback } from 'react';
-import { runAuthAction } from '../state/auth-actions';
+import { authController } from '@/shared/interface/controllers/user-auth-controller';
+import { Dispatch, useCallback } from 'react';
+import { useAuthDispatch } from './useAuthDispatch';
+import { Result } from '@/shared/entities/result';
+import { User } from '@/shared/entities/user';
+import { AuthAction } from '@/shared/interface/web/react/auth/state/auth-action';
 
 export function useAuthActions() {
-    const { authController } = useAuthController();
     const dispatch = useAuthDispatch();
 
     const login = useCallback((email: string, password: string) => {
-        runAuthAction(
-            () => authController.login(email, password),
-            dispatch,
-            'login',
-            user => user
-        );
-    }, [authController, dispatch]);
+        dispatch({ type: 'REQUEST' });
+        authController.login(email, password)
+            .then((res) => {
+                dispatchUserResult(res, dispatch);
+            });
+    }, [dispatch]);
 
     const logout = useCallback(() => {
-        runAuthAction(
-            () => authController.logout(),
-            dispatch,
-            'logout',
-            () => null
-        );
-    }, [authController, dispatch]);
+        authController.logout()
+            .then(() => dispatch({ type: 'LOGOUT' }));
+    }, [dispatch]);
 
     const register = useCallback((email: string, password: string) => {
-        runAuthAction(
-            () => authController.register(email, password),
-            dispatch,
-            'register',
-            () => null
-        );
-    }, [authController, dispatch]);
+        dispatch({ type: 'REQUEST' });
+        authController.register(email, password)
+            .then((res) => {
+                dispatchUserResult(res, dispatch);
+            });
+    }, [dispatch]);
 
     return { login, logout, register };
-} 
+}
+
+function dispatchUserResult(res: Result<Error, User>, dispatch: Dispatch<AuthAction>) {
+    if(res.ok) {
+        dispatch({ type: 'SUCCESS', user: res.value });
+    } else {
+        dispatch({ type: 'FAILED', error: res.error.message });
+    }
+}

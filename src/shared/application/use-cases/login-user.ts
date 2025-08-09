@@ -6,7 +6,7 @@ import { AsyncResult } from '@/shared/entities/result';
 export class LoginUserUseCase implements LoginUser {
     constructor(private readonly authProvider: AuthProvider) {}
 
-    execute(email: string, password: string): AsyncResult<User, Error> {
+    execute(email: string, password: string): AsyncResult<Error, User> {
         return this.authProvider.login(email, password);
     }
 } 

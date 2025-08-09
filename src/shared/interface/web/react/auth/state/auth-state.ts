@@ -1,11 +1,7 @@
 import { User } from '@/shared/entities/user';
-import { AsyncState } from '@/shared/infra/types/AsyncState';
 
-export type AuthSuccessSource = 'login' | 'register' | 'refresh' | 'logout';
-
-interface UserData {
-    user: User | null;
-    source: AuthSuccessSource;
-}
-
-export type AuthState = AsyncState<UserData, string>;
+export type AuthState =
+    | { status: 'loading' }
+    | { status: 'authenticated'; user: User }
+    | { status: 'unauthenticated' }
+    | { status: 'error'; error: string };

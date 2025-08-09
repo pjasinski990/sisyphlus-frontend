@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuthActions } from '@/shared/interface/web/react/auth/hooks/useAuthActions';
 import { useAuth } from '@/shared/interface/web/react/auth/hooks/useAuth';
 import { PrimaryButton } from '@/shared/interface/web/react/components/primary-button';
@@ -13,7 +13,6 @@ export const RegisterPage: React.FC = () => {
     const [validationError, setValidationError] = useState('');
     const { register } = useAuthActions();
     const authState = useAuth();
-    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,13 +30,6 @@ export const RegisterPage: React.FC = () => {
 
         register(email, password);
     };
-
-    React.useEffect(() => {
-        setValidationError('');
-        if (authState.status === 'success' && authState.data.source === 'register') {
-            navigate(buildRoute.login());
-        }
-    }, [authState, navigate]);
 
     const submitLabel = authState.status === 'loading' ? 'Creating account...' : 'Create account';
     return (

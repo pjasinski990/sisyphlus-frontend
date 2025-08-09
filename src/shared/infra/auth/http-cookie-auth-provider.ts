@@ -1,43 +1,70 @@
 import { User } from '@/shared/entities/user';
 import { AuthProvider } from '@/shared/application/ports/out/auth-provider';
 import { HttpClient, HttpError } from '@/shared/application/ports/out/http-client';
-import { AsyncResult, isNok, ok, tryResult } from '@/shared/entities/result';
+import { AsyncResult, nok, ok } from '@/shared/entities/result';
+import { GenericResponse } from '@/shared/entities/generic-repsonse';
 
 export class HttpCookieAuthProvider implements AuthProvider {
     constructor(private readonly httpClient: HttpClient) {}
 
-    async getAuthenticatedUser(): AsyncResult<User | null, Error> {
-        return tryResult(async () => {
+    async getAuthenticatedUser(): AsyncResult<Error, User | null> {
+        try {
             const response = await this.httpClient.get<{ user: User }>('/auth/me');
-            return response.data.user;
-        }).then(r => {
-            return isNok(r) && r.error instanceof HttpError && r.error.status === 401
-                ? ok(null)
-                : r;
-        });
+            return ok(response.data.user);
+        } catch (err: unknown) {
+            if (isUnauthorizedError(err)) {
+                return ok(null);
+            } else if (err instanceof Error) {
+                return nok(err);
+            } else {
+                return nok(new Error('Unknown error during authentication'));
+            }
+        }
     }
 
-    async login(email: string, password: string): AsyncResult<User, Error> {
-        return tryResult(async () => {
-            await this.httpClient.post<{ message: string }>('/auth/login', {
-                email,
-                password,
-            });
-
+    async login(email: string, password: string): AsyncResult<Error, User> {
+        try {
+            const body = { email, password };
+            await this.httpClient.post<GenericResponse>('/auth/login', body);
             const userResponse = await this.httpClient.get<{ user: User }>('/auth/me');
-            return userResponse.data.user;
-        });
+            return ok(userResponse.data.user);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return nok(err);
+            } else {
+                return nok(new Error('Unknown error during authentication'));
+            }
+        }
     }
 
-    async register(email: string, password: string): AsyncResult<void, Error> {
-        return tryResult(async () => {
-            await this.httpClient.post('/auth/register', { email, password });
-        });
+    async register(email: string, password: string): AsyncResult<Error, User> {
+        try {
+            await this.httpClient.post<GenericResponse>('/auth/register', { email, password });
+            const userResponse = await this.httpClient.get<{ user: User }>('/auth/me');
+            return ok(userResponse.data.user);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return nok(err);
+            } else {
+                return nok(new Error('Unknown error during register'));
+            }
+        }
     }
 
-    async logout(): AsyncResult<void, Error> {
-        return tryResult(async () => {
+    async logout(): AsyncResult<Error, null> {
+        try {
             await this.httpClient.post('/auth/logout');
-        });
+            return ok(null);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return nok(err);
+            } else {
+                return nok(new Error('Unknown error during logout'));
+            }
+        }
     }
 } 
+
+function isUnauthorizedError(error: unknown): error is HttpError {
+    return error instanceof HttpError && error.status === 401;
+}
