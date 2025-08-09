@@ -1,5 +1,5 @@
-import { GenericResponse } from '@/shared/entities/generic-repsonse';
-import { HttpClient, HttpError, HttpResponse, RequestConfig } from '@/shared/application/ports/out/http-client';
+import { GenericResponse } from '@/shared/entity/generic-repsonse';
+import { HttpClient, HttpError, HttpResponse, RequestConfig } from '@/shared/application/port/out/http-client';
 
 export class AutoRefreshDecorator implements HttpClient {
     private static inFlightRefresh: Promise<void> | null = null;

@@ -1,4 +1,4 @@
-import { User } from '@/shared/entities/user';
+import { User } from '@/shared/entity/user';
 
 export type AuthState =
     | { status: 'loading' }

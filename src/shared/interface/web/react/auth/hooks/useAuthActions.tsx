@@ -1,8 +1,8 @@
-import { authController } from '@/shared/interface/controllers/user-auth-controller';
+import { authController } from '@/shared/interface/controller/user-auth-controller';
 import { Dispatch, useCallback } from 'react';
 import { useAuthDispatch } from './useAuthDispatch';
-import { Result } from '@/shared/entities/result';
-import { User } from '@/shared/entities/user';
+import { Result } from '@/shared/entity/result';
+import { User } from '@/shared/entity/user';
 import { AuthAction } from '@/shared/interface/web/react/auth/state/auth-action';
 
 export function useAuthActions() {

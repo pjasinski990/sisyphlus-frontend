@@ -1,8 +1,8 @@
-import { User } from '@/shared/entities/user';
-import { AuthProvider } from '@/shared/application/ports/out/auth-provider';
-import { HttpClient, HttpError } from '@/shared/application/ports/out/http-client';
-import { AsyncResult, nok, ok } from '@/shared/entities/result';
-import { GenericResponse } from '@/shared/entities/generic-repsonse';
+import { User } from '@/shared/entity/user';
+import { AuthProvider } from '@/shared/application/port/out/auth-provider';
+import { HttpClient, HttpError } from '@/shared/application/port/out/http-client';
+import { AsyncResult, nok, ok } from '@/shared/entity/result';
+import { GenericResponse } from '@/shared/entity/generic-repsonse';
 
 export class HttpCookieAuthProvider implements AuthProvider {
     constructor(private readonly httpClient: HttpClient) {}

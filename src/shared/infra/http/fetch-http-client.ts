@@ -1,5 +1,5 @@
-import { HttpClient, HttpResponse, RequestConfig, HttpError } from '@/shared/application/ports/out/http-client';
-import { GenericResponse } from '@/shared/entities/generic-repsonse';
+import { HttpClient, HttpResponse, RequestConfig, HttpError } from '@/shared/application/port/out/http-client';
+import { GenericResponse } from '@/shared/entity/generic-repsonse';
 import { AutoRefreshDecorator } from '@/shared/infra/http/auto-refresh-decorator';
 
 type FetchRequestConfig = RequestConfig & {
