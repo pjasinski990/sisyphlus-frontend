@@ -1,6 +1,7 @@
 import { HttpClient, HttpResponse, RequestConfig, HttpError } from '@/shared/application/port/out/http-client';
 import { GenericResponse } from '@/shared/entity/generic-repsonse';
 import { AutoRefreshDecorator } from '@/shared/infra/http/auto-refresh-decorator';
+import { ErrorResponse } from '@/shared/entity/error-response';
 
 type FetchRequestConfig = RequestConfig & {
     signal?: AbortSignal;
@@ -79,7 +80,7 @@ class FetchHttpClient implements HttpClient {
                 ? res.json()
                 : res.text())) as T;
 
-            if (!res.ok) throw new HttpError(res.statusText, res.status, data);
+            if (!res.ok) throw new HttpError(res.statusText, res.status, data as ErrorResponse);
 
             return {
                 data,
@@ -90,7 +91,7 @@ class FetchHttpClient implements HttpClient {
             if (err instanceof HttpError) throw err;
             const message =
                 err instanceof Error ? err.message : 'HTTP request failed';
-            throw new HttpError(message, 0, err);
+            throw new HttpError(message, 0, { error: JSON.stringify(err) });
         }
     }
 

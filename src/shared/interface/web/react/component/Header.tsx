@@ -49,13 +49,13 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
                             <>
                                 <button
                                     onClick={goToLogin}
-                                    className='hover:text-accent transition-colors cursor-pointer text-sm uppercase font-bold'
+                                    className='hover:text-accent transition-colors cursor-pointer text-sm uppercase font-bold p-2'
                                 >
                                     Login
                                 </button>
                                 <button
                                     onClick={goToRegister}
-                                    className='hover:text-accent transition-colors cursor-pointer text-sm uppercase font-bold'
+                                    className='hover:text-accent transition-colors cursor-pointer text-sm uppercase font-bold p-2'
                                 >
                                     Register
                                 </button>
@@ -91,7 +91,7 @@ const HomeButton: React.FC<NavigationButtonProps> = ({
             <div className='mx-4'>
                 <img src="/favicon.svg" alt="Favicon" width={40} height={40} />
             </div>
-            <h3 className={'py-2 pr-8 tracking-wider text-nowrap uppercase'}>dash</h3>
+            <h3 className={'py-2 pr-8 tracking-wider text-nowrap uppercase brand-gradient'}>dash</h3>
         </button>
     );
 };

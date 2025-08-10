@@ -1,3 +1,5 @@
+import { ErrorResponse } from '@/shared/entity/error-response';
+
 export interface HttpResponse<T = unknown> {
     data: T;
     status: number;
@@ -8,7 +10,7 @@ export class HttpError extends Error {
     constructor(
         message: string,
         public readonly status: number,
-        public readonly response?: unknown
+        public readonly response: ErrorResponse
     ) {
         super(message);
         this.name = 'HttpError';

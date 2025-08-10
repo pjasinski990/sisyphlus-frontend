@@ -14,6 +14,8 @@ export class HttpCookieAuthProvider implements AuthProvider {
         } catch (err: unknown) {
             if (isUnauthorizedError(err)) {
                 return ok(null);
+            } else if (err instanceof HttpError) {
+                return nok(getErrorWithHttpCause(err));
             } else if (err instanceof Error) {
                 return nok(err);
             } else {
@@ -29,7 +31,9 @@ export class HttpCookieAuthProvider implements AuthProvider {
             const userResponse = await this.httpClient.get<{ user: User }>('/auth/me');
             return ok(userResponse.data.user);
         } catch (err: unknown) {
-            if (err instanceof Error) {
+            if (err instanceof HttpError) {
+                return nok(getErrorWithHttpCause(err));
+            } else if (err instanceof Error) {
                 return nok(err);
             } else {
                 return nok(new Error('Unknown error during authentication'));
@@ -43,10 +47,12 @@ export class HttpCookieAuthProvider implements AuthProvider {
             const userResponse = await this.httpClient.get<{ user: User }>('/auth/me');
             return ok(userResponse.data.user);
         } catch (err: unknown) {
-            if (err instanceof Error) {
+            if (err instanceof HttpError) {
+                return nok(getErrorWithHttpCause(err));
+            } else if (err instanceof Error) {
                 return nok(err);
             } else {
-                return nok(new Error('Unknown error during register'));
+                return nok(new Error('Unknown error during authentication'));
             }
         }
     }
@@ -63,8 +69,14 @@ export class HttpCookieAuthProvider implements AuthProvider {
             }
         }
     }
-} 
+}
 
 function isUnauthorizedError(error: unknown): error is HttpError {
     return error instanceof HttpError && error.status === 401;
+}
+
+function getErrorWithHttpCause(error: HttpError): Error {
+    return new Error(
+        error.response.error
+    );
 }
