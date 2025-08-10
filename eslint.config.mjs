@@ -20,7 +20,7 @@ const config = [
     ...compat.extends(
         "plugin:@typescript-eslint/recommended",
         "plugin:react/recommended",
-        "plugin:react-hooks/recommended",
+        "plugin:react-hook/recommended",
         "plugin:jsx-a11y/recommended",
         "plugin:import/recommended",
         "plugin:import/typescript"
