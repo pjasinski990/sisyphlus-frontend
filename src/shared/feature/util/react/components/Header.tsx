@@ -92,7 +92,7 @@ const HomeButton: React.FC<NavigationButtonProps> = ({
             <div className='mx-4'>
                 <img src="/favicon.svg" alt="Favicon" width={40} height={40} />
             </div>
-            <h3 className={'py-2 pr-8 tracking-wider text-nowrap uppercase brand-gradient'}>dash</h3>
+            <h3 className={'py-2 pr-8 tracking-wider text-nowrap uppercase brand-gradient'}>dash.</h3>
         </button>
     );
 };

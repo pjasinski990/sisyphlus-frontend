@@ -61,7 +61,9 @@
   --border: oklch(0.85 0.01 260);
   --focus:  var(--brand-70);
 
-  --accent: var(--brand-70);
+  --accent-low: var(--brand-50);
+  --accent: var(--brand-90);
+  --accent-high: var(--brand-90);
   --accent-contrast: var(--ink-10);
 
   --success: var(--success-60);
@@ -85,8 +87,9 @@
   --border: oklch(0.36 0.02 260);
   --focus:  var(--brand-50);
 
+  --accent-low: var(--brand-70);
   --accent: var(--brand-50);
-  --accent-contrast: var(--ink-10);
+  --accent-high: var(--brand-30);
 
   --surface-hover: color-mix(in oklab, var(--surface-1), white 6%);
   --surface-active: color-mix(in oklab, var(--surface-1), white 8%);
@@ -237,8 +240,8 @@
   .brand-gradient {
     background: linear-gradient(
             90deg,
-            var(--brand-70) 0%,
-            var(--brand-50) 30%
+            var(--accent-high) 0%,
+            var(--accent) 30%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
