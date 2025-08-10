@@ -4,7 +4,7 @@ import { Tooltip } from './Tooltip';
 import { BoltIcon, LogOutIcon } from 'lucide-react';
 import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
 import { useAuthActions } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuthActions';
-import { useAppNavigation } from '@/shared/feature/utils/react/hook/useNavigation';
+import { useAppNavigation } from '@/shared/feature/util/react/hook/useNavigation';
 import { ThemeButton } from '@/feature/theme/interface/react/component/ThemeButton';
 
 export const Header: React.FC<{ className: string }> = ({ className }) => {
@@ -12,6 +12,7 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
     const { goToHome, goToUser, goToLogin, goToRegister } = useAppNavigation();
     const authState = useAuth();
     const { logout } = useAuthActions();
+
 
     const isActivePath = (path: string) => {
         if (path === '/') {

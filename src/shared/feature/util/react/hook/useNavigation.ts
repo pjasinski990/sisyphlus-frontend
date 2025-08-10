@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { buildRoute } from '@/shared/feature/utils/react/route/routePaths';
+import { buildRoute } from '@/shared/feature/util/react/route/routePaths';
 
 export const useAppNavigation = () => {
     const navigate = useNavigate();

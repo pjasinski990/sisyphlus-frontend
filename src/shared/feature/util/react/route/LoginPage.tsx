@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuthActions } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuthActions';
 import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
-import { PrimaryButton } from '@/shared/feature/utils/react/components/primary-button';
+import { PrimaryButton } from '@/shared/feature/util/react/components/primary-button';
 import { buildRoute } from './routePaths';
 import { AuthFormContainer, AuthFormInputField } from '@/shared/feature/auth/interface/web/react/component/AuthForm';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Theme } from '@/feature/theme/entity/theme';
 import { themeController } from '../../controller/theme-controller';
-import { Tooltip } from '@/shared/feature/utils/react/components/Tooltip';
+import { Tooltip } from '@/shared/feature/util/react/components/Tooltip';
 import { Sun, Moon, Laptop } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -72,9 +72,9 @@ export const ThemeButton: React.FC = () => {
                         <motion.span
                             key={`${currentVisual}-${effective}`}
                             className='absolute inset-0 flex items-center justify-center'
-                            initial={{ opacity: 0.5, scale: 0.92, rotate: -8 }}
+                            initial={{ opacity: 0.5, scale: 0.92, rotate: 16 }}
                             animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                            exit={{ opacity: 0.5, scale: 0.92, rotate: 8 }}
+                            exit={{ opacity: 0.5, scale: 0.92, rotate: -16 }}
                             transition={{ duration: 0.12, ease: 'easeOut' }}
                         >
                             {currentIcon}
