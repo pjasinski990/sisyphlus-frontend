@@ -2,8 +2,8 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Tooltip } from './Tooltip';
 import { BoltIcon, LogOutIcon } from 'lucide-react';
-import { useAuth } from '../../auth/interface/web/react/auth/hook/useAuth';
-import { useAuthActions } from '../../auth/interface/web/react/auth/hook/useAuthActions';
+import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
+import { useAuthActions } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuthActions';
 import { useAppNavigation } from '@/shared/feature/utils/react/hook/useNavigation';
 import { ThemeButton } from '@/feature/theme/interface/react/component/ThemeButton';
 

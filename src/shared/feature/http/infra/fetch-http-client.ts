@@ -2,6 +2,7 @@ import { HttpClient, HttpResponse, RequestConfig, HttpError } from '@/shared/fea
 import { GenericResponse } from '@/shared/feature/http/entity/generic-repsonse';
 import { AutoRefreshDecorator } from '@/shared/feature/http/infra/auto-refresh-decorator';
 import { ErrorResponse } from '@/shared/feature/http/entity/error-response';
+import { AsyncResult, nok, ok, ResultError, ResultOk } from '@/shared/feature/auth/entity/result';
 
 type FetchRequestConfig = RequestConfig & {
     signal?: AbortSignal;
@@ -100,8 +101,17 @@ class FetchHttpClient implements HttpClient {
     }
 }
 
-async function refresh(httpClient: HttpClient): Promise<HttpResponse<GenericResponse>> {
-    return httpClient.get<GenericResponse>('/auth/refresh');
+async function refresh(httpClient: HttpClient): AsyncResult<HttpError, GenericResponse> {
+    try {
+        const res = await httpClient.get<GenericResponse>('/auth/refresh');
+        return ok(res.data);
+    } catch (err: unknown) {
+        if (err instanceof HttpError) {
+            return nok(err)
+        } else {
+            return nok(new HttpError('Unknown error during refresh', 0, { error: JSON.stringify(err) }))
+        }
+    }
 }
 
 export const httpClient = new AutoRefreshDecorator(new FetchHttpClient(), refresh);

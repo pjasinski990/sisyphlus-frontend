@@ -5,7 +5,7 @@ import { AuthStateCtx } from '../context/AuthContext';
 export function useAuth(): AuthState {
     const authState = useContext(AuthStateCtx);
     if (!authState) {
-        throw new Error('useProjects must be used inside <AuthProvider>');
+        throw new Error('useAuth must be used inside <AuthProvider>');
     }
     return authState;
 }
