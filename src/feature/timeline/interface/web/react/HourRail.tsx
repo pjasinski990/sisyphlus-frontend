@@ -1,5 +1,5 @@
 import React from 'react';
-import { timelineConfig } from '@/shared/feature/timeline/entity/daily-timeline-config';
+import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config';
 
 export const HourRail: React.FC<{ hours: number[] }> = ({ hours }) => {
     const hourPx = timelineConfig.pixelsPerMinute * 60;

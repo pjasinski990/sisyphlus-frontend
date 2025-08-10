@@ -1,8 +1,9 @@
-import { Range } from '@/shared/feature/util/range';
+import { Range } from '@/shared/util/range';
 
 export type TimeOfDay = `${number}:${number}`;
 
 export interface Task {
+    id: string;
     timespan: Range<TimeOfDay>;
     title: string;
 }

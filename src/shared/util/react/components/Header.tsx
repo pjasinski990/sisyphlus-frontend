@@ -4,8 +4,8 @@ import { Tooltip } from './Tooltip';
 import { BoltIcon, LogOutIcon } from 'lucide-react';
 import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
 import { useAuthActions } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuthActions';
-import { useAppNavigation } from '@/shared/feature/util/react/hook/useNavigation';
-import { ThemeButton } from '@/feature/theme/interface/react/component/ThemeButton';
+import { useAppNavigation } from '@/shared/util/react/hook/useNavigation';
+import { ThemeButton } from '@/feature/theme/interface/web/react/component/ThemeButton';
 
 export const Header: React.FC<{ className: string }> = ({ className }) => {
     const location = useLocation();
@@ -24,7 +24,7 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
     return (
         <div className={className}>
             <header className='w-full min-w-0 bg-surface-2 paper-texture'>
-                <div className={'flex justify-between items-center shadow-md min-h-20'}>
+                <div className={'flex justify-between items-center defined-shadow min-h-20'}>
                     <div className='flex items-center'>
                         <nav className='flex items-center'>
                             <HomeButton

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Theme } from '@/feature/theme/entity/theme';
-import { themeController } from '../../controller/theme-controller';
-import { Tooltip } from '@/shared/feature/util/react/components/Tooltip';
+import { themeController } from '../../../controller/theme-controller';
+import { Tooltip } from '@/shared/util/react/components/Tooltip';
 import { Sun, Moon, Laptop } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 

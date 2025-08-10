@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dashboard } from '@/shared/feature/timeline/infra/web/react/Dashboard';
+import { Dashboard } from '@/shared/util/react/components/Dashboard';
 
 
 export const HomePage: React.FC = () => {

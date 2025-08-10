@@ -1,4 +1,4 @@
-import { Range } from '@/shared/feature/util/range';
+import { Range } from '@/shared/util/range';
 
 export interface DailyTimelineConfig {
     hourSpan: Range<number>;
@@ -11,6 +11,6 @@ export const timelineConfig: DailyTimelineConfig = {
         from: 0,
         to: 24,
     },
-    pixelsPerMinute: 1.0,
+    pixelsPerMinute: 1.2,
     segmentMinutes: 15,
 };

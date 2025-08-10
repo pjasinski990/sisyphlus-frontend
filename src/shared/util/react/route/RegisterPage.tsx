@@ -1,30 +1,34 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuthActions } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuthActions';
 import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
-import { PrimaryButton } from '@/shared/feature/util/react/components/primary-button';
+import { PrimaryButton } from '@/shared/util/react/components/primary-button';
 import { buildRoute } from './routePaths';
 import { AuthFormContainer, AuthFormInputField } from '@/shared/feature/auth/interface/web/react/component/AuthForm';
 
-export const LoginPage: React.FC = () => {
+export const RegisterPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login } = useAuthActions();
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [validationError, setValidationError] = useState('');
+    const { register } = useAuthActions();
     const authState = useAuth();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        login(email, password);
+        setValidationError('');
+
+        if (password !== confirmPassword) {
+            setValidationError('Passwords do not match');
+            return;
+        }
+
+        register(email, password);
     };
 
-    if (authState.status === 'authenticated' && authState.user) {
-        return <Navigate to={buildRoute.home()} replace />;
-    }
-
-    const submitLabel = authState.status === 'loading' ? 'Signing in...' : 'Sign in';
-
+    const submitLabel = authState.status === 'loading' ? 'Creating account...' : 'Create account';
     return (
-        <AuthFormContainer title='Sign in to your account'>
+        <AuthFormContainer title='Create your account'>
             <form className='space-y-8' onSubmit={handleSubmit}>
                 <div className='space-y-6'>
                     <AuthFormInputField
@@ -43,9 +47,17 @@ export const LoginPage: React.FC = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder='Enter your password'
                     />
+                    <AuthFormInputField
+                        id='confirmPassword'
+                        label='Confirm Password'
+                        type='password'
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder='Confirm your password'
+                    />
                 </div>
-                {authState.status === 'error' && (
-                    <div className='text-danger text-sm text-center'>{authState.error}</div>
+                {(validationError || authState.status === 'error') && (
+                    <div className='text-danger text-sm text-center'>{validationError || (authState.status === 'error' ? authState.error : '') }</div>
                 )}
                 <div className='pt-2'>
                     <PrimaryButton
@@ -57,9 +69,9 @@ export const LoginPage: React.FC = () => {
                     </PrimaryButton>
                     <div className='mt-2 text-center mb-8'>
                         <span className='text-sm'>
-                            Don&#39;t have an account?{' '}
-                            <Link to={buildRoute.register()} className='text-accent font-semibold hover:underline'>
-                                Sign up
+                            Already have an account?{' '}
+                            <Link to={buildRoute.login()} className='text-accent font-semibold hover:underline'>
+                                Sign in
                             </Link>
                         </span>
                     </div>

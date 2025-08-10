@@ -1,5 +1,5 @@
 import React from 'react';
-import { timelineConfig } from '@/shared/feature/timeline/entity/daily-timeline-config';
+import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config';
 
 export const TimelineGridBackground: React.FC = () => {
     const hourPx = timelineConfig.pixelsPerMinute * 60;

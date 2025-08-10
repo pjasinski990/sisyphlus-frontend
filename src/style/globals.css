@@ -66,6 +66,10 @@
   --accent-high: var(--brand-90);
   --accent-contrast: var(--ink-10);
 
+  --secondary-1: var(--stone-20);
+  --secondary-2: var(--stone-40);
+  --secondary-3: var(--stone-60);
+
   --success: var(--success-60);
   --warning: var(--warning-60);
   --danger:  var(--danger-60);
@@ -90,6 +94,11 @@
   --accent-low: var(--brand-70);
   --accent: var(--brand-50);
   --accent-high: var(--brand-30);
+  --accent-contrast: var(--ink-100);
+
+  --secondary-1: var(--stone-60);
+  --secondary-2: var(--stone-40);
+  --secondary-3: var(--stone-20);
 
   --surface-hover: color-mix(in oklab, var(--surface-1), white 6%);
   --surface-active: color-mix(in oklab, var(--surface-1), white 8%);
@@ -143,6 +152,10 @@
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
+
+  --color-secondary-1: var(--secondary-1);
+  --color-secondary-2: var(--secondary-2);
+  --color-secondary-3: var(--secondary-3);
 
   --color-text-1: var(--text-1);
   --color-text-2: var(--text-2);
@@ -233,8 +246,8 @@
 
   .defined-shadow {
     box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.3),
-            0 2px 6px rgba(0, 0, 0, 0.2);
+            0 4px 8px rgba(0, 0, 0, 0.2),
+            0 1px 4px rgba(0, 0, 0, 0.3);
   }
 
   .brand-gradient {

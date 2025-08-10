@@ -1,12 +1,13 @@
 import React from 'react';
-import { clamp } from '@/shared/feature/util/clamp';
-import { Range } from '@/shared/feature/util/range';
-import { timelineConfig } from '@/shared/feature/timeline/entity/daily-timeline-config';
-import { TimelineGridBackground } from '@/shared/feature/timeline/infra/web/react/GridBackground';
-import { HourRail } from '@/shared/feature/timeline/infra/web/react/HourRail';
-import { CurrentTimePointer } from '@/shared/feature/timeline/infra/web/react/CurrentTimePointer';
-import { TaskBlock } from '@/shared/feature/timeline/infra/web/react/TaskBlock';
+import { clamp } from '@/shared/util/clamp';
+import { Range } from '@/shared/util/range';
+import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config';
+import { TimelineGridBackground } from '@/feature/timeline/interface/web/react/GridBackground';
+import { HourRail } from '@/feature/timeline/interface/web/react/HourRail';
+import { CurrentTimePointer } from '@/feature/timeline/interface/web/react/CurrentTimePointer';
+import { TimeBlock } from '@/feature/timeline/interface/web/react/TimeBlock';
 import { Task, TimeOfDay } from '../../../entity/task';
+import { NightTint } from '@/feature/timeline/interface/web/react/NightTint';
 
 type DailyTimelineProps = {
     tasks?: Task[];
@@ -60,18 +61,19 @@ export const DailyTimeline: React.FC<DailyTimelineProps> = ({ tasks = [], onRequ
     );
 
     return (
-        <div className='flex flex-1 mt-4 mb-8 bg-surface-2 rounded-xl defined-shadow'>
+        <div className='flex flex-2 mt-4 mb-8 bg-surface-2 rounded-xl defined-shadow min-w-[330px]'>
             <div className='flex flex-1 p-4'>
                 <div className={'flex flex-1 py-4 overflow-y-auto'}>
                     <div className={'flex flex-1 relative'} ref={scrollerRef} style={{ height: contentHeightPx }}>
                         <HourRail hours={hours} />
                         <div className={'flex flex-1 px-4'}>
                             <div className={'flex flex-1 relative'}>
+                                <NightTint className={''} />
                                 <TimelineGridBackground />
                                 <CurrentTimePointer progress={progress} now={now} />
                                 <TaskLayer>
                                     {tasks.map((t) => (
-                                        <TaskBlock
+                                        <TimeBlock
                                             key={`${t.timespan.from}-${t.timespan.to}-${t.title}`}
                                             timespan={t.timespan}
                                             title={t.title}
@@ -118,7 +120,7 @@ const SelectionLayer: React.FC<{
         const scroller = scrollerRef.current;
         if (!scroller) return 0;
         const rect = scroller.getBoundingClientRect();
-        return (e.clientY - rect.top) + scroller.scrollTop; // y relative to top of scroll content
+        return (e.clientY - rect.top) + scroller.scrollTop;
     };
 
     const toMinutes = (y: number) => clamp(y / ppm, 0, totalMin);
@@ -152,7 +154,6 @@ const SelectionLayer: React.FC<{
         (e.currentTarget as Element).releasePointerCapture(e.pointerId);
 
         if (dragStart === null || dragCurrent === null) {
-            // click without proper start; ignore
             setDragStart(null);
             setDragCurrent(null);
             return;
@@ -219,7 +220,7 @@ const SelectionLayer: React.FC<{
 };
 
 const TaskLayer: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <div className='h-full absolute inset-x-8 z-20 pointer-events-none'>{children}</div>
+    <div className='h-full absolute inset-x-4 pointer-events-none'>{children}</div>
 );
 
 const useNow = (intervalMs = 30_000) => {

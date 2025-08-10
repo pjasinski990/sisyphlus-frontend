@@ -1,9 +1,9 @@
 import React from 'react';
-import { Range } from '@/shared/feature/util/range';
-import { clamp } from '@/shared/feature/util/clamp';
-import { TimeOfDay } from '@/shared/feature/timeline/entity/task';
+import { Range } from '@/shared/util/range';
+import { clamp } from '@/shared/util/clamp';
+import { TimeOfDay } from '@/feature/timeline/entity/task';
 
-export const TaskBlock: React.FC<{
+export const TimeBlock: React.FC<{
     timespan: Range<TimeOfDay>;
     title: string;
     timelineStartHour: number;
@@ -14,7 +14,7 @@ export const TaskBlock: React.FC<{
 
     return (
         <div
-            className='absolute rounded-lg border border-ink-5 bg-surface-3/70 backdrop-blur-[2px] px-3 py-2 hover:bg-surface-3'
+            className='absolute z-40 pointer-events-auto min-w-[200px] rounded-md bg-surface-3/70 hover:bg-surface-3 border-b-[4px] border-r-[3px] border-surface-2/50 backdrop-blur-[2px] px-3 py-2 defined-shadow'
             style={{
                 top: `${(topMin / timelineTotalMin) * 100}%`,
                 bottom: `${(bottomMin / timelineTotalMin) * 100}%`,

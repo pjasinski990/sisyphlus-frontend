@@ -1,5 +1,5 @@
 import React from 'react';
-import { timelineConfig } from '@/shared/feature/timeline/entity/daily-timeline-config';
+import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config';
 
 export const CurrentTimePointer: React.FC<{ progress: number; now: Date }> = ({ progress, now }) => {
     const { from: startHour, to: endHour } = timelineConfig.hourSpan;
@@ -20,7 +20,7 @@ export const CurrentTimePointer: React.FC<{ progress: number; now: Date }> = ({ 
                         'shadow-[0_0_10px_2px] shadow-accent/30',
                     ].join(' ')}
                 />
-                <div className='absolute -top-[12px] right-8 px-2 h-[24px] rounded-full text-[10px] bg-accent text-white/95'>
+                <div className='absolute -top-[12px] right-8 px-2 h-[24px] rounded-full text-[10px] bg-accent text-accent-contrast'>
                     {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
             </div>
