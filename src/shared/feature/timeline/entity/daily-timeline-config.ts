@@ -1,4 +1,4 @@
-import { Range } from '@/shared/feature/util/range'
+import { Range } from '@/shared/feature/util/range';
 
 export interface DailyTimelineConfig {
     hourSpan: Range<number>;

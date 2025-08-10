@@ -1,5 +1,5 @@
-export type ResultOk<T> = { ok: true; value: T }
-export type ResultError<E> = { ok: false; error: E }
+export type ResultOk<T> = { ok: true; value: T };
+export type ResultError<E> = { ok: false; error: E };
 
 export type Result<E, T> = ResultError<E> | ResultOk<T>;
 

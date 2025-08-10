@@ -41,6 +41,7 @@ export const DailyTimeline: React.FC<DailyTimelineProps> = ({ tasks = [], onRequ
         if (!el) return;
         const y = minutesSinceStart * ppm - el.clientHeight / 2;
         el.scrollTo({ top: clamp(y, 0, contentHeightPx), behavior: 'auto' });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleCreate = React.useCallback(

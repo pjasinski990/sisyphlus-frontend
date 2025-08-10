@@ -1,8 +1,13 @@
-import { HttpClient, HttpResponse, RequestConfig, HttpError } from '@/shared/feature/http/application/port/out/http-client';
+import {
+    HttpClient,
+    HttpError,
+    HttpResponse,
+    RequestConfig
+} from '@/shared/feature/http/application/port/out/http-client';
 import { GenericResponse } from '@/shared/feature/http/entity/generic-repsonse';
 import { AutoRefreshDecorator } from '@/shared/feature/http/infra/auto-refresh-decorator';
 import { ErrorResponse } from '@/shared/feature/http/entity/error-response';
-import { AsyncResult, nok, ok, ResultError, ResultOk } from '@/shared/feature/auth/entity/result';
+import { AsyncResult, nok, ok } from '@/shared/feature/auth/entity/result';
 
 type FetchRequestConfig = RequestConfig & {
     signal?: AbortSignal;
@@ -107,9 +112,9 @@ async function refresh(httpClient: HttpClient): AsyncResult<HttpError, GenericRe
         return ok(res.data);
     } catch (err: unknown) {
         if (err instanceof HttpError) {
-            return nok(err)
+            return nok(err);
         } else {
-            return nok(new HttpError('Unknown error during refresh', 0, { error: JSON.stringify(err) }))
+            return nok(new HttpError('Unknown error during refresh', 0, { error: JSON.stringify(err) }));
         }
     }
 }

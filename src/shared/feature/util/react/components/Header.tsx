@@ -9,7 +9,7 @@ import { ThemeButton } from '@/feature/theme/interface/react/component/ThemeButt
 
 export const Header: React.FC<{ className: string }> = ({ className }) => {
     const location = useLocation();
-    const { goToHome, goToUser, goToLogin, goToRegister } = useAppNavigation();
+    const { goToHome, goToLogin, goToRegister } = useAppNavigation();
     const authState = useAuth();
     const { logout } = useAuthActions();
 
@@ -90,7 +90,7 @@ const HomeButton: React.FC<NavigationButtonProps> = ({
             className={`flex items-center mx-4 transition-colors duration-200 focus:outline-none hover:bg-surface-hover cursor-pointer ${ isActive ? 'text-accent': '' }`}
         >
             <div className='mx-4'>
-                <img src="/favicon.svg" alt="Favicon" width={40} height={40} />
+                <img src='/favicon.svg' alt='Favicon' width={40} height={40} />
             </div>
             <h3 className={'py-2 pr-8 tracking-wider text-nowrap uppercase brand-gradient'}>dash.</h3>
         </button>

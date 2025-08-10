@@ -22,4 +22,4 @@ export class ThemeController {
 export const themeController = new ThemeController(
     new SetDocumentThemeUseCase(),
     new WatchSystemThemeUseCase(),
-)
+);

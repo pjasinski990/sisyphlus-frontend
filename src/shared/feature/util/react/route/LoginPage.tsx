@@ -57,9 +57,9 @@ export const LoginPage: React.FC = () => {
                     </PrimaryButton>
                     <div className='mt-2 text-center mb-8'>
                         <span className='text-sm'>
-                          Don&#39;t have an account?{' '}
+                            Don&#39;t have an account?{' '}
                             <Link to={buildRoute.register()} className='text-accent font-semibold hover:underline'>
-                            Sign up
+                                Sign up
                             </Link>
                         </span>
                     </div>

@@ -14,16 +14,16 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
 
     useEffect(() => {
         const fetchActiveUser = async () => {
-            dispatch({ type: 'REQUEST' })
+            dispatch({ type: 'REQUEST' });
             const user = await authController.getCurrentUser();
             if (user.ok && user.value) {
-                dispatch({ type: 'SUCCESS', user: user.value })
+                dispatch({ type: 'SUCCESS', user: user.value });
             } else {
                 dispatch({ type: 'FAILED', error: '' });
             }
-        }
+        };
         void fetchActiveUser();
-    }, [dispatch])
+    }, [dispatch]);
 
     return (
         <AuthDispatchCtx.Provider value={dispatch}>
