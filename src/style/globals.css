@@ -32,9 +32,9 @@
   --ink-100: oklch(0.22 0.03 260);
 
   /* Stone */
-  --stone-20: oklch(0.93 0.03 80);
-  --stone-40: oklch(0.86 0.04 80);
-  --stone-60: oklch(0.78 0.05 80);
+  --stone-1: oklch(0.95 0.01 95);
+  --stone-2: oklch(0.70 0.04 45);
+  --stone-3: oklch(0.42 0.02 280);
 
   /* Brand accent ramp */
   --brand-10: oklch(0.97 0.03 85);
@@ -66,9 +66,9 @@
   --accent-high: var(--brand-90);
   --accent-contrast: var(--ink-10);
 
-  --secondary-1: var(--stone-20);
-  --secondary-2: var(--stone-40);
-  --secondary-3: var(--stone-60);
+  --secondary-1: var(--stone-1);
+  --secondary-2: var(--stone-2);
+  --secondary-3: var(--stone-3);
 
   --success: var(--success-60);
   --warning: var(--warning-60);
@@ -96,9 +96,9 @@
   --accent-high: var(--brand-30);
   --accent-contrast: var(--ink-100);
 
-  --secondary-1: var(--stone-60);
-  --secondary-2: var(--stone-40);
-  --secondary-3: var(--stone-20);
+  --secondary-1: var(--stone-3);
+  --secondary-2: var(--stone-2);
+  --secondary-3: var(--stone-1);
 
   --surface-hover: color-mix(in oklab, var(--surface-1), white 6%);
   --surface-active: color-mix(in oklab, var(--surface-1), white 8%);
@@ -133,10 +133,6 @@
   --color-ink-80: var(--ink-80);
   --color-ink-90: var(--ink-90);
   --color-ink-100: var(--ink-100);
-
-  --color-stone-20: var(--stone-20);
-  --color-stone-40: var(--stone-40);
-  --color-stone-60: var(--stone-60);
 
   --color-brand-10: var(--brand-10);
   --color-brand-30: var(--brand-30);
@@ -227,7 +223,7 @@
       inset: 0;
 
       background-image:
-              repeating-linear-gradient(30deg, rgba(255,255,255,0.01) 0 2px, rgba(0,0,0,0.01) 2px 4px), /* striped pattern */
+              repeating-linear-gradient(30deg, rgba(255,255,255,0.05) 0 2px, rgba(0,0,0,0.01) 2px 4px), /* striped pattern */
               radial-gradient(circle at 30% 35%, rgba(0,0,0,0.1) 0%, transparent 30%), /* highlight a */
               radial-gradient(circle at 70% 65%, rgba(0,0,0,0.1) 0%, transparent 50%), /* highlight b */
               url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGZpbHRlciBpZD0ibm9pc2VGaWx0ZXIiPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIxIiBudWJPY3RhdmVzPSIzIiBzZWVkPSIyIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNub2lzZUZpbHRlcikiIG9wYWNpdHk9IjAuMDUiIC8+PC9zdmc+");  /* grain */
@@ -242,6 +238,41 @@
       pointer-events: none;
       z-index: 0;
     }
+  }
+
+  .stone-texture {
+    position: relative;
+    z-index: 0;
+  }
+
+  .stone-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    background-image:
+            repeating-linear-gradient(
+                    130deg,
+                    rgba(255, 255, 255, 0.01) 0 5px,
+                    rgba(0, 0, 0, 0.01) 3px 7px
+            ),
+            radial-gradient(
+                    circle at 70% 70%,
+                    rgba(255, 255, 255, 0.04) 0%,
+                    transparent 60%
+            ),
+            url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAnIGhlaWdodD0nMTAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGZpbHRlciBpZD0nbic+PGZlVHVyYnVsZW5jZSB0eXBlPSdmaWJyYXRlTm9pc2UnIGJhc2VGcmVxdWVuY3k9JzAuOScvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbHRlcj0ndXJsKCNuKScgb3BhY2l0eT0nMC4wNCcvPjwvc3ZnPg==");
+
+    background-size:
+            300% 300%,
+            100% 100%,
+            100% 100%,
+            240px 240px;
+
+    mix-blend-mode: overlay;
+    opacity: 1.0;
+    pointer-events: none;
+    z-index: 0;
   }
 
   .defined-shadow {

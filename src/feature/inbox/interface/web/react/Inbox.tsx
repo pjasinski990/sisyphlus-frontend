@@ -1,8 +1,13 @@
 import React from 'react';
+import { mockTasks } from '@/shared/feature/task/infra/testing/mock-task';
+import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
 
 export const Inbox: React.FC = () => {
     return (
-        <div className={'flex flex-1 bg-surface-2 rounded-xl defined-shadow mt-4 mb-8'}>
+        <div className={'flex flex-1 flex-col gap-4 p-4 bg-surface-2 rounded-xl defined-shadow mt-4 mb-8'}>
+            { mockTasks.map((item) =>
+                <TaskCard key={item.id} task={item} />
+            )}
         </div>
     );
 };

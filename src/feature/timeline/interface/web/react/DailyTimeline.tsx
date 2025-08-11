@@ -5,12 +5,12 @@ import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config'
 import { TimelineGridBackground } from '@/feature/timeline/interface/web/react/GridBackground';
 import { HourRail } from '@/feature/timeline/interface/web/react/HourRail';
 import { CurrentTimePointer } from '@/feature/timeline/interface/web/react/CurrentTimePointer';
-import { TimeBlock } from '@/feature/timeline/interface/web/react/TimeBlock';
-import { Task, TimeOfDay } from '../../../entity/task';
+import { BlockCard } from '@/feature/timeline/interface/web/react/BlockCard';
+import { Block, TimeOfDay } from '../../../entity/block';
 import { NightTint } from '@/feature/timeline/interface/web/react/NightTint';
 
 type DailyTimelineProps = {
-    tasks?: Task[];
+    tasks?: Block[];
     onRequestCreate?: (range: Range<TimeOfDay>) => void;
 };
 
@@ -73,7 +73,7 @@ export const DailyTimeline: React.FC<DailyTimelineProps> = ({ tasks = [], onRequ
                                 <CurrentTimePointer progress={progress} now={now} />
                                 <TaskLayer>
                                     {tasks.map((t) => (
-                                        <TimeBlock
+                                        <BlockCard
                                             key={`${t.timespan.from}-${t.timespan.to}-${t.title}`}
                                             timespan={t.timespan}
                                             title={t.title}

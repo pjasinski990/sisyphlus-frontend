@@ -27,7 +27,7 @@ export const NightTint: React.FC<{
             {rects.map((r, i) => (
                 <div
                     key={i}
-                    className='absolute inset-x-0 rounded-md bg-ink-100/20 mix-blend-multiply'
+                    className='absolute inset-x-0 bg-ink-100/20 mix-blend-multiply'
                     style={{ top: r.top, height: r.height }}
                 />
             ))}

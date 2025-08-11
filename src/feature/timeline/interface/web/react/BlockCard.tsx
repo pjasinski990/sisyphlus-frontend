@@ -1,9 +1,9 @@
 import React from 'react';
 import { Range } from '@/shared/util/range';
 import { clamp } from '@/shared/util/clamp';
-import { TimeOfDay } from '@/feature/timeline/entity/task';
+import { TimeOfDay } from '@/feature/timeline/entity/block';
 
-export const TimeBlock: React.FC<{
+export const BlockCard: React.FC<{
     timespan: Range<TimeOfDay>;
     title: string;
     timelineStartHour: number;

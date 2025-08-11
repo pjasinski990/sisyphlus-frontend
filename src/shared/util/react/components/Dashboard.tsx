@@ -1,67 +1,15 @@
 import React from 'react';
 import { DailyTimeline } from '@/feature/timeline/interface/web/react/DailyTimeline';
-import { Task } from '@/feature/timeline/entity/task';
-import { v4 as uuid } from 'uuid';
 import { Inbox } from '@/feature/inbox/interface/web/react/Inbox';
+import { mockBlocks } from '@/feature/timeline/infra/testing/mock-block';
 
 export const Dashboard: React.FC = () => {
-    const mockTasks = [
-        {
-            id: uuid(),
-            timespan: {
-                from: '8:00',
-                to: '9:00',
-            },
-            title: 'Beat It',
-        },
-        {
-            id: uuid(),
-            timespan: {
-                from: '9:15',
-                to: '11:00',
-            },
-            title: 'Coffee & TV',
-        },
-        {
-            id: uuid(),
-            timespan: {
-                from: '12:00',
-                to: '13:00',
-            },
-            title: 'Run To The Store',
-        },
-        {
-            id: uuid(),
-            timespan: {
-                from: '13:00',
-                to: '14:00',
-            },
-            title: 'Pick Up The Pieces',
-        },
-        {
-            id: uuid(),
-            timespan: {
-                from: '14:00',
-                to: '15:00',
-            },
-            title: 'Carry That Weight',
-        },
-        {
-            id: uuid(),
-            timespan: {
-                from: '18:00',
-                to: '22:00',
-            },
-            title: 'Take It Easy',
-        }
-    ] satisfies Task[];
-
     return (
         <div className='flex flex-col flex-1 max-w-[1200px] mx-auto min-h-0'>
             <TopBar />
             <div className='flex flex-1 gap-4 min-h-0'>
                 <Inbox />
-                <DailyTimeline tasks={ mockTasks } />
+                <DailyTimeline tasks={ mockBlocks } />
             </div>
         </div>
     );

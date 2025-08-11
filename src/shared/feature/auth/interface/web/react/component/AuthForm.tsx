@@ -18,7 +18,7 @@ interface InputProps {
     placeholder: string;
 }
 
-const inputFieldClasses = 'block w-full px-3 py-2 border border-ink-50 rounded-sm shadow-sm placeholder-muted focus:outline-none focus:border-stone-60 focus:shadow-lg';
+const inputFieldClasses = 'block w-full px-3 py-2 border border-stone-40 rounded-sm shadow-sm placeholder-muted focus:outline-none focus:border-stone-20 focus:shadow-lg';
 
 export const AuthFormInputField: React.FC<InputProps> = ({ id, label, type, value, onChange, placeholder }) => (
     <div>
