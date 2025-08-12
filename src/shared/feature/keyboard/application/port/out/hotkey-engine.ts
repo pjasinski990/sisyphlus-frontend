@@ -1,12 +1,10 @@
-import { ShortcutBindings } from '../../../entity/shortcut-bindings';
+import { ShortcutBinding } from '../../../entity/shortcut-binding';
 
-export interface HotkeyEngineHandle {
-    dispose(): void;
-}
+export interface HotkeyEngineHandle { dispose(): void; }
 
 export interface HotkeyEngine {
     register(
-        bindings: ShortcutBindings,
+        bindings: ShortcutBinding[],
         opts: {
             guard?: (e: KeyboardEvent) => boolean;
             preventDefault?: boolean;

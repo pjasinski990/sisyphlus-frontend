@@ -24,11 +24,19 @@ function App() {
 
 function GlobalShortcuts() {
     useShortcutScope('global', true);
-    useShortcut('global', {
-        'Control+k': () => console.log('open command palette'),
-        'char:?': () => console.log('open help'),
-    });
+    useShortcut('global', [
+        { combo: 'Control+k', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
+        { combo: 'char:?', handler: openHelp, description: 'Open Help', group: 'Help' },
+    ]);
     return null;
+}
+
+function openCommandPalette() {
+    console.log('open command palette');
+}
+
+function openHelp() {
+    console.log('open help');
 }
 
 export { App };

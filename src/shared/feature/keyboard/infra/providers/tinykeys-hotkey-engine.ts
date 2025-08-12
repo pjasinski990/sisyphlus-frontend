@@ -1,11 +1,11 @@
-import { ShortcutBindings } from '@/shared/feature/keyboard/entity/shortcut-bindings';
+import { ShortcutBinding } from '@/shared/feature/keyboard/entity/shortcut-binding';
 import { HotkeyEngine, HotkeyEngineHandle } from '@/shared/feature/keyboard/application/port/out/hotkey-engine';
-// @ts-expect-error the lib doesn't have correctly configured types
+// @ts-expect-error tiny keys doesn’t ship perfect types in some setups
 import { tinykeys } from 'tinykeys';
 
 export class TinykeysHotkeyEngine implements HotkeyEngine {
     register(
-        bindings: ShortcutBindings,
+        bindings: ShortcutBinding[],
         opts: { guard?: (e: KeyboardEvent) => boolean; preventDefault?: boolean; target?: Window | HTMLElement } = {}
     ): HotkeyEngineHandle {
         const target = (opts.target ?? window) as Window | HTMLElement;
@@ -13,31 +13,24 @@ export class TinykeysHotkeyEngine implements HotkeyEngine {
         const codeMap: Record<string, (e: KeyboardEvent) => void> = {};
         const charMap: Array<{ char: string; handler: (e: KeyboardEvent) => void }> = [];
 
-        for (const [combo, handler] of Object.entries(bindings)) {
-            const m = combo.match(/^char:(.+)$/i);
+        for (const b of bindings) {
+            const wrap = (fn: (e: KeyboardEvent) => void) => (e: KeyboardEvent) => {
+                if (opts.guard && !opts.guard(e)) return;
+                if (opts.preventDefault) e.preventDefault();
+                fn(e);
+            };
+            const m = b.combo.match(/^char:(.+)$/i);
             if (m) {
-                const char = m[1];
-                charMap.push({
-                    char,
-                    handler: (e: KeyboardEvent) => {
-                        if (opts.guard && !opts.guard(e)) return;
-                        if (opts.preventDefault) e.preventDefault();
-                        handler(e);
-                    },
-                });
+                charMap.push({ char: m[1], handler: wrap(b.handler) });
             } else {
-                codeMap[combo] = (e: KeyboardEvent) => {
-                    if (opts.guard && !opts.guard(e)) return;
-                    if (opts.preventDefault) e.preventDefault();
-                    handler(e);
-                };
+                codeMap[b.combo] = wrap(b.handler);
             }
         }
 
         const disposers: Array<() => void> = [];
 
         if (Object.keys(codeMap).length) {
-            const un = tinykeys(target as unknown, codeMap);
+            const un = tinykeys(target as any, codeMap);
             disposers.push(un);
         }
 
@@ -56,6 +49,6 @@ export class TinykeysHotkeyEngine implements HotkeyEngine {
             disposers.push(() => (target as any).removeEventListener('keydown', onKeyDown));
         }
 
-        return { dispose: () => disposers.forEach((d) => d()) };
+        return { dispose: () => disposers.forEach(d => d()) };
     }
 }

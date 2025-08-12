@@ -3,18 +3,17 @@ import { ShortcutRegistration } from '@/shared/feature/keyboard/entity/shortcut-
 import { RegisterShortcut } from '@/shared/feature/keyboard/application/port/in/register-shortcut';
 import { v4 as uuid } from 'uuid';
 import { ScopeManager } from '@/shared/feature/keyboard/entity/scope-manager';
+import { ShortcutRegistry } from '../port/out/shortcut-registry';
 
-type Stored = {
-    handle: HotkeyEngineHandle;
-    reg: ShortcutRegistration;
-};
+type Stored = { handle: HotkeyEngineHandle; reg: ShortcutRegistration; };
 
 export class RegisterShortcutUseCase implements RegisterShortcut {
     private store = new Map<string, Stored>();
 
     constructor(
         private readonly engine: HotkeyEngine,
-        private readonly scopes: ScopeManager
+        private readonly scopes: ScopeManager,
+        private readonly registry: ShortcutRegistry,   // NEW
     ) {}
 
     registerShortcut(regInput: Omit<ShortcutRegistration, 'id'>): string {
@@ -26,10 +25,17 @@ export class RegisterShortcutUseCase implements RegisterShortcut {
             return this.scopes.isScopeActive(reg.scopeId);
         };
 
-        const handle = this.engine.register(reg.bindings, {
-            guard,
-            preventDefault: reg.preventDefault,
-        });
+        const handle = this.engine.register(reg.bindings, { guard, preventDefault: reg.preventDefault });
+
+        this.registry.addMany(
+            reg.bindings.map(b => ({
+                registrationId: id,
+                scopeId: reg.scopeId,
+                combo: b.combo,
+                description: b.description,
+                group: b.group,
+            }))
+        );
 
         this.store.set(id, { handle, reg });
         return id;
@@ -40,6 +46,7 @@ export class RegisterShortcutUseCase implements RegisterShortcut {
         if (!item) return;
         item.handle.dispose();
         this.store.delete(id);
+        this.registry.removeByRegistration(id);   // NEW
     }
 }
 

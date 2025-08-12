@@ -1,9 +1,9 @@
-import { ShortcutBindings } from '@/shared/feature/keyboard/entity/shortcut-bindings';
+import { ShortcutBinding } from '@/shared/feature/keyboard/entity/shortcut-binding';
 
 export interface ShortcutRegistration {
     id: string;
     scopeId: string;
-    bindings: ShortcutBindings;
+    bindings: ShortcutBinding[];
     ignoreTyping?: boolean;
     preventDefault?: boolean;
 }

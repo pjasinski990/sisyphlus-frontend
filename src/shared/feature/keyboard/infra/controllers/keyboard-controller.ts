@@ -11,8 +11,11 @@ import { EnableScope } from '@/shared/feature/keyboard/application/port/in/enabl
 import { DisableScope } from '../../application/port/in/disable-scope';
 import { ShortcutRegistration } from '@/shared/feature/keyboard/entity/shortcut-registration';
 
-export class KeyboardController {
+import { ListShortcutsUseCase } from '@/shared/feature/keyboard/application/use-case/list-shortcuts-use-case';
+import { GroupedShortcuts } from '@/shared/feature/keyboard/entity/listed-shortcut';
+import { InMemoryShortcutRegistry } from '@/shared/feature/keyboard/infra/providers/in-memory-shortcuts-registry';
 
+export class KeyboardController {
     constructor(
         private readonly scopes: ScopeManager,
         private readonly engine: HotkeyEngine,
@@ -20,7 +23,7 @@ export class KeyboardController {
         private readonly unregister: UnregisterShortcut,
         private readonly enableScope: EnableScope,
         private readonly disableScope: DisableScope,
-
+        private readonly listShortcuts: ListShortcutsUseCase, // NEW
         config?: { predefinedScopes?: Array<{ id: string; priority: number; exclusive?: boolean; enabled?: boolean }>; }
     ) {
         config?.predefinedScopes?.forEach(s => {
@@ -29,34 +32,26 @@ export class KeyboardController {
         });
     }
 
-    handleDefineScope(id: string, priority: number, exclusive = false) {
-        this.scopes.define(id, priority, exclusive);
-    }
+    handleDefineScope(id: string, priority: number, exclusive = false) { this.scopes.define(id, priority, exclusive); }
+    handleEnableScope(id: string) { this.enableScope.enableScope(id); }
+    handleDisableScope(id: string) { this.disableScope.disableScope(id); }
+    handleRegisterShortcut(params: Omit<ShortcutRegistration, 'id'>): string { return this.register.registerShortcut(params); }
+    handleUnregisterShortcut(id: string) { this.unregister.unregisterShortcut(id); }
 
-    handleEnableScope(id: string) {
-        this.enableScope.enableScope(id);
-    }
-
-    handleDisableScope(id: string) {
-        this.disableScope.disableScope(id);
-    }
-
-    handleRegisterShortcut(params: Omit<ShortcutRegistration, 'id'>): string {
-        return this.register.registerShortcut(params);
-    }
-
-    handleUnregisterShortcut(id: string) {
-        this.unregister.unregisterShortcut(id);
+    handleListShortcutsByScope(): GroupedShortcuts {
+        return this.listShortcuts.listShortcutsByScope();
     }
 }
 
 const scopes = new ScopeManager();
 const engine = new TinykeysHotkeyEngine();
+const registry = new InMemoryShortcutRegistry();
 
-const register = new RegisterShortcutUseCase(engine, scopes);
+const register = new RegisterShortcutUseCase(engine, scopes, registry);
 const unregister = new UnregisterShortcutUseCase(register);
 const enableScope = new EnableScopeUseCase(scopes);
 const disableScope = new DisableScopeUseCase(scopes);
+const listShortcuts = new ListShortcutsUseCase(registry);
 
 const config = {
     predefinedScopes: [
@@ -73,5 +68,6 @@ export const keyboardController = new KeyboardController(
     unregister,
     enableScope,
     disableScope,
+    listShortcuts,
     config,
 );

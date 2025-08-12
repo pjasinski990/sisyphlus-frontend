@@ -1,14 +1,18 @@
 import { useEffect, useMemo } from 'react';
 import { useKeyboardController } from './KeyboardProvider';
-import { ShortcutBindings } from '../../../entity/shortcut-bindings';
+import { ShortcutBinding } from '../../../entity/shortcut-binding';
 
 export function useShortcut(
     scopeId: string,
-    bindings: ShortcutBindings,
+    bindings: ShortcutBinding[],
     opts?: { ignoreTyping?: boolean; preventDefault?: boolean }
 ) {
     const controller = useKeyboardController();
-    const stableBindings = useMemo(() => bindings, [bindings]);
+
+    const stableBindings = useMemo(
+        () => bindings,
+        [bindings]
+    );
 
     useEffect(() => {
         const id = controller.handleRegisterShortcut({
