@@ -4,26 +4,26 @@ import { v4 as uuid } from 'uuid';
 export const mockTasks: Task[] = [
     {
         id: uuid(),
+        userId: 'mock_user',
         title: 'some task',
         description: 'do a thing',
         status: 'todo',
         energy: 'medium',
-        minute_estimated: 0,
-        minutes_spent: 0,
         tags: [],
-        parent_id: null,
-        isKey: false
+        category: 'simple',
+        createdAt: Date.now().toString(),
+        updatedAt: Date.now().toString(),
     },
     {
         id: uuid(),
+        userId: 'mock_user',
         title: 'some other task',
         description: 'do a second thing',
         status: 'todo',
         energy: 'medium',
-        minute_estimated: 0,
-        minutes_spent: 0,
         tags: [],
-        parent_id: null,
-        isKey: false
+        category: 'simple',
+        createdAt: Date.now().toString(),
+        updatedAt: Date.now().toString(),
     }
 ];
