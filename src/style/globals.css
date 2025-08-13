@@ -104,23 +104,6 @@
   --surface-active: color-mix(in oklab, var(--surface-1), white 8%);
 }
 
-.button {
-  background: var(--accent);
-  color: var(--accent-contrast);
-}
-.button:hover {
-  background: color-mix(in oklab, var(--accent), white 8%);
-}
-
-.button:active {
-  background: color-mix(in oklab, var(--accent), black 10%);
-}
-
-.button:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-
 /* Tailwind-facing aliases */
 @theme {
   --color-ink-10: var(--ink-10);
@@ -223,10 +206,10 @@
       inset: 0;
 
       background-image:
-              repeating-linear-gradient(30deg, rgba(255,255,255,0.05) 0 2px, rgba(0,0,0,0.01) 2px 4px), /* striped pattern */
-              radial-gradient(circle at 30% 35%, rgba(0,0,0,0.1) 0%, transparent 30%), /* highlight a */
-              radial-gradient(circle at 70% 65%, rgba(0,0,0,0.1) 0%, transparent 50%), /* highlight b */
-              url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGZpbHRlciBpZD0ibm9pc2VGaWx0ZXIiPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIxIiBudWJPY3RhdmVzPSIzIiBzZWVkPSIyIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNub2lzZUZpbHRlcikiIG9wYWNpdHk9IjAuMDUiIC8+PC9zdmc+");  /* grain */
+              repeating-linear-gradient(30deg, rgba(255,255,255,0.05) 0 2px, rgba(0,0,0,0.01) 2px 4px),
+              radial-gradient(circle at 30% 35%, rgba(0,0,0,0.1) 0%, transparent 30%),
+              radial-gradient(circle at 70% 65%, rgba(0,0,0,0.1) 0%, transparent 50%),
+              url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGZpbHRlciBpZD0ibm9pc2VGaWx0ZXIiPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIxIiBudWJPY3RhdmVzPSIzIiBzZWVkPSIyIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNub2lzZUZpbHRlcikiIG9wYWNpdHk9IjAuMDUiIC8+PC9zdmc+");
       background-size:
               100% 100%,
               100% 100%,
@@ -301,5 +284,39 @@
     text-shadow:
             0 0 3px oklch(from var(--brand-50) l c h / 0.5),
             0 0 5px oklch(from var(--brand-50) l c h / 0.3);
+  }
+
+  :root { --btn-hi: black; }
+  .dark { --btn-hi: white; }
+
+  :root { --on-secondary-3: var(--ink-10); }
+  .dark { --on-secondary-3: var(--ink-100); }
+
+  :root { --btn-fg: white; }
+  :root { --btn-bg: black; }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm px-3.5 py-2.5
+    text-sm font-medium shadow-sm select-none cursor-pointer
+    transition-[background,color,box-shadow,transform] duration-150;
+  }
+
+  .btn-solid {
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+  }
+
+  .btn-solid:hover {
+    background: color-mix(in oklab, var(--btn-bg), var(--btn-hi) 8%);
+  }
+
+  .btn-solid:active {
+    background: color-mix(in oklab, var(--btn-bg), var(--btn-hi) 12%);
+    transform: translateY(1px);
+  }
+
+  .btn:disabled, .btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
   }
 }

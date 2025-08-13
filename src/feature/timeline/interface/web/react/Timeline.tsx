@@ -10,11 +10,11 @@ import { Block, TimeOfDay } from '../../../entity/block';
 import { NightTint } from '@/feature/timeline/interface/web/react/NightTint';
 
 type DailyTimelineProps = {
-    tasks?: Block[];
+    blocks?: Block[];
     onRequestCreate?: (range: Range<TimeOfDay>) => void;
 };
 
-export const DailyTimeline: React.FC<DailyTimelineProps> = ({ tasks = [], onRequestCreate }) => {
+export const Timeline: React.FC<DailyTimelineProps> = ({ blocks = [], onRequestCreate }) => {
     const cfg = timelineConfig;
     const startHour = cfg.hourSpan.from;
     const endHour = cfg.hourSpan.to;
@@ -61,7 +61,7 @@ export const DailyTimeline: React.FC<DailyTimelineProps> = ({ tasks = [], onRequ
     );
 
     return (
-        <div className='flex flex-2 mt-4 mb-8 bg-surface-2 rounded-xl defined-shadow min-w-[330px]'>
+        <div className='flex flex-1 min-w-[330px] min-h-0'>
             <div className='flex flex-1 p-4'>
                 <div className={'flex flex-1 py-4 overflow-y-auto'}>
                     <div className={'flex flex-1 relative'} ref={scrollerRef} style={{ height: contentHeightPx }}>
@@ -72,7 +72,7 @@ export const DailyTimeline: React.FC<DailyTimelineProps> = ({ tasks = [], onRequ
                                 <TimelineGridBackground />
                                 <CurrentTimePointer progress={progress} now={now} />
                                 <TaskLayer>
-                                    {tasks.map((t) => (
+                                    {blocks.map((t) => (
                                         <BlockCard
                                             key={`${t.timespan.from}-${t.timespan.to}-${t.title}`}
                                             timespan={t.timespan}

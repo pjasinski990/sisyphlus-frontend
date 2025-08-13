@@ -1,7 +1,6 @@
 import React from 'react';
-import { DailyTimeline } from '@/feature/timeline/interface/web/react/DailyTimeline';
 import { Inbox } from '@/feature/inbox/interface/web/react/Inbox';
-import { mockBlocks } from '@/feature/timeline/infra/testing/mock-block';
+import { TimelinePanel } from '@/feature/timeline/interface/web/react/TimelinePanel';
 
 export const Dashboard: React.FC = () => {
     return (
@@ -9,7 +8,7 @@ export const Dashboard: React.FC = () => {
             <TopBar />
             <div className='flex flex-1 gap-4 min-h-0'>
                 <Inbox />
-                <DailyTimeline tasks={ mockBlocks } />
+                <TimelinePanel />
             </div>
         </div>
     );
@@ -18,18 +17,14 @@ export const Dashboard: React.FC = () => {
 const TopBar: React.FC = () => {
     return (
         <div className='flex items-center mt-8 px-8 py-4 bg-surface-2 rounded-xl defined-shadow'>
-            <h2>
-                {today()}
-            </h2>
+            <div>
+                Current focus: Carry That Weight
+            </div>
             <div className='flex justify-center items-center ml-auto h-12 w-120 bg-surface-1 rounded-full relative'>
                 <div className={'h-12 w-40 bg-accent rounded-full absolute inset-0'} />
+                <div className={'h-10 w-10 rounded-full absolute left-29 bg-surface-3'}></div>
                 30 / 90 minutes
             </div>
         </div>
     );
 };
-
-function today(): string {
-    const now = new Date();
-    return now.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
-}

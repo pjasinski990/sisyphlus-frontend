@@ -21,7 +21,7 @@ export const BlockCard: React.FC<{
             }}
         >
             <div className='text-sm font-medium'>{title}</div>
-            <div className='text-xs text-ink-4'>
+            <div className='text-xs'>
                 {timespan.from}–{timespan.to}
             </div>
         </div>

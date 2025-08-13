@@ -7,6 +7,7 @@ import { useAuthActions } from '@/shared/feature/auth/interface/web/react/auth/h
 import { useAppNavigation } from '@/shared/util/react/hook/useNavigation';
 import { ThemeButton } from '@/feature/theme/interface/web/react/component/ThemeButton';
 import { ShortcutsButton } from '@/shared/feature/keyboard/infra/web/react/ShortcutsButton';
+import { openShortcutsHelp } from '@/app/shortcut-handlers/open-shortcuts-help';
 
 export const Header: React.FC<{ className: string }> = ({ className }) => {
     const location = useLocation();
@@ -64,7 +65,7 @@ export const Header: React.FC<{ className: string }> = ({ className }) => {
                             </>
                         )}
                         <ThemeButton />
-                        <ShortcutsButton />
+                        <ShortcutsButton onClick={ openShortcutsHelp } />
                         <Tooltip tooltip={'Settings'}>
                             <button>
                                 <BoltIcon className={'w-6 h-6 hover:stroke-accent transition-all cursor-pointer hover:rotate-45'} />
