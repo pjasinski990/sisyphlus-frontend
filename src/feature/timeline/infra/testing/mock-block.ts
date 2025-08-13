@@ -29,22 +29,6 @@ export const mockBlocks = [
     {
         id: uuid(),
         timespan: {
-            from: '13:00',
-            to: '14:00',
-        },
-        title: 'Pick Up The Pieces',
-    },
-    {
-        id: uuid(),
-        timespan: {
-            from: '14:00',
-            to: '15:00',
-        },
-        title: 'Carry That Weight',
-    },
-    {
-        id: uuid(),
-        timespan: {
             from: '18:00',
             to: '22:00',
         },

@@ -18,7 +18,7 @@ const TopBar: React.FC = () => {
     return (
         <div className='flex items-center mt-8 px-8 py-4 bg-surface-2 rounded-xl defined-shadow'>
             <div>
-                Current focus: Carry That Weight
+                Current focus: Coffee & TV
             </div>
             <div className='flex justify-center items-center ml-auto h-12 w-120 bg-surface-1 rounded-full relative'>
                 <div className={'h-12 w-40 bg-accent rounded-full absolute inset-0'} />
