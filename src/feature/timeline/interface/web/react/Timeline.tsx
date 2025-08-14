@@ -161,12 +161,11 @@ const SelectionLayer: React.FC<{
         let a = qFloor(dragStart);
         let b = qCeil(dragCurrent);
 
-        if (a === b) b = a + segmentMin; // minimum one segment on click
+        if (a === b) b = a + segmentMin;
 
         a = clamp(a, 0, totalMin);
         b = clamp(b, 0, totalMin);
 
-        // normalize
         const from = Math.min(a, b);
         const to = Math.max(a, b);
 

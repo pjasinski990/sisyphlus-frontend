@@ -23,7 +23,7 @@ export class KeyboardController {
         private readonly unregister: UnregisterShortcut,
         private readonly enableScope: EnableScope,
         private readonly disableScope: DisableScope,
-        private readonly listShortcuts: ListShortcutsUseCase, // NEW
+        private readonly listShortcuts: ListShortcutsUseCase,
         config?: { predefinedScopes?: Array<{ id: string; priority: number; exclusive?: boolean; enabled?: boolean }>; }
     ) {
         config?.predefinedScopes?.forEach(s => {

@@ -7,6 +7,7 @@ import { KeyboardProvider } from '@/shared/feature/keyboard/infra/web/react/Keyb
 import { registerDefaultDialogs } from '@/shared/feature/dialog/infra/web/react/bootstrap-dialogs';
 import { DialogHost } from '@/shared/feature/dialog/infra/web/react/DialogHost';
 import { DialogShortcuts, GlobalShortcuts } from '@/app/react/global-shortcuts';
+import { CommandPaletteEntries } from '@/app/react/global-command-palette-entries';
 
 registerDefaultDialogs();
 
@@ -15,6 +16,7 @@ export function App() {
     return (
         <AuthProvider>
             <KeyboardProvider>
+                <CommandPaletteEntries />
                 <GlobalShortcuts />
                 <DialogShortcuts />
                 <DialogHost />

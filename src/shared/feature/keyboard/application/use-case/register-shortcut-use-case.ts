@@ -13,7 +13,7 @@ export class RegisterShortcutUseCase implements RegisterShortcut {
     constructor(
         private readonly engine: HotkeyEngine,
         private readonly scopes: ScopeManager,
-        private readonly registry: ShortcutRegistry,   // NEW
+        private readonly registry: ShortcutRegistry,
     ) {}
 
     registerShortcut(regInput: Omit<ShortcutRegistration, 'id'>): string {
@@ -46,12 +46,33 @@ export class RegisterShortcutUseCase implements RegisterShortcut {
         if (!item) return;
         item.handle.dispose();
         this.store.delete(id);
-        this.registry.removeByRegistration(id);   // NEW
+        this.registry.removeByRegistration(id);
     }
 }
 
 function isTyping(e: KeyboardEvent) {
     const el = e.target as HTMLElement | null;
     if (!el) return false;
-    return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || (el as HTMLElement).isContentEditable;
+
+    const inText =
+        el.tagName === 'INPUT' ||
+        el.tagName === 'TEXTAREA' ||
+        (el as HTMLElement).isContentEditable;
+
+    if (!inText) return false;
+
+    const k = e.key;
+    const allow =
+        k === 'Escape' ||
+        k === 'Tab' ||
+        k.startsWith('Arrow') ||
+        k === 'PageUp' ||
+        k === 'PageDown' ||
+        k === 'Home' ||
+        k === 'End' ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey;
+
+    return !allow;
 }
