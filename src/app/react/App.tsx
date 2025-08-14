@@ -6,7 +6,7 @@ import { Layout } from '@/shared/util/react/components/Layout';
 import { KeyboardProvider } from '@/shared/feature/keyboard/infra/web/react/KeyboardProvider';
 import { registerDefaultDialogs } from '@/shared/feature/dialog/infra/web/react/bootstrap-dialogs';
 import { DialogHost } from '@/shared/feature/dialog/infra/web/react/DialogHost';
-import { GlobalShortcuts } from '@/app/react/global-shortcuts';
+import { DialogShortcuts, GlobalShortcuts } from '@/app/react/global-shortcuts';
 
 registerDefaultDialogs();
 
@@ -16,6 +16,7 @@ export function App() {
         <AuthProvider>
             <KeyboardProvider>
                 <GlobalShortcuts />
+                <DialogShortcuts />
                 <DialogHost />
                 <Layout>
                     {routing}

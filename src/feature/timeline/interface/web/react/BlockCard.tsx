@@ -14,7 +14,7 @@ export const BlockCard: React.FC<{
 
     return (
         <div
-            className='absolute z-40 pointer-events-auto min-w-[200px] rounded-md bg-surface-3/70 hover:bg-surface-3 border-b-[4px] border-r-[3px] border-surface-2/50 backdrop-blur-[2px] px-3 py-2 defined-shadow'
+            className='absolute z-40 pointer-events-auto min-w-[200px] rounded-md bg-surface-3/70 hover:bg-surface-3 border-b-2 border-surface-2/50 backdrop-blur-[2px] px-3 py-2 defined-shadow'
             style={{
                 top: `${(topMin / timelineTotalMin) * 100}%`,
                 bottom: `${(bottomMin / timelineTotalMin) * 100}%`,

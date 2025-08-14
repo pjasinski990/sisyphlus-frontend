@@ -3,7 +3,7 @@ import { Task } from '@/shared/feature/task/entity/task';
 
 export const TaskCard: React.FC<{ task: Task }> = ({ task }) => {
     return (
-        <div className={'bg-secondary-1/90 stone-texture py-2 px-4 rounded-sm defined-shadow'}>
+        <div className={'bg-secondary-1/90 border-b-2 border-secondary-2/20 stone-texture py-2 px-4 rounded-sm defined-shadow'}>
             <p>{task.title}</p>
         </div>
     );

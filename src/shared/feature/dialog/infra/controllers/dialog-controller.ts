@@ -3,18 +3,15 @@ import { ResolveDialogUseCase } from '../../application/use-case/resolve-dialog-
 import { DismissDialogUseCase } from '../../application/use-case/dismiss-dialog-use-case';
 import { CloseTopUseCase } from '../../application/use-case/close-top-dialog-use-case';
 import { InMemoryDialogRegistry } from '../providers/in-memory-dialog-registry';
-import { IncrementalIdGenerator } from '../providers/incremental-id-generator';
 import { OpenDialog, OpenDialogCommand } from '../../application/port/in/open-dialog';
 import { DismissDialog } from '../../application/port/in/dismiss-dialog';
 import { ResolveDialog } from '../../application/port/in/resolve-dialog';
 import { CloseTopDialog } from '../../application/port/in/close-top-dialog';
 import { DialogRegistry } from '../../application/port/out/dialog-registry';
-import { IdGenerator } from '../../application/port/out/id-generator';
 
 export class DialogController {
     constructor(
         private readonly registry: DialogRegistry,
-        private readonly ids: IdGenerator,
         private readonly open: OpenDialog,
         private readonly resolve: ResolveDialog,
         private readonly dismiss: DismissDialog,
@@ -43,15 +40,13 @@ export class DialogController {
 }
 
 const registry = new InMemoryDialogRegistry();
-const ids = new IncrementalIdGenerator();
-const open = new OpenDialogUseCase(registry, ids);
+const open = new OpenDialogUseCase(registry);
 const resolve = new ResolveDialogUseCase(registry);
 const dismiss = new DismissDialogUseCase(registry);
 const closeTop = new CloseTopUseCase(registry);
 
 export const dialogController = new DialogController(
     registry,
-    ids,
     open,
     resolve,
     dismiss,

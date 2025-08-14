@@ -1,12 +1,12 @@
 import { OpenDialog, OpenDialogCommand } from '../port/in/open-dialog';
 import { DialogRegistry } from '../port/out/dialog-registry';
-import { IdGenerator } from '../port/out/id-generator';
+import { v4 as uuid } from 'uuid';
 
 export class OpenDialogUseCase implements OpenDialog {
-    constructor(private readonly reg: DialogRegistry, private readonly ids: IdGenerator) {}
+    constructor(private readonly reg: DialogRegistry) {}
 
     async execute<T = unknown>(cmd: OpenDialogCommand): Promise<T | undefined> {
-        const id = this.ids.next();
+        const id = uuid();
         this.reg.push({
             id,
             key: cmd.key,

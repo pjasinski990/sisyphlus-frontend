@@ -23,11 +23,11 @@ export const NightTint: React.FC<{
     if (rects.length === 0) return null;
 
     return (
-        <div className={`absolute inset-0 z-30 pointer-events-none ${className ?? ''}`}>
+        <div className={`absolute left-4 inset-0 z-30 pointer-events-none ${className ?? ''}`}>
             {rects.map((r, i) => (
                 <div
                     key={i}
-                    className='absolute inset-x-0 bg-ink-100/20 mix-blend-multiply'
+                    className='absolute inset-x-0 bg-ink-100/30 mix-blend-multiply'
                     style={{ top: r.top, height: r.height }}
                 />
             ))}

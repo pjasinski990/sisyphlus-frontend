@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDialog } from '../useDialog';
-import { ButtonPrimary } from '@/shared/util/react/components/Button';
+import { ButtonSecondary } from '@/shared/util/react/components/Button';
 
 export interface InfoPayload {
     title: string;
@@ -19,11 +19,11 @@ export const InfoDialog: React.FC<{ id: string; payload?: unknown }> = ({ id, pa
             {p.children}
 
             <div className='mt-5 flex items-center justify-end gap-4'>
-                <ButtonPrimary
+                <ButtonSecondary
                     onClick={() => dismiss(id)}
                 >
                     {p.confirmText || 'Ok'}
-                </ButtonPrimary>
+                </ButtonSecondary>
             </div>
         </div>
     );

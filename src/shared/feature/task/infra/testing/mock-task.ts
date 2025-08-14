@@ -1,6 +1,5 @@
 import { Task } from '../../entity/task';
 import { v4 as uuid } from 'uuid';
-import { HttpTaskApi } from '@/shared/feature/task/infra/http-task-api';
 
 export const mockTasks: Task[] = [
     {
@@ -28,6 +27,3 @@ export const mockTasks: Task[] = [
         updatedAt: new Date().toISOString(),
     }
 ];
-
-const api = new HttpTaskApi();
-await api.create(mockTasks[0]);

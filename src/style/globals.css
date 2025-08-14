@@ -58,7 +58,6 @@
   --text-2: var(--ink-80);
   --muted:  var(--ink-60);
 
-  --border: oklch(0.85 0.01 260);
   --focus:  var(--brand-70);
 
   --accent-low: var(--brand-50);

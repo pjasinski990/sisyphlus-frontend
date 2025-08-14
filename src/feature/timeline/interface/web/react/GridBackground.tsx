@@ -6,11 +6,11 @@ export const TimelineGridBackground: React.FC = () => {
 
     return (
         <div
-            className='absolute inset-0 pointer-events-none opacity-60'
+            className='absolute inset-0 pointer-events-none opacity-40'
             style={{
                 backgroundImage: [
-                    'linear-gradient(to bottom, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 1px, transparent 1px)',
-                    'linear-gradient(to bottom, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 1px, transparent 1px)',
+                    'linear-gradient(to bottom, rgba(0,0,0,0.3) 0, rgba(0,0,0,0.3) 1px, transparent 1px)',
+                    'linear-gradient(to bottom, rgba(0,0,0,0.2) 0, rgba(0,0,0,0.2) 1px, transparent 1px)',
                 ].join(','),
                 backgroundRepeat: 'repeat, repeat',
                 backgroundSize: `100% ${hourPx}px, 100% ${hourPx / 4}px`,

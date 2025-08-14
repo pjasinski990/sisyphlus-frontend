@@ -7,10 +7,17 @@ import { openShortcutsHelp } from '@/app/shortcut-handlers/open-shortcuts-help';
 
 export function GlobalShortcuts() {
     useShortcutScope('global', true);
-    const { closeTop } = useDialog();
     useShortcut('global', [
         { combo: 'char:/', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
         { combo: 'char:?', handler: openShortcutsHelp, description: 'Open shortcuts help', group: 'Help' },
+    ]);
+    return null;
+}
+
+export function DialogShortcuts() {
+    const { closeTop } = useDialog();
+    useShortcutScope('global', true);
+    useShortcut('modal', [
         { combo: 'Escape', handler: closeTop, description: 'Dismiss dialog', group: 'Navigation' },
         { combo: 'Enter', handler: resolveTopDialog, description: 'Resolve dialog', group: 'Navigation' },
     ]);

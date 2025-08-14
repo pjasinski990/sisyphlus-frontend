@@ -2,14 +2,18 @@ import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 import { getDialogTemplate } from '@/shared/feature/dialog/infra/web/react/DialogTemplate';
+import { useShortcutScope } from '@/shared/feature/keyboard/infra/web/react/useShortcutScope';
 
 export const DialogHost: React.FC = () => {
     const [state, setState] = React.useState(dialogController.handleGetRegistry().getState());
 
     React.useEffect(() => dialogController.handleGetRegistry().subscribe(setState), []);
 
+    const hasModal = state.stack.some(d => d.modal);
+
     return (
         <>
+            { hasModal && (<MountModalShortcuts />) }
             <AnimatePresence>
                 {state.stack.map((d, index) => {
                     const DialogTemplate = getDialogTemplate(d.key);
@@ -58,4 +62,9 @@ export const DialogHost: React.FC = () => {
             </AnimatePresence>
         </>
     );
+};
+
+export const MountModalShortcuts: React.FC = () => {
+    useShortcutScope('modal', true);
+    return null;
 };
