@@ -39,16 +39,16 @@ export const DialogHost: React.FC = () => {
                             )}
 
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.80, y: 0 }}
+                                initial={{ opacity: 0, scale: 1.00, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.60, y: 0 }}
-                                transition={{ duration: 0.08, type: 'tween' }}
+                                exit={{ opacity: 0, scale: 1, y: 20 }}
+                                transition={{ duration: 0.12, type: 'tween' }}
                                 className='fixed inset-0 p-4 md:p-6 grid place-items-center overflow-hidden'
                                 style={{ pointerEvents: 'none', zIndex: zIndex + 1 }}
                             >
                                 {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
                                 <div
-                                    className='pointer-events-auto bg-surface-3 rounded-2xl shadow-xl min-w-[320px] max-w-[92vw] md:max-w-[560px] w-full'
+                                    className='pointer-events-auto bg-surface-3 rounded-2xl shadow-xl w-full max-w-[min(92vw,800px)]'
                                     onMouseDown={(e) => e.stopPropagation()}
                                     role='dialog'
                                     aria-modal={d.modal}

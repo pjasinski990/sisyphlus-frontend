@@ -19,13 +19,13 @@ export const CommandPaletteEntries: React.FC = () => {
             subtitle: 'Add a task to your Inbox',
             group: 'Tasks',
             keywords: ['add', 'task', 'todo', 'inbox'],
-            aliases: ['in'],
+            aliases: ['in', 'task'],
             syntax: {
                 positionals: [{ name: 'title', schema: z.string(), rest: true }],
                 prefixes: [
                     { head: { kind: 'literal', literal: '@' }, name: 'context', schema: z.string() },
                     { head: { kind: 'literal', literal: '!' }, name: 'energy', schema: z.string() },
-                    { head: { kind: 'literal', literal: '#' }, name: 'tags', schema: z.string(), multi: true },
+                    { head: { kind: 'literal', literal: '#' }, name: 'tag', schema: z.string(), multi: true },
                 ],
             },
             input: { schema: Schema, placeholder: '/in do laundry @home !low #chore' },

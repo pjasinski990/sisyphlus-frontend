@@ -36,6 +36,7 @@ export class InMemoryCommandRegistry implements CommandRegistry {
             group: c.group,
             keywords: c.keywords ?? [],
             aliases: c.aliases,
+            syntax: c.syntax,
         }));
     }
 

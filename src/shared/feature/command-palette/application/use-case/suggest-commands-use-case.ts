@@ -8,7 +8,7 @@ export class SuggestCommandsUseCase implements SuggestCommands {
         private readonly registry: CommandRegistry,
         private readonly search: SearchEngine,
     ) {}
-    suggest(query: string, limit?: number): CommandSuggestion[] {
+    execute(query: string, limit?: number): CommandSuggestion[] {
         const items = this.registry.list();
         return this.search.search(query, items, limit);
     }

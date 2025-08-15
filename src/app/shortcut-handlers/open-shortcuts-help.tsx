@@ -46,7 +46,7 @@ const ShortcutCard: React.FC<{ shortcut: ListedShortcut }> = ({ shortcut }) => {
         <div className='flex items-center'>
             <KeyTile text={shortcut.combo} />
             <span className='ml-4'>{shortcut.description}</span>
-            <span className='ml-auto inline-flex items-center h-6 px-2 text-muted lowercase border border-secondary rounded-md text-sm'>
+            <span className='ml-auto inline-flex items-center h-6 px-2 text-muted lowercase border rounded-md text-sm'>
                 {shortcut.group}
             </span>
         </div>

@@ -44,7 +44,7 @@ export class CommandPaletteController {
     handleUnregisterCommand(id: string) { this.unregister.unregister(id); }
 
     handleList() { return this.list.list(); }
-    handleSuggest(q: string, limit?: number): CommandSuggestion[] { return this.suggest.suggest(q, limit); }
+    handleSuggest(q: string, limit?: number): CommandSuggestion[] { return this.suggest.execute(q, limit); }
 
     async handleExecuteLine(line: string): Promise<void> {
         await this.executeLine.execute(line);
