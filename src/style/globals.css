@@ -63,7 +63,7 @@
   --accent-low: var(--brand-50);
   --accent: var(--brand-90);
   --accent-high: var(--brand-90);
-  --accent-contrast: var(--ink-10);
+  --accent-contrast: var(--ink-100);
 
   --secondary-1: var(--stone-1);
   --secondary-2: var(--stone-2);

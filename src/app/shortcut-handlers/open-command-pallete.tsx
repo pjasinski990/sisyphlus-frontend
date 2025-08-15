@@ -45,8 +45,8 @@ function isPrefixProvided(rest: string, p: PrefixSpec): boolean {
     }
 }
 
-const presentAnimate = { scale: [1, 1.06, 1], boxShadow: ['0 0 0px rgba(255,255,255,0)', '0 0 6px rgba(255,255,255,0.9)', '0 0 0px rgba(255,255,255,0)'] };
-const presentTransition = { duration: 0.18 };
+const presentAnimate = { scale: [1, 1.2, 1], opacity: [1, 0.85, 1] };
+const presentTransition = { duration: 0.15 };
 
 const OptionsRow: React.FC<{
     syntax?: CommandSyntax;
@@ -62,7 +62,7 @@ const OptionsRow: React.FC<{
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.16 }}
+            transition={{ duration: 0.15 }}
             className='mt-2 px-3 pb-2 flex flex-wrap items-center gap-2'
         >
             {positionals.length > 0 && (
@@ -74,7 +74,7 @@ const OptionsRow: React.FC<{
                             <motion.span
                                 key={`pos-${i}-${filled ? 'on' : 'off'}`}
                                 className={`px-2 py-1 rounded-md border text-xs ${
-                                    filled ? 'text-accent border-accent/50 bg-accent/10' : 'text-muted-foreground border-surface-1/60'
+                                    filled ? 'text-accent-contrast border-accent bg-accent/30' : 'text-muted-foreground border-surface-1/60'
                                 }`}
                                 animate={filled ? presentAnimate : {}}
                                 transition={presentTransition}
@@ -94,7 +94,7 @@ const OptionsRow: React.FC<{
                             <motion.span
                                 key={`pre-${i}-${provided ? 'on' : 'off'}`}
                                 className={`px-2 py-1 rounded-md border text-xs inline-flex items-center gap-1 ${
-                                    provided ? 'text-accent border-accent/50 bg-accent/10' : 'text-muted-foreground border-surface-1/60'
+                                    provided ? 'text-accent-contrast border-accent bg-accent/30' : 'text-muted-foreground border-surface-1/60'
                                 }`}
                                 animate={provided ? presentAnimate : {}}
                                 transition={presentTransition}
@@ -115,6 +115,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
     const trigger = commandPaletteController.config.trigger;
     const [value, setValue] = React.useState<string>(initialValue ?? trigger);
     const [error, setError] = React.useState<string | null>(null);
+    const [submitting, setSubmitting] = React.useState(false);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     const suggestions = React.useMemo(() => {
@@ -129,11 +130,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
         if (e.key === 'Escape') return;
         if (e.key === 'Enter') {
             e.preventDefault();
-            try {
-                await commandPaletteController.handleExecuteLine(value);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Failed to run command');
-            }
+            await submit();
         }
     };
 
@@ -148,6 +145,21 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
         return null;
     }, [suggestions, value, trigger]);
 
+    const submit = React.useCallback(async () => {
+        if (submitting) return;
+        if (!value.trim() || value.trim() === trigger) return;
+
+        setSubmitting(true);
+        setError(null);
+        const res = await commandPaletteController.handleExecuteLine(value);
+        if (!res.ok) {
+            setError(res.error);
+        } else {
+            dialogController.handleCloseTop();
+        }
+        setSubmitting(false);
+    }, [value, trigger, submitting]);
+
     return (
         <div className='w-full'>
             <div className='flex flex-col w-full px-4 py-2 rounded-lg bg-surface-2'>
@@ -161,6 +173,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                     onKeyDown={onKeyDown}
                     /* eslint-disable-next-line jsx-a11y/no-autofocus */
                     autoFocus
+                    disabled={submitting}
                 />
             </div>
 
@@ -171,6 +184,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                         initial={{ opacity: 0, y: -2 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -2 }}
+                        transition={{ duration: 0.15 }}
                     >
                         {error}
                     </motion.div>
@@ -184,14 +198,15 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                     <div
                         className='w-full pb-2'
                     >
+                        {/* TODO fix leaving animation overlaid with other content */}
                         <AnimatePresence initial={false} mode='popLayout'>
                             {active ? (
                                 <motion.div
                                     key={`opts-${active.entry.id}-${active.alias}`}
-                                    initial={{ opacity: 0, y: 6 }}
+                                    initial={{ opacity: 0, y: -6 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 6 }}
-                                    transition={{ duration: 0.16 }}
+                                    exit={{ opacity: 0, y: -6 }}
+                                    transition={{ duration: 0.15 }}
                                     className='h-full flex items-center'
                                 >
                                     <OptionsRow syntax={active.entry.syntax} rest={active.rest} />
@@ -235,18 +250,13 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                                                 animate={
                                                     isActive
                                                         ? {
-                                                            scale: [1, 1.1, 1],
+                                                            scale: [1, 1.2, 1],
                                                             opacity: [1, 0.85, 1],
-                                                            boxShadow: [
-                                                                '0 0 0px rgba(255,255,255,0)',
-                                                                '0 0 6px rgba(255,255,255,1)',
-                                                                '0 0 0px rgba(255,255,255,0)',
-                                                            ],
                                                         }
                                                         : {}
                                                 }
-                                                transition={{ duration: 0.16 }}
-                                                className={`px-2 py-1 border rounded-md text-sm ${isActive ? 'text-accent bg-accent/10' : ''}`}
+                                                transition={{ duration: 0.15 }}
+                                                className={`px-2 py-1 border rounded-md text-sm ${isActive ? 'text-accent-contrast border-accent bg-accent/30' : ''}`}
                                             >
                                                 {trigger}{a}
                                             </motion.span>

@@ -12,8 +12,7 @@ import { SuggestCommands } from '@/shared/feature/command-palette/application/po
 import { ExecuteLine } from '@/shared/feature/command-palette/application/port/in/execute-line';
 import { CommandSuggestion } from '@/shared/feature/command-palette/entity/listed-command';
 import { defaultPaletteConfig, PaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
-
-type OpenListener = (open: boolean) => void;
+import { AsyncResult } from '@/shared/feature/auth/entity/result';
 
 export class CommandPaletteController {
     constructor(
@@ -25,30 +24,18 @@ export class CommandPaletteController {
         private readonly executeLine: ExecuteLine,
     ) {}
 
-    private isOpen = false;
-    private listeners = new Set<OpenListener>();
-
-    subscribe(listener: OpenListener) {
-        this.listeners.add(listener);
-        return () => this.listeners.delete(listener);
-    }
-    private emit() { for (const l of this.listeners) l(this.isOpen); }
-
-    handleOpen() { if (!this.isOpen) { this.isOpen = true; this.emit(); } }
-    handleClose() { if (this.isOpen) { this.isOpen = false; this.emit(); } }
-    handleToggle() { this.isOpen = !this.isOpen; this.emit(); }
-
     handleRegisterCommand(cmd: Parameters<RegisterCommand['register']>[0]): void {
         this.register.register(cmd);
     }
+
     handleUnregisterCommand(id: string) { this.unregister.unregister(id); }
 
-    handleList() { return this.list.list(); }
+    handleList() { return this.list.execute(); }
+
     handleSuggest(q: string, limit?: number): CommandSuggestion[] { return this.suggest.execute(q, limit); }
 
-    async handleExecuteLine(line: string): Promise<void> {
-        await this.executeLine.execute(line);
-        this.handleClose();
+    async handleExecuteLine(line: string): AsyncResult<string, null> {
+        return this.executeLine.execute(line);
     }
 }
 

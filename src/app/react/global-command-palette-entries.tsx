@@ -1,7 +1,12 @@
 import React, { useEffect } from 'react';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
-import { commandPaletteController } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
+import {
+    commandPaletteController
+} from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
+import { Task } from '@/shared/feature/task/entity/task';
+import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
+import { usePushToInboxMutation } from '@/shared/feature/task/interface/web/react/task-query-hook';
 
 const Schema = z.object({
     title: z.string().min(1),
@@ -12,6 +17,11 @@ const Schema = z.object({
 
 export const CommandPaletteEntries: React.FC = () => {
     const id = uuid();
+    const authState = useAuth();
+    const userId = authState.status === 'authenticated' ? authState.user.id : null;
+
+    const { mutate } = usePushToInboxMutation();
+
     useEffect(() => {
         commandPaletteController.handleRegisterCommand({
             id,
@@ -31,10 +41,26 @@ export const CommandPaletteEntries: React.FC = () => {
             input: { schema: Schema, placeholder: '/in do laundry @home !low #chore' },
             run: async (opts) => {
                 const v = Schema.parse(opts);
-                console.log('Create task:', v);
+                // TODO this should be a use case - business logic
+                const task: Task = {
+                    id: uuid(),
+                    // TODO fix loading of user-specific content before auth completes
+                    userId,
+                    title: v.title,
+                    context: v.context,
+                    energy: v.energy ?? 'medium',
+                    tags: v.tags ?? [],
+
+                    category: 'simple',
+                    status: 'todo',
+
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                };
+                mutate(task);
             },
         });
         return () => commandPaletteController.handleUnregisterCommand(id);
-    }, [id]);
+    }, [id, mutate, userId]);
     return null;
 };

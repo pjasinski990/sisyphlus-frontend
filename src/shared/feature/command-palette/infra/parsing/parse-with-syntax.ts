@@ -2,13 +2,14 @@ import { z } from 'zod';
 import { CommandSyntax } from '@/shared/feature/command-palette/entity/syntax';
 import { PaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
 import { tokenizeArgs } from './syntax-tokenizer';
+import { nok, ok, Result } from '@/shared/feature/auth/entity/result';
 
 export function parseWithSyntax(
     rest: string,
     syntax: CommandSyntax,
-    schema: z.ZodType<unknown>,
+    schema: z.ZodTypeAny,
     cfg: PaletteConfig
-): Record<string, unknown> {
+): Result<string, Record<string, unknown>> {
     const toks = tokenizeArgs(rest, syntax, cfg);
 
     const values: Record<string, unknown> = {};
@@ -43,5 +44,13 @@ export function parseWithSyntax(
         }
     }
 
-    return schema.parse(values) as Record<string, unknown>;
+    const res = schema.safeParse(values);
+    if (res.success) {
+        return ok(res);
+    } else {
+        const msg = res.error.issues
+            .map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
+            .join('; ');
+        return nok(msg);
+    }
 }

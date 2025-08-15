@@ -4,7 +4,7 @@ import { ListedCommand } from '@/shared/feature/command-palette/entity/listed-co
 
 export class ListCommandsUseCase implements ListCommands {
     constructor(private readonly registry: CommandRegistry) {}
-    list(): ListedCommand[] {
+    execute(): ListedCommand[] {
         return this.registry.list();
     }
 }

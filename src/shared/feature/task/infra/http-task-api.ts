@@ -7,4 +7,9 @@ export class HttpTaskApi implements TaskApi {
         const res = await httpClient.post<Task>('/tasks', task);
         return res.data;
     }
+
+    async getInbox(): Promise<Task[]> {
+        const res = await httpClient.get<Task[]>('/tasks');
+        return res.data;
+    }
 }
