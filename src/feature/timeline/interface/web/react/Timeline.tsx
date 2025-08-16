@@ -219,7 +219,7 @@ const SelectionLayer: React.FC<{
 };
 
 const TaskLayer: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <div className='h-full absolute inset-x-4 pointer-events-none'>{children}</div>
+    <div className='h-full absolute inset-x-10 pointer-events-none'>{children}</div>
 );
 
 const useNow = (intervalMs = 30_000) => {

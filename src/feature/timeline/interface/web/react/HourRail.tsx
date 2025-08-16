@@ -5,6 +5,7 @@ import { clamp } from '@/shared/util/clamp';
 import { v4 as uuid } from 'uuid';
 import { EnergyLevel } from '@/shared/feature/task/entity/task';
 import { snap } from '@/shared/util/snap';
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 type EnergyTicker = {
@@ -57,8 +58,8 @@ export const HourRail: React.FC<{
     }, [tickers]);
 
     const backgroundImage = useMemo(
-        () => (visible ? buildGradient({ tickers, totalMinutes }) : undefined),
-        [tickers, totalMinutes, visible],
+        () => buildGradient({ tickers, totalMinutes }),
+        [tickers, totalMinutes],
     );
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -133,38 +134,63 @@ export const HourRail: React.FC<{
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
         >
-            <EnergyGradientBackground image={backgroundImage} />
+            <EnergyGradientBackground image={backgroundImage} visible={visible} />
             <EnergyToolbar visible={visible} onToggle={() => setVisible((v) => !v)} onAdd={handleToolbarAdd} />
             <HourMarks hours={hours} hourPx={hourPx} />
-            <TickerLayer
-                tickers={tickers}
-                minutesToTop={minutesToTop}
-                onTickerPointerDown={onTickerPointerDown}
-                onCycle={(id) => {
-                    if (dragMovedRef.current) return;
-                    handleCycle(id);
-                }}
-                onRemove={(id) => {
-                    if (dragMovedRef.current) return;
-                    handleRemove(id);
-                }}
-            />
+
+            <HourMarks hours={hours} hourPx={hourPx} />
+
+            <AnimatePresence>
+                {visible && (
+                    <motion.div
+                        key='ticker-layer'
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className='absolute inset-0 z-40'
+                    >
+                        <TickerLayer
+                            tickers={tickers}
+                            minutesToTop={minutesToTop}
+                            onTickerPointerDown={onTickerPointerDown}
+                            onCycle={(id) => {
+                                if (dragMovedRef.current) return;
+                                handleCycle(id);
+                            }}
+                            onRemove={(id) => {
+                                if (dragMovedRef.current) return;
+                                handleRemove(id);
+                            }}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
 
-function EnergyGradientBackground({ image }: { image?: string }) {
+function EnergyGradientBackground({ image, visible }: { image?: string; visible: boolean }) {
     if (!image) return null;
     return (
-        <div
-            className='absolute top-1 bottom-1 -right-1 w-1 rounded-sm pointer-events-none'
-            style={{
-                backgroundImage: image,
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: '100% 100%',
-            }}
-        />
+        <AnimatePresence>
+            {visible && (
+                <motion.div
+                    key='energy-bg'
+                    className='absolute top-1 bottom-1 -right-1 w-1 rounded-sm pointer-events-none'
+                    style={{
+                        backgroundImage: image,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '100% 100%',
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                />
+            )}
+        </AnimatePresence>
     );
 }
 
@@ -213,7 +239,7 @@ function HourMarks({ hours, hourPx }: { hours: number[]; hourPx: number }) {
             {hours.map((h, idx) => (
                 <div
                     key={h}
-                    className='absolute left-2 -translate-y-1/2 text-[10px] leading-none'
+                    className='absolute left-2 -translate-y-1/2 text-[10px] leading-none text-muted'
                     style={{ top: `${idx * hourPx}px` }}
                 >
                     {formatHour(h)}
@@ -238,7 +264,7 @@ function TickerPeak({ ticker, top, onPointerDown, onRemove, onCycle }: {
                 <button
                     type='button'
                     aria-label={`${ticker.level} energy peak`}
-                    className='h-4 w-4 rounded-full border shadow cursor-grab active:cursor-grabbing'
+                    className='h-4 w-4 rounded-full defined-shadow cursor-grab active:cursor-grabbing'
                     style={{ background: `var(${COLOR_VAR_BY_LEVEL[ticker.level]})` }}
                     onPointerDown={onPointerDown}
                     onClick={(e) => {

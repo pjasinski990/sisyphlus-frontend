@@ -34,7 +34,7 @@
   /* Stone */
   --stone-1: oklch(0.95 0.01 95);
   --stone-2: oklch(0.70 0.04 45);
-  --stone-3: oklch(0.42 0.02 280);
+  --stone-3: oklch(0.45 0.02 280);
 
   /* Brand accent ramp */
   --brand-10: oklch(0.97 0.03 85);
