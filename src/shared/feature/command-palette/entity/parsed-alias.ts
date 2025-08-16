@@ -7,11 +7,9 @@ export interface ParsedAlias {
 
 export function parseAlias(line: string, cfg: PaletteConfig): ParsedAlias | null {
     const s = line.trimStart();
-    if (!s.startsWith(cfg.trigger)) return null;
-    const start = cfg.trigger.length;
-    let i = start;
+    let i = 0;
     while (i < s.length && !cfg.delimiter.test(s[i]!)) i++;
-    const alias = s.slice(start, i);
+    const alias = s.slice(0, i);
     if (!alias) return null;
     while (i < s.length && cfg.delimiter.test(s[i]!)) i++;
     const rest = s.slice(i);

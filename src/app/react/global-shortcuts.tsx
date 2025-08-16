@@ -8,7 +8,8 @@ import { openShortcutsHelp } from '@/app/shortcut-handlers/open-shortcuts-help';
 export function GlobalShortcuts() {
     useShortcutScope('global', true);
     useShortcut('global', [
-        { combo: 'char:/', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
+        { combo: 'Control+K', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
+        { combo: 'Meta+K', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
         { combo: 'char:?', handler: openShortcutsHelp, description: 'Open shortcuts help', group: 'Help' },
     ]);
     return null;

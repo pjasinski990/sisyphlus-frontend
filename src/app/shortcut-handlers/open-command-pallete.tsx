@@ -17,15 +17,15 @@ function headToDisplay(head: HeadMatcher): string {
     return head.kind === 'literal' ? head.literal : `/${head.regex.source}/`;
 }
 
-function findActiveAlias(input: string, trigger: string, aliases: string[]): string | null {
+function findActiveAlias(input: string, aliases: string[]): string | null {
     for (const a of aliases) {
-        if (input.startsWith(`${trigger}${a}`)) return a;
+        if (input.startsWith(a)) return a;
     }
     return null;
 }
 
-function sliceAfterAlias(input: string, trigger: string, alias: string): string {
-    const head = `${trigger}${alias}`;
+function sliceAfterAlias(input: string, alias: string): string {
+    const head = `${alias}`;
     if (!input.startsWith(head)) return input;
     const rest = input.slice(head.length);
     return rest.startsWith(' ') ? rest.slice(1) : rest;
@@ -112,19 +112,14 @@ const OptionsRow: React.FC<{
 };
 
 export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialValue }) => {
-    const trigger = commandPaletteController.config.trigger;
-    const [value, setValue] = React.useState<string>(initialValue ?? trigger);
+    const [value, setValue] = React.useState<string>(initialValue ?? '');
     const [error, setError] = React.useState<string | null>(null);
     const [submitting, setSubmitting] = React.useState(false);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     const suggestions = React.useMemo(() => {
-        const t = trigger;
-        const v = value.startsWith(t)
-            ? value.slice(t.length).split(commandPaletteController.config.delimiter)[0] ?? ''
-            : value;
-        return commandPaletteController.handleSuggest(v, 20);
-    }, [value, trigger]);
+        return commandPaletteController.handleSuggest(value, 20);
+    }, [value]);
 
     const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = async (e) => {
         if (e.key === 'Escape') return;
@@ -136,18 +131,17 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
 
     const active = React.useMemo(() => {
         for (const s of suggestions) {
-            const alias = findActiveAlias(value, trigger, s.aliases);
+            const alias = findActiveAlias(value, s.aliases);
             if (alias) {
-                const rest = sliceAfterAlias(value, trigger, alias);
+                const rest = sliceAfterAlias(value, alias);
                 return { entry: s, alias, rest };
             }
         }
         return null;
-    }, [suggestions, value, trigger]);
+    }, [suggestions, value]);
 
     const submit = React.useCallback(async () => {
         if (submitting) return;
-        if (!value.trim() || value.trim() === trigger) return;
 
         setSubmitting(true);
         setError(null);
@@ -158,7 +152,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
             dialogController.handleCloseTop();
         }
         setSubmitting(false);
-    }, [value, trigger, submitting]);
+    }, [value, submitting]);
 
     return (
         <div className='w-full'>
@@ -167,7 +161,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                     ref={inputRef}
                     className='w-full bg-transparent outline-none text-base placeholder:text-muted-foreground text-[1.1rem]'
                     type='text'
-                    placeholder={`${trigger}in do laundry @home !low #chore`}
+                    placeholder={`in do laundry @home !low #chore`}
                     value={value}
                     onChange={(e) => { setValue(e.target.value); setError(null); }}
                     onKeyDown={onKeyDown}
@@ -224,14 +218,14 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                         </AnimatePresence>
                     </div>
                     {suggestions.map((s) => {
-                        const activeAlias = findActiveAlias(value, trigger, s.aliases);
+                        const activeAlias = findActiveAlias(value, s.aliases);
                         return (
                             <button
                                 key={s.id}
                                 type='button'
                                 className='flex justify-between items-start gap-3 p-3 text-sm hover:bg-accent/10 cursor-pointer w-full bg-transparent text-left'
                                 onClick={() => {
-                                    setValue(`${trigger}${s.aliases.at(0)} `);
+                                    setValue(s.aliases.at(0) ?? '');
                                     inputRef.current?.focus();
                                 }}
                             >
@@ -258,7 +252,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                                                 transition={{ duration: 0.15 }}
                                                 className={`px-2 py-1 border rounded-md text-sm ${isActive ? 'text-accent-contrast border-accent bg-accent/30' : ''}`}
                                             >
-                                                {trigger}{a}
+                                                {a}
                                             </motion.span>
                                         );
                                     })}
