@@ -6,9 +6,9 @@ export const Tooltip: React.FC<{
 }> = ({ children, tooltip }) => {
     const animation = 'opacity-0 group-hover:opacity-100 scale-80 group-hover:scale-100 transition duration-150 delay-0 group-hover:delay-500';
     return (
-        <div className='relative group flex items-center'>
+        <div className='relative group flex items-center w-fit'>
             {children}
-            <div className={`${animation} absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-surface-3 text-s-10 text-xs rounded-md px-2 py-2 whitespace-nowrap z-10 pointer-events-none`}>
+            <div className={`${animation} absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-surface-3 text-s-10 text-xs rounded-md px-2 py-2 whitespace-nowrap z-80 pointer-events-none`}>
                 <div className='absolute -top-[4px] left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-surface-3 z-[-1]' />
                 {tooltip}
             </div>

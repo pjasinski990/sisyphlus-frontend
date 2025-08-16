@@ -18,8 +18,8 @@ export interface BaseTask {
     spentMin?: number;
     tags: string[];
     context?: string;
-    createdAt: string;  // iso
-    updatedAt: string;  // iso
+    createdAt?: string;  // iso
+    updatedAt?: string;  // iso
     parentId?: string;
     anchor?: Anchor;
 }

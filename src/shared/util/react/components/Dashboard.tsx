@@ -16,14 +16,9 @@ export const Dashboard: React.FC = () => {
 
 const TopBar: React.FC = () => {
     return (
-        <div className='flex items-center mt-8 px-8 py-4 bg-surface-2 rounded-xl defined-shadow'>
+        <div className='flex items-center mt-8 px-8 py-4 bg-surface-2 rounded-xl defined-shadow min-h-32'>
             <div>
                 Current focus: Coffee & TV
-            </div>
-            <div className='flex justify-center items-center ml-auto h-12 w-120 bg-surface-1 rounded-full relative'>
-                <div className={'h-12 w-40 bg-accent rounded-full absolute inset-0'} />
-                <div className={'h-10 w-10 rounded-full absolute left-29 bg-surface-3'}></div>
-                30 / 90 minutes
             </div>
         </div>
     );

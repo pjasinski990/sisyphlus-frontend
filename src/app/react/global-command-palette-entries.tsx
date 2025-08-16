@@ -8,11 +8,12 @@ import { Task } from '@/shared/feature/task/entity/task';
 import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
 import { usePushToInboxMutation } from '@/shared/feature/task/interface/web/react/task-query-hook';
 
-const Schema = z.object({
+const schema = z.object({
     title: z.string().min(1),
     context: z.string().optional(),
     energy: z.enum(['low', 'medium', 'high']).optional(),
     tags: z.array(z.string()).optional(),
+    duration: z.coerce.number().int().positive().optional(),
 });
 
 export const CommandPaletteEntries: React.FC = () => {
@@ -26,7 +27,7 @@ export const CommandPaletteEntries: React.FC = () => {
         commandPaletteController.handleRegisterCommand({
             id,
             title: 'Create Inbox Task',
-            subtitle: 'Add a task to your Inbox',
+            subtitle: 'Push a task to the Inbox',
             group: 'Tasks',
             keywords: ['add', 'task', 'todo', 'inbox'],
             aliases: ['in', 'task'],
@@ -35,12 +36,13 @@ export const CommandPaletteEntries: React.FC = () => {
                 prefixes: [
                     { head: { kind: 'literal', literal: '@' }, name: 'context', schema: z.string() },
                     { head: { kind: 'literal', literal: '!' }, name: 'energy', schema: z.string() },
-                    { head: { kind: 'literal', literal: '#' }, name: 'tag', schema: z.string(), multi: true },
+                    { head: { kind: 'literal', literal: '#' }, name: 'tags', schema: z.string(), multi: true },
+                    { head: { kind: 'literal', literal: '%' }, name: 'duration', schema: z.string() },
                 ],
             },
-            input: { schema: Schema, placeholder: '/in do laundry @home !low #chore' },
+            input: { schema, placeholder: '/in do laundry @home !low #chore' },
             run: async (opts) => {
-                const v = Schema.parse(opts);
+                const v = schema.parse(opts);
                 // TODO this should be a use case - business logic
                 const task: Task = {
                     id: uuid(),
@@ -50,12 +52,10 @@ export const CommandPaletteEntries: React.FC = () => {
                     context: v.context,
                     energy: v.energy ?? 'medium',
                     tags: v.tags ?? [],
+                    estimatedMin: v.duration,
 
                     category: 'simple',
                     status: 'todo',
-
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
                 };
                 mutate(task);
             },

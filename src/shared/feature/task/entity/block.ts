@@ -21,8 +21,8 @@ export interface BaseBlock {
     sourceRecurringTaskId: string;
     recurrenceInstanceId?: string;
 
-    createdAt: string;  // iso
-    updatedAt: string;  // iso
+    createdAt?: string;  // iso
+    updatedAt?: string;  // iso
 }
 
 export interface TaskBlock extends BaseBlock {

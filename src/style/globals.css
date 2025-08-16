@@ -48,7 +48,7 @@
   --warning-60: oklch(0.78 0.12 80);
   --danger-60:  oklch(0.66 0.16 28);
 
-  /* Semantic - light + default */
+  /* Semantic */
   --bg: var(--ink-10);
   --surface-1: var(--ink-30);
   --surface-2: var(--ink-40);
@@ -75,6 +75,11 @@
 
   --surface-hover: color-mix(in oklab, var(--surface-1), black 10%);
   --surface-active: color-mix(in oklab, var(--surface-1), black 12%);
+
+  /* App specific */
+  --low-energy: oklch(70% 0.10 250);
+  --medium-energy: oklch(80% 0.14 90);
+  --high-energy: oklch(70% 0.20 25);
 }
 
 .dark {
@@ -101,6 +106,11 @@
 
   --surface-hover: color-mix(in oklab, var(--surface-1), white 6%);
   --surface-active: color-mix(in oklab, var(--surface-1), white 8%);
+
+  /* App specific */
+  --low-energy: oklch(65% 0.10 250);
+  --medium-energy: oklch(70% 0.14 90);
+  --high-energy: oklch(65% 0.20 25);
 }
 
 /* Tailwind-facing aliases */
@@ -147,6 +157,11 @@
 
   --color-surface-hover: var(--surface-hover);
   --color-surface-active: var(--surface-active);
+
+  /* App specific */
+  --color-low-energy: var(--low-energy);
+  --color-medium-energy: var(--medium-energy);
+  --color-high-energy: var(--high-energy);
 }
 
 @layer base {

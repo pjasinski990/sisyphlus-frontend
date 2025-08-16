@@ -14,6 +14,6 @@ export interface DayPlan {
     keyTaskId?: string;
     entries: DayPlanEntry[];
 
-    createdAt: string;  // iso
-    updatedAt: string;  // iso
+    createdAt?: string;  // iso
+    updatedAt?: string;  // iso
 }
