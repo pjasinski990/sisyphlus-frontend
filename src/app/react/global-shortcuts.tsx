@@ -4,6 +4,7 @@ import { useShortcut } from '@/shared/feature/keyboard/infra/web/react/useShortc
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 import { openCommandPalette } from '../shortcut-handlers/open-command-pallete';
 import { openShortcutsHelp } from '@/app/shortcut-handlers/open-shortcuts-help';
+import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 
 export function GlobalShortcuts() {
     useShortcutScope('global', true);
@@ -11,6 +12,7 @@ export function GlobalShortcuts() {
         { combo: 'Control+K', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
         { combo: 'Meta+K', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
         { combo: 'char:?', handler: openShortcutsHelp, description: 'Open shortcuts help', group: 'Help' },
+        { combo: 'I', handler: openInbox, description: 'Open Inbox', group: 'Navigation' },
     ]);
     return null;
 }

@@ -4,7 +4,7 @@ export interface CustomPayload {
     children?: React.ReactNode;
 }
 
-export const CustomDialog: React.FC<{ id: string; payload?: unknown }> = ({ id, payload }) => {
+export const CustomDialog: React.FC<{ payload?: unknown }> = ({ payload }) => {
     const p = payload as CustomPayload ?? { children: <div>Empty custom dialog</div> };
 
     return (

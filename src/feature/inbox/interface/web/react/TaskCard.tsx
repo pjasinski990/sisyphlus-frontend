@@ -5,7 +5,12 @@ import { Tooltip } from '@/shared/util/react/components/Tooltip';
 
 export const TaskCard: React.FC<{ task: Task }> = ({ task }) => {
     return (
-        <div className={'bg-secondary-1/90 border-b-4 border-secondary-2/20 stone-texture py-2 px-4 rounded-sm defined-shadow'}>
+        <div
+            className={'stone-texture py-2 px-4 rounded-sm defined-shadow'}
+            style={{
+                background: `color-mix(in oklch, var(--color-surface-2) 90%, var(--color-${task.energy}-energy) 50%)`
+            }}
+        >
             <div className={'flex gap-2'}>
                 <Tooltip tooltip={`${task.energy} energy`}>
                     <InfoTile>
@@ -46,15 +51,16 @@ export const TaskCard: React.FC<{ task: Task }> = ({ task }) => {
     );
 };
 
-const InfoTile: React.FC<{ className?: string, children: ReactNode }> = ({ className, children }) => {
-    return (
-        <div className={`flex items-center rounded-md ${className}`}>
-            <div className={'flex p-1'}>
-                {children}
+export const InfoTile = React.forwardRef<HTMLDivElement, { className?: string, children: ReactNode }>(
+    ({ className, children, ...rest }, ref) => {
+        return (
+            <div ref={ref} className={`flex items-center rounded-md ${className ?? ''}`} {...rest}>
+                <div className='flex p-1'>{children}</div>
             </div>
-        </div>
-    );
-};
+        );
+    }
+);
+InfoTile.displayName = 'InfoTile';
 
 function getEnergyIconClass(level: EnergyLevel) {
     const colors = {

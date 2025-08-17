@@ -1,6 +1,15 @@
 import React from 'react';
 import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
 import { useInboxTasksQuery } from '@/shared/feature/task/interface/web/react/task-query-hook';
+import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
+
+export async function openInbox() {
+    await dialogController.handleOpen({
+        key: 'custom',
+        payload: { children: <Inbox /> },
+        options: { modal: true, dismissible: true },
+    });
+}
 
 export const Inbox: React.FC = () => {
     const { data: tasks = [], isLoading } = useInboxTasksQuery();
@@ -9,9 +18,9 @@ export const Inbox: React.FC = () => {
     }
 
     return (
-        <div className={'flex flex-1 flex-col bg-surface-2 rounded-xl defined-shadow my-8'}>
-            <div className={'flex justify-between items-center border-b border-surface-1/50 px-4'}>
-                <p className={''}>
+        <div className={'flex flex-1 flex-col'}>
+            <div className={'flex justify-between items-center border-b border-surface-1/50 px-4 pb-2'}>
+                <p className={'font-bold'}>
                     Inbox
                 </p>
             </div>
