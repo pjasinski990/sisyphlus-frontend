@@ -47,6 +47,7 @@ export const CommandPaletteEntries: React.FC = () => {
                 const task: Task = {
                     id: uuid(),
                     // TODO fix loading of user-specific content before auth completes
+                    // @ts-expect-error ignore for now
                     userId,
                     title: v.title,
                     context: v.context,

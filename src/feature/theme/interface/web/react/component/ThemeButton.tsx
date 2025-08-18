@@ -65,7 +65,7 @@ export const ThemeButton: React.FC = () => {
                 type='button'
                 onClick={handleClick}
                 aria-label={`Toggle theme, current: ${label}`}
-                className='inline-flex items-center cursor-pointer transition-colors text-foreground hover:text-accent focus:outline-none rounded-md'
+                className='inline-flex items-center cursor-pointer transition-colors text-foreground hover:text-accent'
             >
                 <span className='relative inline-block w-6 h-6'>
                     <AnimatePresence mode='wait' initial={false}>

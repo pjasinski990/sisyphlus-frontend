@@ -6,13 +6,15 @@ import { openCommandPalette } from '../shortcut-handlers/open-command-pallete';
 import { openShortcutsHelp } from '@/app/shortcut-handlers/open-shortcuts-help';
 import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 
+// TODO move component-specific shortcuts - eg. register openInbox in inbox, add task in palette (pull withCommand from alias)
 export function GlobalShortcuts() {
     useShortcutScope('global', true);
     useShortcut('global', [
-        { combo: 'Control+K', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
-        { combo: 'Meta+K', handler: openCommandPalette, description: 'Open Command Palette', group: 'Navigation' },
+        { combo: 'Control+K', handler: () => openCommandPalette(''), description: 'Open Command Palette', group: 'Navigation' },
+        { combo: 'Meta+K', handler: () => openCommandPalette(''), description: 'Open Command Palette', group: 'Navigation' },
         { combo: 'char:?', handler: openShortcutsHelp, description: 'Open shortcuts help', group: 'Help' },
         { combo: 'I', handler: openInbox, description: 'Open Inbox', group: 'Navigation' },
+        { combo: 'A', handler: () => openCommandPalette('in '), description: 'Open Inbox', group: 'Navigation' },
     ]);
     return null;
 }

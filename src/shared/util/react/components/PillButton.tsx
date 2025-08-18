@@ -3,7 +3,7 @@ import { ButtonProps } from '@/shared/util/react/components/Button';
 import { Tooltip } from '@/shared/util/react/components/Tooltip';
 
 export const PillButton: React.FC<ButtonProps> = ({ className = '', ...props }) => {
-    const classes = 'bg-surface-3 hover:bg-surface-hover rounded-full px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-50 disabled:cursor-not-allowed transition';
+    const classes = 'bg-surface-3 hover:bg-surface-hover rounded-full px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition';
     return <button {...props} className={`${classes} ${className}`} />;
 };
 
@@ -32,7 +32,7 @@ export const TwoPartPillButton: React.FC<TwoPartPillButtonProps> = ({
     ...divProps
 }) => {
     const pad = dense ? 'px-2 py-1.5' : 'px-4 py-3';
-    const base = 'bg-surface-3 hover:bg-surface-hover transition focus:outline-none focus-visible:ring-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed defined-shadow';
+    const base = 'bg-surface-3 hover:bg-surface-hover transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed';
     return (
         <div
             role='group'

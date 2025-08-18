@@ -5,10 +5,10 @@ import type { CommandSyntax, HeadMatcher, PrefixSpec } from '@/shared/feature/co
 import { commandPaletteController } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
 
 // TODO refactor, cleanup, show enum options, show required / optionals
-export async function openCommandPalette() {
+export async function openCommandPalette(withCommand?: string) {
     await dialogController.handleOpen({
         key: 'custom',
-        payload: { children: <CommandPalette /> },
+        payload: { children: <CommandPalette initialValue={withCommand ?? ''} /> },
         options: { modal: true, dismissible: true },
     });
 }
@@ -161,7 +161,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                     ref={inputRef}
                     className='w-full bg-transparent outline-none text-base placeholder:text-muted-foreground text-[1.1rem]'
                     type='text'
-                    placeholder={`in do laundry @home !low #chore`}
+                    placeholder={'in do laundry @home !low #chore'}
                     value={value}
                     onChange={(e) => { setValue(e.target.value); setError(null); }}
                     onKeyDown={onKeyDown}

@@ -90,7 +90,7 @@ const HomeButton: React.FC<NavigationButtonProps> = ({
     return (
         <button
             onClick={onClick}
-            className={`flex items-center mx-4 transition-colors duration-200 focus:outline-none hover:bg-surface-hover cursor-pointer ${ isActive ? 'text-accent': '' }`}
+            className={`flex items-center mx-4 transition-colors duration-200 hover:bg-surface-hover cursor-pointer ${ isActive ? 'text-accent': '' }`}
         >
             <div className='mx-4'>
                 <img src='/favicon.svg' alt='Favicon' width={40} height={40} />

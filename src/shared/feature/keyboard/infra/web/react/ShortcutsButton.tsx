@@ -14,7 +14,7 @@ export const ShortcutsButton: React.FC<{
                 onClick={onClick}
                 aria-label='Open keyboard shortcuts'
                 className={
-                    'inline-flex items-center cursor-pointer transition-colors text-foreground hover:text-accent focus:outline-none rounded-md ' + (className ?? '')
+                    'inline-flex items-center cursor-pointer transition-colors text-foreground hover:text-accent' + (className ?? '')
                 }
             >
                 <span className='relative inline-block w-6 h-6'>
