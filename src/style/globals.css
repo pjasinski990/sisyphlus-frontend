@@ -240,36 +240,44 @@
   .stone-texture {
     position: relative;
     z-index: 0;
+
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .stone-texture::before {
     content: '';
     position: absolute;
     inset: 0;
+    pointer-events: none;
+    z-index: 0;
 
     background-image:
-            repeating-linear-gradient(
-                    130deg,
-                    rgba(255, 255, 255, 0.01) 0 5px,
-                    rgba(0, 0, 0, 0.01) 3px 7px
+            radial-gradient(
+                    circle at -10% -30%,
+                    rgba(200, 200, 200, 0.2) 0%,
+                    transparent 100%
             ),
             radial-gradient(
                     circle at 70% 70%,
-                    rgba(255, 255, 255, 0.04) 0%,
-                    transparent 60%
+                    rgba(0, 0, 0, 0.2) 0%,
+                    transparent 50%
             ),
-            url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAnIGhlaWdodD0nMTAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGZpbHRlciBpZD0nbic+PGZlVHVyYnVsZW5jZSB0eXBlPSdmaWJyYXRlTm9pc2UnIGJhc2VGcmVxdWVuY3k9JzAuOScvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPScxMDAlJyBoZWlnaHQ9JzEwMCUnIGZpbHRlcj0ndXJsKCNuKScgb3BhY2l0eT0nMC4wNCcvPjwvc3ZnPg==");
+            radial-gradient(
+                    circle at 120% 50%,
+                    rgba(255, 255, 255, 0.4) 0%,
+                    transparent 100%
+            );
 
     background-size:
-            300% 300%,
-            100% 100%,
-            100% 100%,
-            240px 240px;
+            200% 200%,
+            200% 200%,
+            200% 200%;
 
-    mix-blend-mode: overlay;
-    opacity: 1.0;
-    pointer-events: none;
-    z-index: 0;
+    mix-blend-mode: difference;
+    opacity: 0.6;
   }
 
   .defined-shadow {
