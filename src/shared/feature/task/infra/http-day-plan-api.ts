@@ -9,7 +9,7 @@ export class HttpDayPlanApi implements DayPlanApi {
     }
 
     async scheduleTask(localDate: string, taskId: string): Promise<DayPlan> {
-        const res = await httpClient.post<DayPlan>(`/day-plan/${localDate}`, { taskId });
+        const res = await httpClient.post<DayPlan>(`/day-plan/${localDate}/schedule`, { taskId });
         return res.data;
     }
 }

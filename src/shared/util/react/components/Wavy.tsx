@@ -1,20 +1,20 @@
 import '../style/wavy.css';
 import React, { useMemo } from 'react';
 
-type Props = {
-    text: string;
+type WavyProps = {
+    children: React.ReactNode;
     className?: string;
-    amp?: string;          // wave amplitude, e.g. "0.35em"
-    period?: string;       // wave period, e.g. "1.1s"
-    stagger?: string;      // inter-letter delay, e.g. "0.06s"
-    shakeMax?: string;     // max shake amplitude, e.g. "0.08em"
-    shakeMin?: string;     // min shake amplitude, e.g. "0.03em"
-    shakePeriodMin?: string; // e.g. "0.12s"
-    shakePeriodMax?: string; // e.g. "0.22s"
+    amp?: string;
+    period?: string;
+    stagger?: string;
+    shakeMax?: string;
+    shakeMin?: string;
+    shakePeriodMin?: string;
+    shakePeriodMax?: string;
 };
 
-export const WavyText: React.FC<Props> = ({
-    text,
+export const Wavy: React.FC<WavyProps> = ({
+    children,
     className,
     amp = '0.20em',
     period = '1.1s',
@@ -24,6 +24,8 @@ export const WavyText: React.FC<Props> = ({
     shakePeriodMin = '0.12s',
     shakePeriodMax = '0.22s',
 }) => {
+    const count = React.Children.count(children);
+
     const seeds = useMemo(() => {
         const toMs = (v: string) => (v.endsWith('ms') ? parseFloat(v) : parseFloat(v) * 1000);
         const minAmp = parseFloat(shakeMin);
@@ -31,17 +33,15 @@ export const WavyText: React.FC<Props> = ({
         const minP = toMs(shakePeriodMin);
         const maxP = toMs(shakePeriodMax);
 
-        return [...text].map((_, i) => {
+        return Array.from({ length: Math.max(1, count) }, (_, i) => {
             const r = Math.sin(i * 12.9898) * 43758.5453;
             const frac = r - Math.floor(r);
-
-            const amp = (minAmp + frac * (maxAmp - minAmp)).toFixed(4) + 'em';
+            const a = (minAmp + frac * (maxAmp - minAmp)).toFixed(4) + 'em';
             const periodMs = Math.round(minP + (1 - frac) * (maxP - minP));
             const delayMs = Math.round(frac * 100);
-
-            return { amp, period: `${periodMs}ms`, delay: `${delayMs}ms` };
+            return { amp: a, period: `${periodMs}ms`, delay: `${delayMs}ms` };
         });
-    }, [text, shakeMax, shakeMin, shakePeriodMin, shakePeriodMax]);
+    }, [count, shakeMax, shakeMin, shakePeriodMin, shakePeriodMax]);
 
     return (
         <span
@@ -53,21 +53,20 @@ export const WavyText: React.FC<Props> = ({
                     ['--wave-stagger' as any]: stagger,
                 } as React.CSSProperties
             }
-            aria-label={text}
         >
-            {[...text].map((ch, i) => (
+            {React.Children.map(children, (child, i) => (
                 <span key={i} className='wavy-w' style={{ ['--i' as any]: i }}>
                     <span
                         className='wavy-s'
                         style={
                             {
-                                ['--shake-amp' as any]: seeds[i].amp,
-                                ['--shake-period' as any]: seeds[i].period,
-                                ['--shake-delay' as any]: seeds[i].delay,
+                                ['--shake-amp' as any]: seeds[i % seeds.length].amp,
+                                ['--shake-period' as any]: seeds[i % seeds.length].period,
+                                ['--shake-delay' as any]: seeds[i % seeds.length].delay,
                             } as React.CSSProperties
                         }
                     >
-                        {ch === ' ' ? '\u00A0' : ch}
+                        {child}
                     </span>
                 </span>
             ))}

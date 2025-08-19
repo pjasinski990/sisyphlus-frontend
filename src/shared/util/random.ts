@@ -6,4 +6,8 @@ export class Random {
     static int(low: number = 3, high: number = 10): number {
         return Math.floor(Math.random() * (high - low)) + low;
     }
+
+    static float(low: number = 3, high: number = 10): number {
+        return Math.random() * (high - low) + low;
+    }
 }

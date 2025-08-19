@@ -5,9 +5,10 @@ import { useTasksByIdsQuery } from '@/shared/feature/task/interface/web/react/us
 import type { Task } from '@/shared/feature/task/entity/task';
 import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 import { WavyText } from '@/shared/util/react/components/WavyText';
+import { todayLocalDate } from '@/shared/util/today-local-date';
 
 export const TodayList: React.FC = () => {
-    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+    const today = todayLocalDate();
 
     const planQ = useDayPlanQuery(today);
 
@@ -53,7 +54,7 @@ const EmptyPlanPlaceholder: React.FC = () => {
                     className={'inline-block px-1 py-0.5 font-mono rounded-sm text-secondary-1 hover:bg-surface-1/50 cursor-pointer'}
                     onClick={openInbox}
                 >
-                    <WavyText amp={'0.1rem'} stagger={'0.08s'} shakeMin={'0'} shakeMax={'0'} text={'inbox [I]'} />
+                    <WavyText amp={'0.1rem'} stagger={'0.1s'} shakeMin={'0'} shakeMax={'0'} text={'inbox [I]'} />
                 </button>
             </p>
         </div>

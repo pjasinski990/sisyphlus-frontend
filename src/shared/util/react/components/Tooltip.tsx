@@ -11,7 +11,7 @@ type TooltipProps = {
 
 type DOMHandlers = Pick<
     React.HTMLAttributes<HTMLElement>,
-    'onMouseEnter' | 'onMouseLeave' | 'onFocus' | 'onBlur' | 'onTouchStart' | 'onTouchEnd'
+    'onMouseEnter' | 'onMouseLeave' | 'onFocus' | 'onBlur' | 'onTouchStart' | 'onTouchEnd' | 'onMouseDown' | 'onMouseUp'
 >;
 
 function getOrigHandler<K extends keyof DOMHandlers>(
@@ -45,6 +45,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     const showTimer = React.useRef<number | null>(null);
     const hideTimer = React.useRef<number | null>(null);
     const unmountTimer = React.useRef<number | null>(null);
+    const isClicking = React.useRef(false);
 
     const clearTimers = React.useCallback(() => {
         if (showTimer.current) window.clearTimeout(showTimer.current);
@@ -69,6 +70,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
     const scheduleShow = React.useCallback(
         (el: HTMLElement) => {
+            if (isClicking.current) return;
             clearTimers();
             showTimer.current = window.setTimeout(() => {
                 anchorRef.current = el;
@@ -129,8 +131,23 @@ export const Tooltip: React.FC<TooltipProps> = ({
         const origBlur = getOrigHandler(el, 'onBlur');
         const origTouchStart = getOrigHandler(el, 'onTouchStart');
         const origTouchEnd = getOrigHandler(el, 'onTouchEnd');
+        const origMouseDown = getOrigHandler(el, 'onMouseDown');
+        const origMouseUp = getOrigHandler(el, 'onMouseUp');
 
         child = React.cloneElement(el, {
+            onMouseDown: (e: React.MouseEvent<HTMLElement>) => {
+                isClicking.current = true;
+                clearTimers();
+                setVisible(false);
+                setMounted(false);
+                origMouseDown?.(e);
+            },
+            onMouseUp: (e: React.MouseEvent<HTMLElement>) => {
+                queueMicrotask(() => {
+                    isClicking.current = false;
+                });
+                origMouseUp?.(e);
+            },
             onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
                 origEnter?.(e);
                 scheduleShow(e.currentTarget as HTMLElement);
@@ -148,10 +165,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
                 scheduleHide();
             },
             onTouchStart: (e: React.TouchEvent<HTMLElement>) => {
+                isClicking.current = true;
+                clearTimers();
                 origTouchStart?.(e);
-                scheduleShow(e.currentTarget as HTMLElement);
             },
             onTouchEnd: (e: React.TouchEvent<HTMLElement>) => {
+                isClicking.current = false;
                 origTouchEnd?.(e);
                 scheduleHide();
             },
@@ -160,12 +179,27 @@ export const Tooltip: React.FC<TooltipProps> = ({
         child = (
             <span
                 className='inline-block align-baseline'
+                onMouseDown={() => {
+                    isClicking.current = true;
+                    clearTimers();
+                }}
+                onMouseUp={() => {
+                    queueMicrotask(() => {
+                        isClicking.current = false;
+                    });
+                }}
                 onMouseEnter={(e) => scheduleShow(e.currentTarget as HTMLElement)}
                 onMouseLeave={scheduleHide}
                 onFocus={(e) => scheduleShow(e.currentTarget as HTMLElement)}
                 onBlur={scheduleHide}
-                onTouchStart={(e) => scheduleShow(e.currentTarget as HTMLElement)}
-                onTouchEnd={scheduleHide}
+                onTouchStart={() => {
+                    isClicking.current = true;
+                    clearTimers();
+                }}
+                onTouchEnd={() => {
+                    isClicking.current = false;
+                    scheduleHide();
+                }}
             >
                 {children}
             </span>
@@ -180,7 +214,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                     className={[
                         'fixed z-[100] pointer-events-none select-none',
                         'whitespace-nowrap rounded-md px-2 py-2',
-                        'bg-surface-3 text-s-10 text-xs shadow-lg',
+                        'bg-surface-3 text-s-10 text-xs defined-shadow',
                         'transform transition duration-150',
                         visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
                         pos.placement === 'bottom' ? 'origin-top' : 'origin-bottom',
