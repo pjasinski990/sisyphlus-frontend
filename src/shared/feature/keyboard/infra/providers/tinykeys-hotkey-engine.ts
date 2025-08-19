@@ -1,37 +1,48 @@
-import { ShortcutBinding } from '@/shared/feature/keyboard/entity/shortcut-binding';
 import { HotkeyEngine, HotkeyEngineHandle } from '@/shared/feature/keyboard/application/port/out/hotkey-engine';
-// @ts-expect-error tiny keys doesn’t ship perfect types in some setups
+import { ShortcutBinding } from '@/shared/feature/keyboard/entity/shortcut-binding';
+// @ts-expect-error tinykeys types may be imperfect in some setups
 import { tinykeys } from 'tinykeys';
+
+type ComboMap = Record<string, (e: KeyboardEvent) => void>;
 
 export class TinykeysHotkeyEngine implements HotkeyEngine {
     register(
-        bindings: ShortcutBinding[],
-        opts: { guard?: (e: KeyboardEvent) => boolean; preventDefault?: boolean; target?: Window | HTMLElement } = {}
+        bindings: ReadonlyArray<ShortcutBinding>,
+        opts: {
+            guard?: (e: KeyboardEvent) => boolean;
+            preventDefault?: boolean;
+            target?: Window | HTMLElement;
+        } = {},
     ): HotkeyEngineHandle {
-        const target = (opts.target ?? window) as Window | HTMLElement;
+        const target: Window | HTMLElement = opts.target ?? window;
 
-        const codeMap: Record<string, (e: KeyboardEvent) => void> = {};
+        const codeMap: ComboMap = {};
         const charMap: Array<{ char: string; handler: (e: KeyboardEvent) => void }> = [];
 
+        const wrap = (fn: (e: KeyboardEvent) => void) => (e: KeyboardEvent) => {
+            if (opts.guard && !opts.guard(e)) return;
+            if (opts.preventDefault) e.preventDefault();
+            fn(e);
+        };
+
         for (const b of bindings) {
-            const wrap = (fn: (e: KeyboardEvent) => void) => (e: KeyboardEvent) => {
-                if (opts.guard && !opts.guard(e)) return;
-                if (opts.preventDefault) e.preventDefault();
-                fn(e);
-            };
-            const m = b.combo.match(/^char:(.+)$/i);
-            if (m) {
-                charMap.push({ char: m[1], handler: wrap(b.handler) });
-            } else {
-                codeMap[b.combo] = wrap(b.handler);
+            for (const combo of b.combos) {
+                const m = combo.match(/^char:(.+)$/i);
+                if (m) {
+                    charMap.push({ char: m[1], handler: b.handler });
+                } else {
+                    codeMap[combo] = wrap(b.handler);
+                }
             }
         }
 
         const disposers: Array<() => void> = [];
 
         if (Object.keys(codeMap).length) {
-            const un = tinykeys(target as any, codeMap);
-            disposers.push(un);
+            type TinykeysFn = (t: Window | HTMLElement, map: ComboMap) => () => void;
+            const tk = tinykeys as unknown as TinykeysFn;
+            const unbind = tk(target, codeMap);
+            disposers.push(unbind);
         }
 
         if (charMap.length) {
@@ -45,10 +56,13 @@ export class TinykeysHotkeyEngine implements HotkeyEngine {
                     }
                 }
             };
-            (target as any).addEventListener('keydown', onKeyDown);
-            disposers.push(() => (target as any).removeEventListener('keydown', onKeyDown));
+
+            // Window and HTMLElement are EventTargets; avoid `any`
+            const et: EventTarget = target;
+            et.addEventListener('keydown', onKeyDown as EventListener);
+            disposers.push(() => et.removeEventListener('keydown', onKeyDown as EventListener));
         }
 
-        return { dispose: () => disposers.forEach(d => d()) };
+        return { dispose: () => disposers.forEach((d) => d()) };
     }
 }

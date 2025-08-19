@@ -1,7 +1,7 @@
 export interface ListedShortcut {
     registrationId: string;
     scopeId: string;
-    combo: string;
+    combos: string[];
     description: string;
     group?: string;
 }

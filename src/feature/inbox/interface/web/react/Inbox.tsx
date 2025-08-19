@@ -2,6 +2,7 @@ import React from 'react';
 import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
 import { useInboxTasksQuery } from '@/shared/feature/task/interface/web/react/task-query-hook';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
+import { useTaskCache } from '@/shared/feature/task/interface/web/react/use-task-cache';
 
 export async function openInbox() {
     await dialogController.handleOpen({
@@ -12,9 +13,16 @@ export async function openInbox() {
 }
 
 export const Inbox: React.FC = () => {
-    const { data: tasks = [], isLoading } = useInboxTasksQuery();
-    if (isLoading) {
+    const query = useInboxTasksQuery();
+    const { status, data, error } = query;
+
+    useTaskCache(data);
+
+    if (status === 'pending') {
         return <div>Loading...</div>;
+    }
+    if (status === 'error') {
+        return <div>Error: {(error as Error)?.message}</div>;
     }
 
     return (
@@ -25,7 +33,7 @@ export const Inbox: React.FC = () => {
                 </p>
             </div>
             <div className={'flex flex-col gap-4 p-4'}>
-                { tasks.map((item) =>
+                { data.map((item) =>
                     <TaskCard key={item.id} task={item} />
                 )}
             </div>

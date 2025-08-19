@@ -31,7 +31,7 @@ export class RegisterShortcutUseCase implements RegisterShortcut {
             reg.bindings.map(b => ({
                 registrationId: id,
                 scopeId: reg.scopeId,
-                combo: b.combo,
+                combos: b.combos,
                 description: b.description,
                 group: b.group,
             }))

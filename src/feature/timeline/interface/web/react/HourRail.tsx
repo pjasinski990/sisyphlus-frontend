@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { EnergyLevel } from '@/shared/feature/task/entity/task';
 import { snap } from '@/shared/util/snap';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Tooltip } from '@/shared/util/react/components/Tooltip';
 
 
 type EnergyTicker = {
@@ -213,7 +214,7 @@ function EnergyToolbar({
                         e.stopPropagation();
                         onToggle();
                     }}
-                    title={visible ? 'Hide energy gradient' : 'Show energy gradient'}
+                    title={visible ? 'Hide energy level timeline' : 'Show energy level timeline'}
                 >
                     {visible ? <EyeOffIcon className='h-4 w-4' /> : <EyeIcon className='h-4 w-4' />}
                 </button>
@@ -224,7 +225,7 @@ function EnergyToolbar({
                         e.stopPropagation();
                         onAdd();
                     }}
-                    title='Add peak'
+                    title='Add energy peak'
                 >
                     <Plus className='h-4 w-4' />
                 </button>
@@ -257,33 +258,35 @@ function TickerPeak({ ticker, top, onPointerDown, onRemove, onCycle }: {
     onCycle: () => void;
 }) {
     return (
-        <div className='absolute left-8.5 -right-12 pointer-events-none' style={{ top }}>
+        <div className='absolute left-7.25 -right-13 pointer-events-none' style={{ top }}>
             <div
-                className={ 'absolute inset-x-1 -translate-y-1/2 flex items-center justify-between gap-1 pointer-events-auto group/peak hover:backdrop-blur hover:shadow-md p-1 transition-colors rounded-full' }>
+                className={ 'absolute inset-x-1 -translate-y-1/2 flex items-center justify-between gap-1 pointer-events-auto group/peak hover:backdrop-blur hover:shadow-md p-2 transition-colors rounded-full' }>
                 {/* TODO change all labels to tooltips */}
-                <button
-                    type='button'
-                    aria-label={`${ticker.level} energy peak`}
-                    className='h-4 w-4 rounded-full defined-shadow cursor-grab active:cursor-grabbing'
-                    style={{ background: `var(${COLOR_VAR_BY_LEVEL[ticker.level]})` }}
-                    onPointerDown={onPointerDown}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onCycle();
-                    }}
-                    title={'Drag to move'}
-                />
-                <button
-                    type='button'
-                    className='p-0.5 rounded hover:bg-destructive/15 opacity-0 group-hover/peak:opacity-100 transition-opacity cursor-pointer'
-                    title='Remove peak'
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onRemove();
-                    }}
-                >
-                    <Trash2Icon className='h-4 w-4' />
-                </button>
+                <Tooltip tooltip={'Drag to move'}>
+                    <button
+                        type='button'
+                        aria-label={`${ticker.level} energy peak`}
+                        className='h-4.5 w-4.5 rounded-full defined-shadow cursor-grab active:cursor-grabbing'
+                        style={{ background: `var(${COLOR_VAR_BY_LEVEL[ticker.level]})` }}
+                        onPointerDown={onPointerDown}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onCycle();
+                        }}
+                    />
+                </Tooltip>
+                <Tooltip tooltip={'Remove peak'}>
+                    <button
+                        type='button'
+                        className='p-0.5 rounded hover:bg-destructive/15 opacity-0 group-hover/peak:opacity-100 transition-opacity cursor-pointer'
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onRemove();
+                        }}
+                    >
+                        <Trash2Icon className='h-4.5 w-4.5' />
+                    </button>
+                </Tooltip>
             </div>
         </div>
     );
@@ -326,9 +329,10 @@ function getDefaultTickers(startHour: number): EnergyTicker[] {
     return [
         { id: uuid(), minutes: (7 - startHour) * 60, level: 'medium' },
         { id: uuid(), minutes: (9 - startHour) * 60, level: 'high' },
+        { id: uuid(), minutes: (13 - startHour) * 60, level: 'medium' },
         { id: uuid(), minutes: (14 - startHour) * 60, level: 'low' },
         { id: uuid(), minutes: (17 - startHour) * 60, level: 'medium' },
-        { id: uuid(), minutes: (19 - startHour) * 60, level: 'high' },
+        { id: uuid(), minutes: (19 - startHour) * 60, level: 'medium' },
         { id: uuid(), minutes: (22 - startHour) * 60, level: 'low' },
     ];
 }

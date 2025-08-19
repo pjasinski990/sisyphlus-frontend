@@ -43,9 +43,11 @@ const ShortcutGallery: React.FC<{ scope: string, shortcuts: ListedShortcut[] }> 
 
 const ShortcutCard: React.FC<{ shortcut: ListedShortcut }> = ({ shortcut }) => {
     return (
-        <div className='flex items-center'>
-            <KeyTile text={shortcut.combo} />
-            <span className='ml-4'>{shortcut.description}</span>
+        <div className='flex items-center gap-2'>
+            { shortcut.combos.map( combo =>
+                <KeyTile key={combo} text={combo} />
+            )}
+            <span className={'ml-2'}>{shortcut.description}</span>
             <span className='ml-auto inline-flex items-center h-6 px-2 text-muted lowercase border rounded-md text-sm'>
                 {shortcut.group}
             </span>
@@ -55,7 +57,7 @@ const ShortcutCard: React.FC<{ shortcut: ListedShortcut }> = ({ shortcut }) => {
 
 const KeyTile: React.FC<{ text: string }> = ({ text }) => {
     return (
-        <div className='inline-flex content-center px-3 py-1 rounded-md border-r-5 border-b-5 border-surface-1 bg-secondary-1 text-sm'>
+        <div className='inline-flex content-center px-3 py-1 rounded-md border-r-5 border-b-5 border-surface-2 bg-surface-1 text-sm font-mono'>
             {text.replace(/^char:/, '')}
         </div>
     );

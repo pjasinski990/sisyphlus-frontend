@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { taskController } from '@/shared/feature/task/interface/controller/task-controller';
+import { taskController } from '@/shared/feature/task/interface/controller/inbox-controller';
 import type { Task } from '@/shared/feature/task/entity/task';
 
 const inboxKey = ['tasks','inbox'] as const;

@@ -10,11 +10,10 @@ import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 export function GlobalShortcuts() {
     useShortcutScope('global', true);
     useShortcut('global', [
-        { combo: 'Control+K', handler: () => openCommandPalette(''), description: 'Open Command Palette', group: 'Navigation' },
-        { combo: 'Meta+K', handler: () => openCommandPalette(''), description: 'Open Command Palette', group: 'Navigation' },
-        { combo: 'char:?', handler: openShortcutsHelp, description: 'Open shortcuts help', group: 'Help' },
-        { combo: 'I', handler: openInbox, description: 'Open Inbox', group: 'Navigation' },
-        { combo: 'A', handler: () => openCommandPalette('in '), description: 'Open Inbox', group: 'Navigation' },
+        { combos: ['Control+K', 'Meta+K'], handler: () => openCommandPalette(''), description: 'Open Command Palette', group: 'Navigation' },
+        { combos: ['char:?'], handler: openShortcutsHelp, description: 'Open shortcuts help', group: 'Help' },
+        { combos: ['I'], handler: openInbox, description: 'Open Inbox', group: 'Navigation' },
+        { combos: ['A'], handler: () => openCommandPalette('in '), description: 'Add to Inbox', group: 'Navigation' },
     ]);
     return null;
 }
@@ -23,8 +22,8 @@ export function DialogShortcuts() {
     const { closeTop } = useDialog();
     useShortcutScope('global', true);
     useShortcut('modal', [
-        { combo: 'Escape', handler: closeTop, description: 'Dismiss dialog', group: 'Navigation' },
-        { combo: 'Enter', handler: resolveTopDialog, description: 'Resolve dialog', group: 'Navigation' },
+        { combos: ['Escape'], handler: closeTop, description: 'Dismiss dialog', group: 'Navigation' },
+        { combos: ['Enter'], handler: resolveTopDialog, description: 'Resolve dialog', group: 'Navigation' },
     ]);
     return null;
 }

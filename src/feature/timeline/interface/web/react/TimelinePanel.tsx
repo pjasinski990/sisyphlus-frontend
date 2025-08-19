@@ -3,6 +3,9 @@ import React from 'react';
 import { mockBlocks } from '@/feature/timeline/infra/testing/mock-block';
 import { TwoPartPillButton } from '@/shared/util/react/components/PillButton';
 import { InboxIcon, ListPlusIcon } from 'lucide-react';
+import { taskController } from '@/shared/feature/task/interface/controller/inbox-controller';
+import { openCommandPalette } from '@/app/shortcut-handlers/open-command-pallete';
+import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 
 export const TimelinePanel: React.FC = () => {
     return (
@@ -31,10 +34,12 @@ const TopBar: React.FC = () => {
                     left={{
                         content: <InboxPillLeft />,
                         title: 'Open Inbox [I]',
+                        onClick: openInbox,
                     }}
                     right={{
                         content: <InboxPillRight />,
                         title: 'Add to Inbox [A]',
+                        onClick: () => openCommandPalette('in '),
                     }}
                 />
             </div>
