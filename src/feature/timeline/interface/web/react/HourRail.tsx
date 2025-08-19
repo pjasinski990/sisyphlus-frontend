@@ -207,28 +207,30 @@ function EnergyToolbar({
     return (
         <div className={'absolute top-1 -right-2 z-50 opacity-0 group-hover/rail:opacity-100 transition-opacity'}>
             <div className='flex flex-col items-center gap-1 rounded-md bg-surface-3 backdrop-blur px-0.5 py-0.5 shadow pointer-events-auto'>
-                <button
-                    type='button'
-                    className='p-1 rounded hover:bg-accent/20'
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onToggle();
-                    }}
-                    title={visible ? 'Hide energy level timeline' : 'Show energy level timeline'}
-                >
-                    {visible ? <EyeOffIcon className='h-4 w-4' /> : <EyeIcon className='h-4 w-4' />}
-                </button>
-                <button
-                    type='button'
-                    className='p-1 rounded hover:bg-accent/20'
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onAdd();
-                    }}
-                    title='Add energy peak'
-                >
-                    <Plus className='h-4 w-4' />
-                </button>
+                <Tooltip tooltip={visible ? 'Hide energy level timeline' : 'Show energy level timeline'}>
+                    <button
+                        type='button'
+                        className='p-1 rounded hover:bg-accent/20'
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggle();
+                        }}
+                    >
+                        {visible ? <EyeOffIcon className='h-4 w-4' /> : <EyeIcon className='h-4 w-4' />}
+                    </button>
+                </Tooltip>
+                <Tooltip tooltip={'Add energy peak'}>
+                    <button
+                        type='button'
+                        className='p-1 rounded hover:bg-accent/20'
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onAdd();
+                        }}
+                    >
+                        <Plus className='h-4 w-4' />
+                    </button>
+                </Tooltip>
             </div>
         </div>
     );
@@ -261,8 +263,7 @@ function TickerPeak({ ticker, top, onPointerDown, onRemove, onCycle }: {
         <div className='absolute left-7.25 -right-13 pointer-events-none' style={{ top }}>
             <div
                 className={ 'absolute inset-x-1 -translate-y-1/2 flex items-center justify-between gap-1 pointer-events-auto group/peak hover:backdrop-blur hover:shadow-md p-2 transition-colors rounded-full' }>
-                {/* TODO change all labels to tooltips */}
-                <Tooltip tooltip={'Drag to move'}>
+                <Tooltip tooltip={'Drag to move, click to cycle'}>
                     <button
                         type='button'
                         aria-label={`${ticker.level} energy peak`}

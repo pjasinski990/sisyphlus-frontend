@@ -1,10 +1,24 @@
 import React from 'react';
-import { ButtonProps } from '@/shared/util/react/components/Button';
 import { Tooltip } from '@/shared/util/react/components/Tooltip';
 
-export const PillButton: React.FC<ButtonProps> = ({ className = '', ...props }) => {
-    const classes = 'bg-surface-3 hover:bg-surface-hover rounded-full px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition';
-    return <button {...props} className={`${classes} ${className}`} />;
+type PillButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    dense?: boolean;
+    tooltip?: string;
+};
+
+export const PillButton: React.FC<PillButtonProps> = ({ className = '', dense = false, tooltip, ...props }) => {
+    const pad = dense ? 'px-2 py-1.5' : 'px-4 py-3';
+    const base = 'bg-surface-3 hover:bg-surface-hover transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed rounded-full';
+
+    const btn = (
+        <button
+            {...props}
+            className={`${base} ${pad} ${className}`}
+            type={props.type ?? 'button'}
+        />
+    );
+
+    return tooltip ? <Tooltip tooltip={tooltip}>{btn}</Tooltip> : btn;
 };
 
 type PillSegment = {

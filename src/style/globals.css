@@ -32,9 +32,12 @@
   --ink-100: oklch(0.22 0.03 260);
 
   /* Stone */
-  --stone-1: oklch(0.95 0.01 95);
-  --stone-2: oklch(0.70 0.04 45);
-  --stone-3: oklch(0.45 0.02 280);
+  --stone-1-light: oklch(0.92 0.06 240);
+  --stone-1-dark: oklch(0.48 0.15 240);
+  --stone-2-light: oklch(0.82 0.08 290);
+  --stone-2-dark: oklch(0.42 0.20 290);
+  --stone-3-light: oklch(0.80 0.10 160);
+  --stone-3-dark: oklch(0.38 0.14 160);
 
   /* Brand accent ramp */
   --brand-10: oklch(0.97 0.03 85);
@@ -56,6 +59,7 @@
 
   --text-1: var(--ink-100);
   --text-2: var(--ink-80);
+  --text-reversed: var(--ink-10);
   --muted:  var(--ink-60);
 
   --focus:  var(--brand-70);
@@ -65,9 +69,9 @@
   --accent-high: var(--brand-90);
   --accent-contrast: var(--ink-100);
 
-  --secondary-1: var(--stone-1);
-  --secondary-2: var(--stone-2);
-  --secondary-3: var(--stone-3);
+  --secondary-1: var(--stone-1-dark);
+  --secondary-2: var(--stone-2-dark);
+  --secondary-3: var(--stone-3-dark);
 
   --success: var(--success-60);
   --warning: var(--warning-60);
@@ -78,7 +82,7 @@
 
   /* App specific */
   --low-energy: oklch(70% 0.10 250);
-  --medium-energy: oklch(80% 0.14 90);
+  --medium-energy: oklch(75% 0.18 90);
   --high-energy: oklch(70% 0.20 25);
 }
 
@@ -90,6 +94,7 @@
 
   --text-1: var(--ink-10);
   --text-2: var(--ink-30);
+  --text-reversed: var(--ink-90);
   --muted:  var(--ink-50);
 
   --border: oklch(0.36 0.02 260);
@@ -100,9 +105,9 @@
   --accent-high: var(--brand-30);
   --accent-contrast: var(--ink-100);
 
-  --secondary-1: var(--stone-3);
-  --secondary-2: var(--stone-2);
-  --secondary-3: var(--stone-1);
+  --secondary-1: var(--stone-1-light);
+  --secondary-2: var(--stone-2-light);
+  --secondary-3: var(--stone-3-light);
 
   --surface-hover: color-mix(in oklab, var(--surface-1), white 6%);
   --surface-active: color-mix(in oklab, var(--surface-1), white 8%);
@@ -147,6 +152,7 @@
 
   --color-text-1: var(--text-1);
   --color-text-2: var(--text-2);
+  --color-text-reversed: var(--text-reversed);
   --color-muted: var(--muted);
 
   --color-border: var(--border);

@@ -27,12 +27,12 @@ export const Inbox: React.FC = () => {
 
     return (
         <div className={'flex flex-1 flex-col'}>
-            <div className={'flex justify-between items-center border-b border-surface-1/50 px-4 pb-2'}>
-                <p className={'font-bold'}>
-                    Inbox
+            <div className={'flex justify-between items-center px-4'}>
+                <p className={'font-bold font-mono text-secondary-1'}>
+                    inbox
                 </p>
             </div>
-            <div className={'flex flex-col gap-4 p-4'}>
+            <div className={'flex flex-col gap-4 p-4 max-h-[80vh] overflow-y-auto'}>
                 { data.map((item) =>
                     <TaskCard key={item.id} task={item} />
                 )}

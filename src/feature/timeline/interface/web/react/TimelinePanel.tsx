@@ -3,7 +3,6 @@ import React from 'react';
 import { mockBlocks } from '@/feature/timeline/infra/testing/mock-block';
 import { TwoPartPillButton } from '@/shared/util/react/components/PillButton';
 import { InboxIcon, ListPlusIcon } from 'lucide-react';
-import { taskController } from '@/shared/feature/task/interface/controller/inbox-controller';
 import { openCommandPalette } from '@/app/shortcut-handlers/open-command-pallete';
 import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 
@@ -22,7 +21,7 @@ const TopBar: React.FC = () => {
     return (
         <div className={'flex justify-between mx-8 min-h-32'}>
             <div className='flex flex-col py-8'>
-                <p className={'font-bold'}>
+                <p className={'text-secondary-2 font-mono'}>
                     {today()}
                 </p>
                 <div>
@@ -39,7 +38,7 @@ const TopBar: React.FC = () => {
                     right={{
                         content: <InboxPillRight />,
                         title: 'Add to Inbox [A]',
-                        onClick: () => openCommandPalette('in '),
+                        onClick: () => openCommandPalette('add '),
                     }}
                 />
             </div>
@@ -50,9 +49,9 @@ const TopBar: React.FC = () => {
 const InboxPillLeft = () => {
     return (
         <div className={'flex items-center gap-2'}>
-            <InboxIcon className={'w-5 h-5'} />
-            <span className={'uppercase font-semibold text-sm'}>
-                Inbox
+            <InboxIcon className={'w-5 h-5 stroke-secondary-1'} />
+            <span className={'font-mono text-secondary-1 text-sm'}>
+                inbox
             </span>
         </div>
     );
@@ -60,7 +59,7 @@ const InboxPillLeft = () => {
 
 const InboxPillRight = () => {
     return (
-        <ListPlusIcon />
+        <ListPlusIcon className={'w-6 h-6 stroke-secondary-1'} />
     );
 };
 

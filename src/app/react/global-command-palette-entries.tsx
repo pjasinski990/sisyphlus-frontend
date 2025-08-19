@@ -30,7 +30,7 @@ export const CommandPaletteEntries: React.FC = () => {
             subtitle: 'Push a task to the Inbox',
             group: 'Tasks',
             keywords: ['add', 'task', 'todo', 'inbox'],
-            aliases: ['in', 'task'],
+            aliases: ['add', 'in', 'task'],
             syntax: {
                 positionals: [{ name: 'title', schema: z.string(), rest: true }],
                 prefixes: [

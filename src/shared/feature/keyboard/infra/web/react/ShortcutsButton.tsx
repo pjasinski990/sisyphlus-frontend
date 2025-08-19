@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tooltip } from '@/shared/util/react/components/Tooltip';
-import { Keyboard } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { KeyboardIcon } from 'lucide-react';
 
 export const ShortcutsButton: React.FC<{
     onClick?: () => void;
@@ -12,9 +12,9 @@ export const ShortcutsButton: React.FC<{
             <button
                 type='button'
                 onClick={onClick}
-                aria-label='Open keyboard shortcuts'
+                aria-label='Keyboard shortcuts info'
                 className={
-                    'inline-flex items-center cursor-pointer transition-colors text-foreground hover:text-accent' + (className ?? '')
+                    'inline-flex items-center cursor-pointer transition-colors hover:text-accent' + (className ?? '')
                 }
             >
                 <span className='relative inline-block w-6 h-6'>
@@ -27,7 +27,7 @@ export const ShortcutsButton: React.FC<{
                             exit={{ opacity: 0.6, scale: 0.92 }}
                             transition={{ duration: 0.12, ease: 'easeOut' }}
                         >
-                            <Keyboard className='w-6 h-6 shrink-0' aria-hidden />
+                            <KeyboardIcon className='w-6 h-6 shrink-0' aria-hidden />
                         </motion.span>
                     </AnimatePresence>
                 </span>

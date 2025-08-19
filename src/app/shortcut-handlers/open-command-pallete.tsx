@@ -3,6 +3,7 @@ import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { CommandSyntax, HeadMatcher, PrefixSpec } from '@/shared/feature/command-palette/entity/syntax';
 import { commandPaletteController } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
+import { defaultPaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
 
 // TODO refactor, cleanup, show enum options, show required / optionals
 export async function openCommandPalette(withCommand?: string) {
@@ -74,7 +75,7 @@ const OptionsRow: React.FC<{
                             <motion.span
                                 key={`pos-${i}-${filled ? 'on' : 'off'}`}
                                 className={`px-2 py-1 rounded-md border text-xs ${
-                                    filled ? 'text-accent-contrast border-accent bg-accent/30' : 'text-muted-foreground border-surface-1/60'
+                                    filled ? 'border-secondary-1 bg-secondary-1/30' : 'text-muted-foreground border-surface-1/60'
                                 }`}
                                 animate={filled ? presentAnimate : {}}
                                 transition={presentTransition}
@@ -94,7 +95,7 @@ const OptionsRow: React.FC<{
                             <motion.span
                                 key={`pre-${i}-${provided ? 'on' : 'off'}`}
                                 className={`px-2 py-1 rounded-md border text-xs inline-flex items-center gap-1 ${
-                                    provided ? 'text-accent-contrast border-accent bg-accent/30' : 'text-muted-foreground border-surface-1/60'
+                                    provided ? 'border-secondary-1 bg-secondary-1/30' : 'text-muted-foreground border-surface-1/60'
                                 }`}
                                 animate={provided ? presentAnimate : {}}
                                 transition={presentTransition}
@@ -118,7 +119,10 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     const suggestions = React.useMemo(() => {
-        return commandPaletteController.handleSuggest(value, 20);
+        const trimmed = value.trimStart();
+        const idx = trimmed.indexOf(' ');
+        const command = idx === -1 ? trimmed : trimmed.slice(0, idx);
+        return commandPaletteController.handleSuggest(command, 20);
     }, [value]);
 
     const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = async (e) => {
@@ -223,7 +227,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                             <button
                                 key={s.id}
                                 type='button'
-                                className='flex justify-between items-start gap-3 p-3 text-sm hover:bg-accent/10 cursor-pointer w-full bg-transparent text-left'
+                                className='flex justify-between items-start gap-3 p-3 text-sm hover:bg-secondary-1/10 cursor-pointer w-full bg-transparent text-left'
                                 onClick={() => {
                                     setValue(s.aliases.at(0) ?? '');
                                     inputRef.current?.focus();
@@ -250,7 +254,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                                                         : {}
                                                 }
                                                 transition={{ duration: 0.15 }}
-                                                className={`px-2 py-1 border rounded-md text-sm ${isActive ? 'text-accent-contrast border-accent bg-accent/30' : ''}`}
+                                                className={`px-2 py-1 border rounded-md text-sm ${isActive ? 'text-text-1 border-secondary-1 bg-secondary-1/30' : ''}`}
                                             >
                                                 {a}
                                             </motion.span>
