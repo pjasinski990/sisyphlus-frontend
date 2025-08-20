@@ -11,45 +11,64 @@
     animation-delay: calc(var(--i, 0) * var(--wave-stagger, 0.06s));
 }
 
-@keyframes wave {
+.wavy-w.simple {
+    display: inline-block;
+    will-change: transform;
+    transform: translateY(0);
+    animation: simple-wave var(--wave-period, 1.1s) ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * var(--wave-stagger, 0.06s));
+}
+
+.wavy-s {
+    display: inline-block;
+    transform: translate(0, 0);
+    animation: shake var(--shake-period, 0.18s) linear infinite;
+    animation-delay: var(--shake-delay, 0ms);
+    text-shadow: 0 0 0 currentColor;
+}
+
+@keyframes simple-wave {
     0%   { transform: translateY(0); }
     50%  { transform: translateY(calc(-1 * var(--wave-amp, 0.20em))); }
     100% { transform: translateY(0); }
 }
 
-.wavy-s {
-    display: inline-block;
-    will-change: transform;
-    transform: translate(0, 0);
-    animation: shake var(--shake-period, 0.18s) linear infinite;
-    animation-delay: var(--shake-delay, 0ms);
-}
-
-@keyframes shake {
-    0%   { transform: translate(0, 0); }
-    25%  { transform: translate(var(--shake-amp, 0.08em), 0); }
-    50%  { transform: translate(0, 0); }
-    75%  { transform: translate(calc(-1 * var(--shake-amp, 0.08em)), 0); }
-    100% { transform: translate(0, 0); }
-}
-
 @keyframes wave {
-    0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
-    25%  { transform: translate3d(0, calc(-1 * var(--wave-amp)), 0) rotate(-2deg); }
-    50%  { transform: translate3d(0, 0, 0) rotate(0deg); }
-    75%  { transform: translate3d(0, var(--wave-amp), 0) rotate(2deg); }
-    100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    17%  { transform: translate(0, calc(-1 * var(--wave-amp))) rotate(-2deg); }
+    34%  { transform: translate(0, calc(-1 * var(--wave-amp))) rotate(0deg); }
+    50%  { transform: translate(0, 0) rotate(2deg); }
+    66%  { transform: translate(0, var(--wave-amp)) rotate(0deg); }
+    83%  { transform: translate(0, var(--wave-amp)) rotate(-2deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 @keyframes shake {
-    0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
-    20%  { transform: translate3d(calc(var(--shake-amp) *  0.50), calc(var(--shake-amp) * -0.40), 0) rotate(-0.3deg); }
-    40%  { transform: translate3d(calc(var(--shake-amp) * -0.35), calc(var(--shake-amp) *  0.30), 0) rotate(0.4deg); }
-    60%  { transform: translate3d(calc(var(--shake-amp) *  0.40), calc(var(--shake-amp) *  0.20), 0) rotate(-0.2deg); }
-    80%  { transform: translate3d(calc(var(--shake-amp) * -0.20), calc(var(--shake-amp) * -0.30), 0) rotate(0.3deg); }
-    100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    20%  { transform: translate(calc(var(--shake-amp) *  0.50), calc(var(--shake-amp) * -0.40)) rotate(-0.25deg); }
+    40%  { transform: translate(calc(var(--shake-amp) * -0.35), calc(var(--shake-amp) *  0.30)) rotate(0.3deg); }
+    60%  { transform: translate(calc(var(--shake-amp) *  0.40), calc(var(--shake-amp) *  0.20)) rotate(-0.2deg); }
+    80%  { transform: translate(calc(var(--shake-amp) * -0.20), calc(var(--shake-amp) * -0.30)) rotate(0.25deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.wavy, .wavy * {
+    backface-visibility: hidden;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
 }
 
 @media (prefers-reduced-motion: reduce) {
     .wavy-w, .wavy-s { animation: none !important; }
+}
+
+@supports (transform: translateY(round(1px, 1px))) {
+    .wavy-w.simple {
+        animation-name: simple-wave-snap;
+    }
+    @keyframes simple-wave-snap {
+        0%   { transform: translateY(round(0px, 1px)); }
+        50%  { transform: translateY(round(calc(-1 * var(--wave-amp)), 1px)); }
+        100% { transform: translateY(round(0px, 1px)); }
+    }
 }

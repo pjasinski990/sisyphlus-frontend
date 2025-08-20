@@ -68,7 +68,7 @@ const EmptyInboxPlaceholder = () => {
                 to immediately open it with &quot;add&quot; command.
             </p>
             <p>
-                * The keyboard shortcuts work when no dialogs are open.
+                * These keyboard shortcuts work when no dialogs are open.
             </p>
         </div>
     );

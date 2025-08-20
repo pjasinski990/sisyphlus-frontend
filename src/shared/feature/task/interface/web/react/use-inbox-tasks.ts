@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { taskController } from '@/shared/feature/task/interface/controller/inbox-controller';
 import type { Task } from '@/shared/feature/task/entity/task';
 import { v4 as uuid } from 'uuid';
+import { keepPreviousData } from '@tanstack/query-core';
 
 export const inboxKey = ['tasks','inbox'] as const;
 
@@ -13,6 +14,9 @@ export function useInboxTasksQuery() {
             if (!res.ok) throw new Error(res.error);
             return res.value;
         },
+        placeholderData: keepPreviousData,
+        staleTime: 15_000,
+        refetchOnWindowFocus: false,
     });
 }
 

@@ -4,6 +4,7 @@ import { CalendarArrowUpIcon, CalendarClockIcon, CalendarFoldIcon, FlameIcon, Ti
 import { Tooltip } from '@/shared/util/react/components/Tooltip';
 import { Wavy } from '@/shared/util/react/components/Wavy';
 import { Random } from '@/shared/util/random';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export const TaskCard: React.FC<{
     task: Task,
@@ -31,13 +32,24 @@ export const TaskCard: React.FC<{
                     <p className={'font-bold'}>{task.title}</p>
                     <BottomInfoRow task={task} />
                 </div>
-                {showScheduling &&
-                    <SchedulingOptions
-                        onSchedulePrimary={ onSchedulePrimary }
-                        onScheduleSecondary={ onScheduleSecondary }
-                        onScheduleCustom={ onScheduleCustom }
-                    />
-                }
+                <AnimatePresence initial={false}>
+                    {showScheduling && (
+                        <motion.div
+                            key='sched'
+                            initial={{ opacity: 0, x: 4 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 4 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
+                            className='transform-gpu will-change-[opacity,transform]'
+                        >
+                            <SchedulingOptions
+                                onSchedulePrimary={onSchedulePrimary}
+                                onScheduleSecondary={onScheduleSecondary}
+                                onScheduleCustom={onScheduleCustom}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
@@ -154,19 +166,19 @@ function getEnergyIconClass(level: EnergyLevel) {
 }
 
 export const LowEnergyIcon: React.FC<{ wavePeriod: string}> = ({ wavePeriod }) => (
-    <Wavy amp={'0.05rem'} shakeMin={'0.05rem'} period={wavePeriod } shakeMax={'0.1rem'}>
-        <FlameIcon className={`${getEnergyIconClass('low')} w-5 h-5 pt-[2px]`} />
+    <Wavy amp={'0.05rem'} shakeMin={'0.05rem'} period={wavePeriod } shakeMax={'0.15rem'}>
+        <FlameIcon className={`${getEnergyIconClass('low')} w-5 h-5 pt-[2px] flame-flicker`} />
     </Wavy>
 );
 
 export const MediumEnergyIcon: React.FC<{ wavePeriod: string}> = ({ wavePeriod }) => (
-    <Wavy amp={'0.05rem'} shakeMin={'0.1rem'} period={wavePeriod} shakeMax={'0.3rem'}>
-        <FlameIcon className={`${getEnergyIconClass('medium')} w-5 h-5 pt-[2px]`} />
+    <Wavy amp={'0.05rem'} shakeMin={'0.15rem'} period={wavePeriod} shakeMax={'0.25rem'}>
+        <FlameIcon className={`${getEnergyIconClass('medium')} w-5 h-5 pt-[2px] flame-flicker`} />
     </Wavy>
 );
 
 export const HighEnergyIcon: React.FC<{ wavePeriod: string}> = ({ wavePeriod }) => (
-    <Wavy amp={'0.05rem'} shakeMin={'0.2rem'} period={wavePeriod} shakeMax={'0.3rem'}>
-        <FlameIcon className={`${getEnergyIconClass('high')} w-5 h-5 pt-[2px]`} />
+    <Wavy amp={'0.05rem'} shakeMin={'0.25rem'} period={wavePeriod} shakeMax={'0.35rem'}>
+        <FlameIcon className={`${getEnergyIconClass('high')} w-5 h-5 pt-[2px] flame-flicker`} />
     </Wavy>
 );

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '@/shared/feature/task/entity/task';
 import type { DayPlan, DayPlanEntry } from '@/shared/feature/task/entity/day-plan';
 import { dayPlanController } from '@/shared/feature/task/interface/controller/day-plan-controller';
+import { keepPreviousData } from '@tanstack/query-core';
 
 const dayPlanKey = (localDate: string) => ['plan', localDate] as const;
 
@@ -13,6 +14,9 @@ export function useDayPlanQuery(localDate: string) {
             if (!res.ok) throw new Error(res.error);
             return res.value as DayPlan;
         },
+        placeholderData: keepPreviousData,
+        staleTime: 15_000,
+        refetchOnWindowFocus: false,
     });
 }
 

@@ -82,7 +82,7 @@
 
   /* App specific */
   --low-energy: oklch(70% 0.10 250);
-  --medium-energy: oklch(75% 0.18 90);
+  --medium-energy: oklch(70% 0.18 90);
   --high-energy: oklch(70% 0.20 25);
 }
 
@@ -114,7 +114,7 @@
 
   /* App specific */
   --low-energy: oklch(65% 0.10 250);
-  --medium-energy: oklch(70% 0.14 90);
+  --medium-energy: oklch(65% 0.14 90);
   --high-energy: oklch(65% 0.20 25);
 }
 
@@ -346,5 +346,16 @@
   .btn:disabled, .btn.disabled {
     opacity: 0.5;
     pointer-events: none;
+  }
+
+  @keyframes flame-flicker {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    25% { transform: scale(1.03) rotate(-2deg); opacity: 0.9; }
+    50% { transform: scale(0.98) rotate(2deg); opacity: 1; }
+    75% { transform: scale(1.05) rotate(-2deg); opacity: 0.95; }
+  }
+
+  .flame-flicker {
+    animation: flame-flicker 0.4s infinite;
   }
 }

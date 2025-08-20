@@ -5,14 +5,16 @@ type Props = {
     text: string;
     byLetter?: boolean;
     className?: string;
-    amp?: string;          // wave amplitude, e.g. "0.35em"
-    period?: string;       // wave period, e.g. "1.1s"
-    stagger?: string;      // inter-letter delay, e.g. "0.06s"
-    shakeMax?: string;     // max shake amplitude, e.g. "0.08em"
-    shakeMin?: string;     // min shake amplitude, e.g. "0.03em"
-    shakePeriodMin?: string; // e.g. "0.12s"
-    shakePeriodMax?: string; // e.g. "0.22s"
+    amp?: string;
+    period?: string;
+    stagger?: string;
+    shakeMax?: string;
+    shakeMin?: string;
+    shakePeriodMin?: string;
+    shakePeriodMax?: string;
 };
+
+type Unit = { text: string; isSpace: boolean };
 
 export const WavyText: React.FC<Props> = ({
     text,
@@ -26,6 +28,14 @@ export const WavyText: React.FC<Props> = ({
     shakePeriodMin = '0.12s',
     shakePeriodMax = '0.22s',
 }) => {
+    const units: Unit[] = useMemo(() => {
+        if (byLetter) {
+            return [...text].map(ch => ({ text: ch, isSpace: ch === ' ' }));
+        }
+        const parts = text.split(/(\s+)/);
+        return parts.map(p => ({ text: p, isSpace: /^\s+$/.test(p) }));
+    }, [text, byLetter]);
+
     const seeds = useMemo(() => {
         const toMs = (v: string) => (v.endsWith('ms') ? parseFloat(v) : parseFloat(v) * 1000);
         const minAmp = parseFloat(shakeMin);
@@ -33,17 +43,19 @@ export const WavyText: React.FC<Props> = ({
         const minP = toMs(shakePeriodMin);
         const maxP = toMs(shakePeriodMax);
 
-        return [...text].map((_, i) => {
+        const animatedCount = units.filter(u => !u.isSpace).length;
+
+        return Array.from({ length: animatedCount }, (_, i) => {
             const r = Math.sin(i * 12.9898) * 43758.5453;
             const frac = r - Math.floor(r);
-
-            const amp = (minAmp + frac * (maxAmp - minAmp)).toFixed(4) + 'em';
+            const ampVal = (minAmp + frac * (maxAmp - minAmp)).toFixed(4) + 'em';
             const periodMs = Math.round(minP + (1 - frac) * (maxP - minP));
             const delayMs = Math.round(frac * 100);
-
-            return { amp, period: `${periodMs}ms`, delay: `${delayMs}ms` };
+            return { amp: ampVal, period: `${periodMs}ms`, delay: `${delayMs}ms` };
         });
-    }, [text, shakeMax, shakeMin, shakePeriodMin, shakePeriodMax]);
+    }, [units, shakeMax, shakeMin, shakePeriodMin, shakePeriodMax]);
+
+    let animatedIndex = 0;
 
     return (
         <span
@@ -57,22 +69,37 @@ export const WavyText: React.FC<Props> = ({
             }
             aria-label={text}
         >
-            {[...text].map((ch, i) => (
-                <span key={i} className='wavy-w' style={{ ['--i' as any]: i }}>
+            {units.map((u, i) => {
+                if (u.isSpace) {
+                    const nbsp = u.text.replace(/ /g, '\u00A0');
+                    return <span key={i} aria-hidden='true'>{nbsp}</span>;
+                }
+
+                const seed = seeds[animatedIndex];
+                const currentIndex = animatedIndex;
+                animatedIndex += 1;
+
+                return (
                     <span
-                        className='wavy-s'
-                        style={
-                            {
-                                ['--shake-amp' as any]: seeds[i].amp,
-                                ['--shake-period' as any]: seeds[i].period,
-                                ['--shake-delay' as any]: seeds[i].delay,
-                            } as React.CSSProperties
-                        }
+                        key={i}
+                        className={`wavy-w ${byLetter ? '' : 'simple'}`}
+                        style={{ ['--i' as any]: currentIndex } as React.CSSProperties}
                     >
-                        {ch === ' ' ? '\u00A0' : ch}
+                        <span
+                            className='wavy-s'
+                            style={
+                                {
+                                    ['--shake-amp' as any]: seed.amp,
+                                    ['--shake-period' as any]: seed.period,
+                                    ['--shake-delay' as any]: seed.delay,
+                                } as React.CSSProperties
+                            }
+                        >
+                            {u.text}
+                        </span>
                     </span>
-                </span>
-            ))}
+                );
+            })}
         </span>
     );
 };
