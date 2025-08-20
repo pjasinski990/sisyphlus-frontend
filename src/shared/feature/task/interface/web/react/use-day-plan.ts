@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '@/shared/feature/task/entity/task';
 import type { DayPlan, DayPlanEntry } from '@/shared/feature/task/entity/day-plan';
 import { dayPlanController } from '@/shared/feature/task/interface/controller/day-plan-controller';
@@ -16,7 +16,7 @@ export function useDayPlanQuery(localDate: string) {
     });
 }
 
-export function usePromoteTaskToPlanned(localDate: string) {
+export function useScheduleTaskFor(localDate: string) {
     const qc = useQueryClient();
     const key = dayPlanKey(localDate);
 
@@ -35,7 +35,7 @@ export function usePromoteTaskToPlanned(localDate: string) {
             const prev = qc.getQueryData<DayPlan>(key);
 
             const nextOrder =
-                (prev?.entries?.[prev.entries.length - 1]?.order ?? 0) + 10;
+                (prev?.entries?.[prev.entries.length - 0]?.order ?? 0) + 10;
 
             const tempEntry: DayPlanEntry = {
                 id: `temp-${crypto.randomUUID()}`,

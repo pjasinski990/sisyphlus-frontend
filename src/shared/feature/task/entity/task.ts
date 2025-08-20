@@ -2,9 +2,9 @@ import { Schedule } from '@/shared/feature/task/entity/schedule';
 import { Anchor } from '@/shared/feature/task/entity/anchor';
 
 export type TaskCategory = 'simple' | 'recurring';
-export type TaskStatus = 'todo' | 'done' | 'archived';
+export type TaskStatus = 'todo' | 'planned' | 'done' | 'archived';
 export type EnergyLevel = 'low' | 'medium' | 'high';
-export type FlowStatus = 'active' | 'paused' | 'archived';
+export type FlowStatus = 'todo' | 'active' | 'paused' | 'archived';
 
 export interface BaseTask {
     id: string;
@@ -27,6 +27,7 @@ export interface BaseTask {
 export interface SimpleTask extends BaseTask {
     category: 'simple';
     status: TaskStatus;
+    plannedFor?: string; // local date
     finishedAt?: string;
 }
 

@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 
 type Props = {
     text: string;
+    byLetter?: boolean;
     className?: string;
     amp?: string;          // wave amplitude, e.g. "0.35em"
     period?: string;       // wave period, e.g. "1.1s"
@@ -16,6 +17,7 @@ type Props = {
 export const WavyText: React.FC<Props> = ({
     text,
     className,
+    byLetter = true,
     amp = '0.20em',
     period = '1.1s',
     stagger = '0.06s',

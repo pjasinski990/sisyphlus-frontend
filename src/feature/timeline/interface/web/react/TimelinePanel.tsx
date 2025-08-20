@@ -1,6 +1,5 @@
 import { Timeline } from '@/feature/timeline/interface/web/react/Timeline';
 import React from 'react';
-import { mockBlocks } from '@/feature/timeline/infra/testing/mock-block';
 import { TwoPartPillButton } from '@/shared/util/react/components/PillButton';
 import { InboxIcon, ListPlusIcon } from 'lucide-react';
 import { openCommandPalette } from '@/app/shortcut-handlers/open-command-pallete';
@@ -11,7 +10,7 @@ export const TimelinePanel: React.FC = () => {
         <div className={'flex flex-2 my-8 bg-surface-2 rounded-xl defined-shadow'}>
             <div className={'flex flex-col items- w-full min-h-0'}>
                 <TopBar />
-                <Timeline blocks={mockBlocks} />
+                <Timeline blocks={[]} />
             </div>
         </div>
     );

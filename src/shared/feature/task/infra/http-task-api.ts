@@ -17,7 +17,8 @@ export class HttpTaskApi implements InboxApi {
         const params = new URLSearchParams();
         ids.forEach(id => params.append('ids', id));
 
-        const url = `/inbox?${params.toString()}`;
+        const url = `/task?${params.toString()}`;
+        console.log('get by ids url', url);
         const res = await httpClient.get<Task[]>(url);
         return res.data;
     }

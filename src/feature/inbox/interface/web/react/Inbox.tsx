@@ -1,10 +1,11 @@
 import React from 'react';
 import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
-import { useInboxTasksQuery } from '@/shared/feature/task/interface/web/react/task-query-hook';
+import { useInboxTasksQuery } from '@/shared/feature/task/interface/web/react/use-inbox-tasks';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
-import { useTaskCache } from '@/shared/feature/task/interface/web/react/use-task-cache';
-import { dayPlanController } from '@/shared/feature/task/interface/controller/day-plan-controller';
-import { todayLocalDate } from '@/shared/util/today-local-date';
+import { todayLocalDate, tomorrowLocalDate } from '@/shared/util/local-date-helper';
+import { useScheduleTaskFor } from '@/shared/feature/task/interface/web/react/use-day-plan';
+import { Task } from '@/shared/feature/task/entity/task';
+import { openCommandPalette } from '@/app/shortcut-handlers/open-command-pallete';
 
 export async function openInbox() {
     await dialogController.handleOpen({
@@ -15,11 +16,8 @@ export async function openInbox() {
 }
 
 export const Inbox: React.FC = () => {
-    const today = todayLocalDate();
     const query = useInboxTasksQuery();
     const { status, data, error } = query;
-
-    useTaskCache(data);
 
     if (status === 'pending') {
         return <div>Loading...</div>;
@@ -29,23 +27,71 @@ export const Inbox: React.FC = () => {
     }
 
     return (
-        <div className={'flex flex-1 flex-col'}>
-            <div className={'flex justify-between items-center px-4'}>
+        <div className={'flex flex-1 flex-col px-4'}>
+            <div className={'flex justify-between items-center'}>
                 <p className={'font-bold font-mono text-secondary-1'}>
                     inbox
                 </p>
             </div>
-            <div className={'flex flex-col gap-4 p-4 max-h-[80vh] overflow-y-auto'}>
-                { data.map((item) =>
-                    <TaskCard
-                        key={item.id}
-                        task={item}
-                        onSchedulePrimary={ () => dayPlanController.handleScheduleTask(today, item.id) }
-                        onScheduleSecondary={ () => console.log('tomorrow') }
-                        onScheduleCustom={ () => console.log('custom') }
-                    />
-                )}
-            </div>
+            { data?.length === 0
+                ? <EmptyInboxPlaceholder />
+                : <InboxTaskList tasks={data} />
+            }
+        </div>
+    );
+};
+
+const EmptyInboxPlaceholder = () => {
+    return (
+        <div className={'text-muted px-8 pt-4 pb-8'}>
+            <h2>
+                Nothing here yet.
+            </h2>
+            <p>
+                * Dump your tasks quickly using the
+                <button
+                    className={'inline-block px-1 py-0.5 font-mono rounded-sm text-secondary-3 hover:bg-surface-1/50 cursor-pointer'}
+                    onClick={() => openCommandPalette()}
+                >
+                    command palette [C-k]
+                </button>
+                .
+            </p>
+            <p className={'inline'}>
+                * Press
+                <button
+                    className={'inline-block px-1 py-0.5 font-mono rounded-sm text-secondary-3 hover:bg-surface-1/50 cursor-pointer'}
+                    onClick={() => openCommandPalette('add ')}
+                >
+                    [A]
+                </button>
+                to immediately open it with &quot;add&quot; command.
+            </p>
+            <p>
+                * The keyboard shortcuts work when no dialogs are open.
+            </p>
+        </div>
+    );
+};
+
+const InboxTaskList: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
+    const today = todayLocalDate();
+    const tomorrow = tomorrowLocalDate();
+
+    const { mutate: scheduleToday } = useScheduleTaskFor(today);
+    const { mutate: scheduleTomorrow } = useScheduleTaskFor(tomorrow);
+
+    return (
+        <div className={'flex flex-col gap-4 p-4 max-h-[80vh] overflow-y-auto'}>
+            { tasks.map((item) =>
+                <TaskCard
+                    key={item.id}
+                    task={item}
+                    onSchedulePrimary={ () => scheduleToday(item) }
+                    onScheduleSecondary={ () => scheduleTomorrow(item) }
+                    onScheduleCustom={ () => console.log('custom') }
+                />
+            )}
         </div>
     );
 };

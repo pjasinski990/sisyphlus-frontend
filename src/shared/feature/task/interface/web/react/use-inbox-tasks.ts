@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { taskController } from '@/shared/feature/task/interface/controller/inbox-controller';
 import type { Task } from '@/shared/feature/task/entity/task';
+import { v4 as uuid } from 'uuid';
 
-const inboxKey = ['tasks','inbox'] as const;
+export const inboxKey = ['tasks','inbox'] as const;
 
 export function useInboxTasksQuery() {
     return useQuery({
@@ -29,7 +30,7 @@ export function usePushToInboxMutation() {
             await qc.cancelQueries({ queryKey: inboxKey });
             const prev = qc.getQueryData<Task[]>(inboxKey) ?? [];
 
-            const temp: Task = { ...inputTask, id: `temp-${crypto.randomUUID()}` };
+            const temp: Task = { ...inputTask, id: `temp-${uuid()}` };
             qc.setQueryData<Task[]>(inboxKey, [...prev, temp]);
 
             return { prev, tempId: temp.id };
@@ -50,6 +51,5 @@ export function usePushToInboxMutation() {
         onSettled: () => {
             void qc.invalidateQueries({ queryKey: inboxKey });
         },
-
     });
 }

@@ -210,7 +210,7 @@ function EnergyToolbar({
                 <Tooltip tooltip={visible ? 'Hide energy level timeline' : 'Show energy level timeline'}>
                     <button
                         type='button'
-                        className='p-1 rounded hover:bg-accent/20'
+                        className='p-1 rounded hover:bg-surface-1/50'
                         onClick={(e) => {
                             e.stopPropagation();
                             onToggle();
@@ -222,7 +222,7 @@ function EnergyToolbar({
                 <Tooltip tooltip={'Add energy peak'}>
                     <button
                         type='button'
-                        className='p-1 rounded hover:bg-accent/20'
+                        className='p-1 rounded hover:bg-surface-1/50'
                         onClick={(e) => {
                             e.stopPropagation();
                             onAdd();
