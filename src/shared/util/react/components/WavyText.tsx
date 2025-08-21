@@ -62,9 +62,9 @@ export const WavyText: React.FC<Props> = ({
             className={`wavy ${className ?? ''}`}
             style={
                 {
-                    ['--wave-amp' as any]: amp,
-                    ['--wave-period' as any]: period,
-                    ['--wave-stagger' as any]: stagger,
+                    ['--wave-amp']: amp,
+                    ['--wave-period']: period,
+                    ['--wave-stagger']: stagger,
                 } as React.CSSProperties
             }
             aria-label={text}
@@ -83,15 +83,15 @@ export const WavyText: React.FC<Props> = ({
                     <span
                         key={i}
                         className={`wavy-w ${byLetter ? '' : 'simple'}`}
-                        style={{ ['--i' as any]: currentIndex } as React.CSSProperties}
+                        style={{ ['--i']: currentIndex } as React.CSSProperties}
                     >
                         <span
                             className='wavy-s'
                             style={
                                 {
-                                    ['--shake-amp' as any]: seed.amp,
-                                    ['--shake-period' as any]: seed.period,
-                                    ['--shake-delay' as any]: seed.delay,
+                                    ['--shake-amp']: seed.amp,
+                                    ['--shake-period']: seed.period,
+                                    ['--shake-delay']: seed.delay,
                                 } as React.CSSProperties
                             }
                         >

@@ -1,4 +1,3 @@
-// shared/local-state/changeset.ts
 export type ChangesetItem =
     | {
         kind: 'collection';

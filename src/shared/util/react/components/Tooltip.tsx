@@ -28,14 +28,14 @@ function getOrigHandler<K extends keyof DOMHandlers>(
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({
-                                                    children,
-                                                    tooltip,
-                                                    delayMs = 500,
-                                                    offset = 8,
-                                                    exitMs = 150,
-                                                    viewportPadding = 16,
-                                                    maxWidthPx = 240,
-                                                }) => {
+    children,
+    tooltip,
+    delayMs = 500,
+    offset = 8,
+    exitMs = 150,
+    viewportPadding = 16,
+    maxWidthPx = 240,
+}) => {
     const [open, setOpen] = React.useState(false);
     const [mounted, setMounted] = React.useState(false);
     const [visible, setVisible] = React.useState(false);
@@ -220,6 +220,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         } as Partial<DOMHandlers>);
     } else {
         child = (
+            // eslint-disable-next-line jsx-a11y/no-static-element-interactions
             <div
                 className='inline-block align-baseline'
                 onMouseDown={() => {
@@ -254,7 +255,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             ? createPortal(
                 <div
                     ref={bubbleRef}
-                    role="tooltip"
+                    role='tooltip'
                     className={[
                         'fixed z-[100] pointer-events-none select-none',
                         'rounded-md px-2 py-2',

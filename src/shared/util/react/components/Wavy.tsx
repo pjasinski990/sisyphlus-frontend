@@ -48,21 +48,21 @@ export const Wavy: React.FC<WavyProps> = ({
             className={`wavy ${className ?? ''}`}
             style={
                 {
-                    ['--wave-amp' as any]: amp,
-                    ['--wave-period' as any]: period,
-                    ['--wave-stagger' as any]: stagger,
+                    ['--wave-amp']: amp,
+                    ['--wave-period']: period,
+                    ['--wave-stagger']: stagger,
                 } as React.CSSProperties
             }
         >
             {React.Children.map(children, (child, i) => (
-                <span key={i} className='wavy-w' style={{ ['--i' as any]: i }}>
+                <span key={i} className='wavy-w' style={{ ['--i']: i } as React.CSSProperties}>
                     <span
                         className='wavy-s'
                         style={
                             {
-                                ['--shake-amp' as any]: seeds[i % seeds.length].amp,
-                                ['--shake-period' as any]: seeds[i % seeds.length].period,
-                                ['--shake-delay' as any]: seeds[i % seeds.length].delay,
+                                ['--shake-amp']: seeds[i % seeds.length].amp,
+                                ['--shake-period']: seeds[i % seeds.length].period,
+                                ['--shake-delay']: seeds[i % seeds.length].delay,
                             } as React.CSSProperties
                         }
                     >

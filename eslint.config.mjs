@@ -78,10 +78,9 @@ const config = [
                         // anywhere else in src cannot import features directly
                         {
                             from: "src",
+                            allow: ["app-init"],
                             disallow: ["feature", "feature-interface"],
-                            message:
-                                "Only src/app-init may import features, and only via src/feature/<name>/interface/**.",
-                        },
+                        }
                     ],
                 },
             ],

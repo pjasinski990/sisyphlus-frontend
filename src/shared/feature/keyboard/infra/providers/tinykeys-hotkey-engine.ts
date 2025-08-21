@@ -57,7 +57,6 @@ export class TinykeysHotkeyEngine implements HotkeyEngine {
                 }
             };
 
-            // Window and HTMLElement are EventTargets; avoid `any`
             const et: EventTarget = target;
             et.addEventListener('keydown', onKeyDown as EventListener);
             disposers.push(() => et.removeEventListener('keydown', onKeyDown as EventListener));
