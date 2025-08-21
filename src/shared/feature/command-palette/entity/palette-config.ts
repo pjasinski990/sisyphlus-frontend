@@ -4,6 +4,6 @@ export interface PaletteConfig {
 }
 
 export const defaultPaletteConfig: PaletteConfig = {
-    delimiter: /\s+/,
+    delimiter: /([\t ])+/,
     quotes: ['"', "'"],
 };

@@ -30,6 +30,7 @@ export const TaskCard: React.FC<{
                 <div>
                     <TopInfoRow task={task} />
                     <p className={'font-bold'}>{task.title}</p>
+                    <p className={''}>{task.description}</p>
                     <BottomInfoRow task={task} />
                 </div>
                 <AnimatePresence initial={false}>

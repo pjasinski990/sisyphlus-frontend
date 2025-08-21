@@ -9,11 +9,17 @@ function matchHead(src: string, pos: number, head: HeadMatcher): number | null {
     if (head.kind === 'literal') {
         return src.startsWith(head.literal, pos) ? pos + head.literal.length : null;
     }
+    head.regex.lastIndex = 0;
     const m = head.regex.exec(src.slice(pos));
     return m && m.index === 0 ? pos + m[0].length : null;
 }
 
-function readQuotedOrBare(src: string, pos: number, cfg: PaletteConfig): { value: string; next: number } {
+function readQuotedOrBare(
+    src: string,
+    pos: number,
+    cfg: PaletteConfig,
+    prefixes: ReadonlyArray<{ head: HeadMatcher }>
+): { value: string; next: number } {
     const ch = src[pos] ?? '';
     if (cfg.quotes.includes(ch)) {
         const quote = ch;
@@ -27,9 +33,21 @@ function readQuotedOrBare(src: string, pos: number, cfg: PaletteConfig): { value
         }
         return { value: out, next: i };
     }
+
     let i = pos;
     let out = '';
-    while (i < src.length && !cfg.delimiter.test(src[i]!)) {
+    while (i < src.length) {
+        if (cfg.delimiter.test(src[i]!)) break;
+
+        let startsPrefix = false;
+        for (const spec of prefixes) {
+            if (matchHead(src, i, spec.head) !== null) {
+                startsPrefix = true;
+                break;
+            }
+        }
+        if (startsPrefix) break;
+
         out += src[i]!;
         i++;
     }
@@ -41,17 +59,18 @@ export function tokenizeArgs(rest: string, syntax: CommandSyntax, cfg: PaletteCo
     const prefixes = syntax.prefixes ?? [];
     let i = 0;
 
-    const skip = () => { while (i < rest.length && cfg.delimiter.test(rest[i]!)) i++; };
+    const isDelim = (ch: string) => cfg.delimiter.test(ch);
 
     while (i < rest.length) {
-        skip();
-        if (i >= rest.length) break;
-
         let consumed = false;
+
         for (const spec of prefixes) {
             const next = matchHead(rest, i, spec.head);
             if (next !== null) {
-                const { value, next: after } = readQuotedOrBare(rest, next, cfg);
+                const read = (spec as any).rest
+                    ? (s: string, p: number) => ({ value: s.slice(p), next: s.length })
+                    : (s: string, p: number) => readQuotedOrBare(s, p, cfg, prefixes);
+                const { value, next: after } = read(rest, next);
                 tokens.push({ kind: 'prefixed', name: spec.name, raw: value });
                 i = after;
                 consumed = true;
@@ -60,7 +79,9 @@ export function tokenizeArgs(rest: string, syntax: CommandSyntax, cfg: PaletteCo
         }
         if (consumed) continue;
 
-        const { value, next } = readQuotedOrBare(rest, i, cfg);
+        if (isDelim(rest[i]!)) { i++; continue; }
+
+        const { value, next } = readQuotedOrBare(rest, i, cfg, prefixes);
         if (value.length) tokens.push({ kind: 'word', value });
         i = next;
     }

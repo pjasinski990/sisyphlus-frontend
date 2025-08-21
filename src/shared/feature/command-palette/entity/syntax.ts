@@ -15,6 +15,7 @@ export interface PrefixSpec {
     name: string;
     schema: z.ZodType;
     multi?: boolean;
+    rest?: boolean;
 }
 
 export interface CommandSyntax {

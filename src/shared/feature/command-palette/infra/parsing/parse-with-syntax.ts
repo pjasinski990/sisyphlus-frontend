@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { CommandSyntax } from '@/shared/feature/command-palette/entity/syntax';
 import { PaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
-import { tokenizeArgs } from './syntax-tokenizer';
+import { ArgToken, tokenizeArgs } from './syntax-tokenizer';
 import { nok, ok, Result } from '@/shared/feature/auth/entity/result';
 
 export function parseWithSyntax(
@@ -11,6 +11,7 @@ export function parseWithSyntax(
     cfg: PaletteConfig
 ): Result<string, Record<string, unknown>> {
     const toks = tokenizeArgs(rest, syntax, cfg);
+    console.log(toks)
 
     const values: Record<string, unknown> = {};
     const positionals = syntax.positionals ?? [];
@@ -30,17 +31,32 @@ export function parseWithSyntax(
         values[name] = multi ? arr : (arr[0] ?? undefined);
     }
 
-    const words = toks.filter(t => t.kind === 'word').map(t => t.value);
-    let wi = 0;
+    let ti = 0;
+
+    const skipPrefixed = () => {
+        while (ti < toks.length && toks[ti]!.kind === 'prefixed') ti++;
+    };
+
     for (let pi = 0; pi < positionals.length; pi++) {
         const spec = positionals[pi]!;
+
         if (spec.rest) {
-            const joined = words.slice(wi).join(' ').trim();
+            skipPrefixed();
+            const parts: string[] = [];
+            while (ti < toks.length && toks[ti]!.kind === 'word') {
+                parts.push((toks[ti]! as Extract<ArgToken, { kind: 'word' }>).value);
+                ti++;
+            }
+            const joined = parts.join(' ').trim();
             values[spec.name] = joined.length ? joined : undefined;
-            wi = words.length;
         } else {
-            values[spec.name] = words[wi] ?? undefined;
-            wi++;
+            skipPrefixed();
+            if (ti < toks.length && toks[ti]!.kind === 'word') {
+                values[spec.name] = (toks[ti]! as Extract<ArgToken, { kind: 'word' }>).value;
+                ti++;
+            } else {
+                values[spec.name] = undefined;
+            }
         }
     }
 

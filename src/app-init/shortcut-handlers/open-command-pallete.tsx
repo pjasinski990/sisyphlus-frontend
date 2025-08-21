@@ -117,17 +117,54 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
     const [value, setValue] = React.useState<string>(initialValue ?? '');
     const [error, setError] = React.useState<string | null>(null);
     const [submitting, setSubmitting] = React.useState(false);
-    const inputRef = React.useRef<HTMLInputElement>(null);
+    const inputRef = React.useRef<HTMLTextAreaElement>(null);
+
+    React.useEffect(() => {
+        if (inputRef.current) {
+            const len = inputRef.current.value.length;
+            inputRef.current.selectionStart = len;
+            inputRef.current.selectionEnd = len;
+        }
+    }, []);
+
+    const autosize = React.useCallback(() => {
+        const el = inputRef.current;
+        if (!el) return;
+        el.style.height = '0px';
+        const next = Math.min(el.scrollHeight, 220);
+        el.style.height = `${next}px`;
+    }, []);
+
+    React.useLayoutEffect(() => {
+        autosize();
+    }, [value, autosize]);
 
     const suggestions = React.useMemo(() => {
         const trimmed = value.trimStart();
-        const idx = trimmed.indexOf(' ');
-        const command = idx === -1 ? trimmed : trimmed.slice(0, idx);
+        const match = trimmed.match(/^\S+/);
+        const command = match ? match[0] : '';
         return commandPaletteController.handleSuggest(command, 20);
     }, [value]);
 
-    const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = async (e) => {
+    const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = async (e) => {
         if (e.key === 'Escape') return;
+
+        if (e.key === 'Enter' && e.shiftKey) {
+            e.preventDefault();
+            const el = e.currentTarget;
+            const start = el.selectionStart ?? value.length;
+            const end = el.selectionEnd ?? value.length;
+            const next = value.slice(0, start) + '\n' + value.slice(end);
+            setValue(next);
+            requestAnimationFrame(() => {
+                if (inputRef.current) {
+                    inputRef.current.selectionStart = inputRef.current.selectionEnd = start + 1;
+                    autosize();
+                }
+            });
+            return;
+        }
+
         if (e.key === 'Enter') {
             e.preventDefault();
             await submit();
@@ -162,10 +199,9 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
     return (
         <div className='w-full'>
             <div className='flex flex-col w-full px-4 py-2 rounded-lg bg-surface-2'>
-                <input
+                <textarea
                     ref={inputRef}
-                    className='w-full bg-transparent outline-none text-base placeholder:text-muted-foreground text-[1.1rem]'
-                    type='text'
+                    className='w-full bg-transparent outline-none text-base placeholder:text-muted-foreground text-[1.1rem] leading-[1.4] resize-none min-h-[2.5rem] max-h-[14rem]'
                     placeholder={'in do laundry @home !low #chore'}
                     value={value}
                     onChange={(e) => { setValue(e.target.value); setError(null); }}
@@ -173,6 +209,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                     /* eslint-disable-next-line jsx-a11y/no-autofocus */
                     autoFocus
                     disabled={submitting}
+                    rows={1}
                 />
             </div>
 
@@ -190,14 +227,9 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                 )}
             </AnimatePresence>
 
-            <div
-                className='mt-2 mx-2 relative overflow-y-auto overflow-x-auto'
-            >
+            <div className='mt-2 mx-2 relative overflow-y-auto overflow-x-auto'>
                 <div className='divide-y divide-surface-1/50'>
-                    <div
-                        className='w-full pb-2'
-                    >
-                        {/* TODO fix leaving animation overlaid with other content */}
+                    <div className='w-full pb-2'>
                         <AnimatePresence initial={false} mode='popLayout'>
                             {active ? (
                                 <motion.div
@@ -222,6 +254,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                             )}
                         </AnimatePresence>
                     </div>
+
                     {suggestions.map((s) => {
                         const activeAlias = findActiveAlias(value, s.aliases);
                         return (
@@ -248,10 +281,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
                                                 initial={isActive ? { scale: 1, opacity: 1 } : {}}
                                                 animate={
                                                     isActive
-                                                        ? {
-                                                            scale: [1, 1.2, 1],
-                                                            opacity: [1, 0.85, 1],
-                                                        }
+                                                        ? { scale: [1, 1.2, 1], opacity: [1, 0.85, 1] }
                                                         : {}
                                                 }
                                                 transition={{ duration: 0.15 }}

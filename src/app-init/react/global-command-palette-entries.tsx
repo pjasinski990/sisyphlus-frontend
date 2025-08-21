@@ -10,6 +10,7 @@ import { usePushToInboxMutation } from '@/feature/inbox/interface/web/react/use-
 
 const schema = z.object({
     title: z.string().min(1),
+    description: z.string().optional(),
     context: z.string().optional(),
     energy: z.enum(['low', 'medium', 'high']).optional(),
     tags: z.array(z.string()).optional(),
@@ -38,6 +39,7 @@ export const CommandPaletteEntries: React.FC = () => {
                     { head: { kind: 'literal', literal: '!' }, name: 'energy', schema: z.string() },
                     { head: { kind: 'literal', literal: '#' }, name: 'tags', schema: z.string(), multi: true },
                     { head: { kind: 'literal', literal: '%' }, name: 'duration', schema: z.string() },
+                    { head: { kind: 'regex', regex: /\n/ }, name: 'description', schema: z.string(), rest: true },
                 ],
             },
             input: { schema, placeholder: '/in do laundry @home !low #chore' },
@@ -50,6 +52,7 @@ export const CommandPaletteEntries: React.FC = () => {
                     // @ts-expect-error ignore for now
                     userId,
                     title: v.title,
+                    description: v.description,
                     context: v.context,
                     energy: v.energy ?? 'medium',
                     tags: v.tags ?? [],
