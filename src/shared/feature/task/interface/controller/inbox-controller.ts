@@ -1,9 +1,9 @@
-import { PushToInbox } from '@/shared/feature/task/application/port/in/push-to-inbox';
+import { PushToInbox } from '@/feature/inbox/application/port/in/push-to-inbox';
 import { Task } from '@/shared/feature/task/entity/task';
-import { PushToInboxUseCase } from '@/shared/feature/task/application/use-case/push-to-inbox-use-case';
+import { PushToInboxUseCase } from '@/feature/inbox/application/use-case/push-to-inbox-use-case';
 import { HttpTaskApi } from '@/shared/feature/task/infra/http-task-api';
-import { GetInboxTasksUseCase } from '@/shared/feature/task/application/use-case/get-inbox-tasks-use-case';
-import { GetInboxTasks } from '@/shared/feature/task/application/port/in/get-inbox-tasks';
+import { GetInboxTasksUseCase } from '@/feature/inbox/application/use-case/get-inbox-tasks-use-case';
+import { GetInboxTasks } from '@/feature/inbox/application/port/in/get-inbox-tasks';
 import { AsyncResult } from '@/shared/feature/auth/entity/result';
 import { GetByIdsUseCase } from '@/shared/feature/task/application/use-case/get-by-ids-use-case';
 import { GetByIds } from '@/shared/feature/task/application/port/in/get-by-ids';

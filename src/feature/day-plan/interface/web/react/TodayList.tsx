@@ -38,12 +38,12 @@ export const TodayList: React.FC = () => {
     const taskById = (tasksQ.data ?? new Map<string, Task>());
 
     return (
-        <div className='flex flex-1 flex-col bg-surface-2 rounded-xl defined-shadow my-8'>
+        <div className='flex flex-1 flex-col bg-surface-2 rounded-xl defined-shadow my-8 min-h-0'>
             <TopFetchingBar active={planQ.isFetching || tasksQ.isFetching} />
             <div className='border-b border-surface-1/50 px-4 py-2'>
                 Plan for <span className='font-mono text-secondary-2'>today</span>
             </div>
-            <div className='flex flex-col gap-4 p-4'>
+            <div className='flex flex-col gap-4 p-4 overflow-auto'>
                 {planQ.data?.entries.length === 0 && <EmptyPlanPlaceholder />}
 
                 {planQ.data?.entries.map(entry => {

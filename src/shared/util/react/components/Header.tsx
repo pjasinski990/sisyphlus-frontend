@@ -88,14 +88,19 @@ const HomeButton: React.FC<NavigationButtonProps> = ({
     isActive,
 }) => {
     return (
-        <button
-            onClick={onClick}
-            className={`flex items-center mx-4 transition-colors duration-200 hover:bg-surface-hover cursor-pointer ${ isActive ? 'text-accent': '' }`}
-        >
-            <div className='mx-4'>
-                <img src='/favicon.svg' alt='Favicon' width={40} height={40} />
-            </div>
-            <h3 className={'py-2 pr-8 tracking-wider text-nowrap uppercase brand-gradient'}>dash.</h3>
-        </button>
+        <Tooltip tooltip={'The struggle itself towards the heights is enough to fill a man\'s heart.'}>
+
+            <button
+                onClick={onClick}
+                className={`flex items-center mx-4 transition-colors duration-200 hover:bg-surface-hover cursor-pointer ${ isActive ? 'text-accent': '' }`}
+            >
+                <div className='mx-4'>
+                    <img src='/favicon.svg' alt='Favicon' width={40} height={40} />
+                </div>
+                <h3 className={'py-2 pr-8 tracking-wider text-nowrap uppercase brand-gradient'}>
+                    SISYPH+
+                </h3>
+            </button>
+        </Tooltip>
     );
 };

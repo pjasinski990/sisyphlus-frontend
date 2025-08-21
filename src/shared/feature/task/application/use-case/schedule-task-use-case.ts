@@ -1,6 +1,6 @@
 import { AsyncResult, nok, ok } from '@/shared/feature/auth/entity/result';
 import { ScheduleTask } from '@/shared/feature/task/application/port/in/schedule-task';
-import { DayPlanApi } from '@/shared/feature/task/application/port/out/day-plan-api';
+import { DayPlanApi } from '@/feature/day-plan/application/port/out/day-plan-api';
 import { Changeset } from '@/shared/feature/local-state/entity/changeset';
 
 export class ScheduleTaskUseCase implements ScheduleTask {

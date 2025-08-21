@@ -1,11 +1,12 @@
 import React from 'react';
 import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
-import { useInboxTasksQuery } from '@/feature/inbox/interface/web/react/use-inbox-tasks';
+import { useInboxTaskIdsQuery } from '@/feature/inbox/interface/web/react/use-inbox-task-ids';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 import { todayLocalDate, tomorrowLocalDate } from '@/shared/util/local-date-helper';
 import { useScheduleTaskFor } from '@/feature/day-plan/interface/web/react/use-day-plan';
 import { Task } from '@/shared/feature/task/entity/task';
 import { openCommandPalette } from '@/app-init/shortcut-handlers/open-command-pallete';
+import { useTasksByIdsQuery } from '@/shared/feature/task/interface/web/react/use-tasks-by-ids';
 
 export async function openInbox() {
     await dialogController.handleOpen({
@@ -16,27 +17,40 @@ export async function openInbox() {
 }
 
 export const Inbox: React.FC = () => {
-    const query = useInboxTasksQuery();
-    const { status, data, error } = query;
+    const idsQ = useInboxTaskIdsQuery();
+    const ids = idsQ.data ?? [];
 
-    if (status === 'pending') {
-        return <div>Loading...</div>;
+    const tasksQ = useTasksByIdsQuery(ids, {
+        enabled: idsQ.status === 'success' && ids.length > 0,
+    });
+
+    if (idsQ.status === 'pending') return <div>Loading...</div>;
+    if (idsQ.status === 'error') return <div>Error: {(idsQ.error as Error)?.message}</div>;
+
+    if (ids.length === 0) {
+        return (
+            <div className='flex flex-1 flex-col px-4'>
+                <div className='flex justify-between items-center'>
+                    <p className='font-bold font-mono text-secondary-1'>inbox</p>
+                </div>
+                <EmptyInboxPlaceholder />
+            </div>
+        );
     }
-    if (status === 'error') {
-        return <div>Error: {(error as Error)?.message}</div>;
-    }
+
+    if (tasksQ.status === 'pending') return <div>Loading...</div>;
+    if (tasksQ.status === 'error') return <div>Error: {(tasksQ.error as Error)?.message}</div>;
+
+    const tasksInOrder: Task[] = ids
+        .map(id => tasksQ.data?.get(id))
+        .filter((t): t is Task => !!t);
 
     return (
         <div className={'flex flex-1 flex-col px-4'}>
             <div className={'flex justify-between items-center'}>
-                <p className={'font-bold font-mono text-secondary-1'}>
-                    inbox
-                </p>
+                <p className={'font-bold font-mono text-secondary-1'}>inbox</p>
             </div>
-            { data?.length === 0
-                ? <EmptyInboxPlaceholder />
-                : <InboxTaskList tasks={data} />
-            }
+            <InboxTaskList tasks={tasksInOrder} />
         </div>
     );
 };
@@ -87,9 +101,9 @@ const InboxTaskList: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
                 <TaskCard
                     key={item.id}
                     task={item}
-                    onSchedulePrimary={ () => scheduleToday(item) }
-                    onScheduleSecondary={ () => scheduleTomorrow(item) }
-                    onScheduleCustom={ () => console.log('custom') }
+                    onSchedulePrimary={() => scheduleToday(item)}
+                    onScheduleSecondary={() => scheduleTomorrow(item)}
+                    onScheduleCustom={() => console.log('custom')}
                 />
             )}
         </div>

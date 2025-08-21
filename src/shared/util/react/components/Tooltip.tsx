@@ -3,10 +3,12 @@ import { createPortal } from 'react-dom';
 
 type TooltipProps = {
     children: React.ReactNode;
-    tooltip?: string;
+    tooltip?: React.ReactNode;
     delayMs?: number;
     offset?: number;
     exitMs?: number;
+    viewportPadding?: number;
+    maxWidthPx?: number;
 };
 
 type DOMHandlers = Pick<
@@ -26,12 +28,14 @@ function getOrigHandler<K extends keyof DOMHandlers>(
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({
-    children,
-    tooltip,
-    delayMs = 500,
-    offset = 8,
-    exitMs = 150,
-}) => {
+                                                    children,
+                                                    tooltip,
+                                                    delayMs = 500,
+                                                    offset = 8,
+                                                    exitMs = 150,
+                                                    viewportPadding = 16,
+                                                    maxWidthPx = 240,
+                                                }) => {
     const [open, setOpen] = React.useState(false);
     const [mounted, setMounted] = React.useState(false);
     const [visible, setVisible] = React.useState(false);
@@ -42,6 +46,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     });
 
     const anchorRef = React.useRef<HTMLElement | null>(null);
+    const bubbleRef = React.useRef<HTMLDivElement | null>(null);
     const showTimer = React.useRef<number | null>(null);
     const hideTimer = React.useRef<number | null>(null);
     const unmountTimer = React.useRef<number | null>(null);
@@ -55,17 +60,42 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }, []);
 
     const computeAndSetPos = React.useCallback(
-        (el: HTMLElement) => {
-            const rect = el.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.bottom;
-            const placeBottom = spaceBelow > 48;
+        (anchorEl: HTMLElement, bubbleEl?: HTMLDivElement | null) => {
+            const rect = anchorEl.getBoundingClientRect();
+            const bubbleRect = bubbleEl?.getBoundingClientRect();
+            const bubbleW = bubbleRect?.width ?? Math.min(maxWidthPx, window.innerWidth * 0.9);
+            const bubbleH = bubbleRect?.height ?? 48;
+
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            const spaceBelow = vh - rect.bottom;
+            const spaceAbove = rect.top;
+
+            let placement: 'top' | 'bottom' = 'bottom';
+            if (spaceBelow < bubbleH + offset + viewportPadding && spaceAbove > spaceBelow) {
+                placement = 'top';
+            }
+
+            let top = placement === 'bottom' ? rect.bottom + offset : rect.top - offset;
+            if (placement === 'top') {
+                top = Math.max(viewportPadding, top - bubbleH);
+            } else {
+                top = Math.min(vh - viewportPadding - bubbleH, top);
+            }
+
+            const centerX = rect.left + rect.width / 2;
+            const minCenter = viewportPadding + bubbleW / 2;
+            const maxCenterClamp = vw - viewportPadding - bubbleW / 2;
+            const clampedCenter = Math.max(minCenter, Math.min(maxCenterClamp, centerX));
+
             setPos({
-                top: placeBottom ? rect.bottom + offset : rect.top - offset,
-                left: rect.left + rect.width / 2,
-                placement: placeBottom ? 'bottom' : 'top',
+                top,
+                left: clampedCenter,
+                placement,
             });
         },
-        [offset]
+        [offset, viewportPadding, maxWidthPx]
     );
 
     const scheduleShow = React.useCallback(
@@ -74,7 +104,6 @@ export const Tooltip: React.FC<TooltipProps> = ({
             clearTimers();
             showTimer.current = window.setTimeout(() => {
                 anchorRef.current = el;
-                computeAndSetPos(el);
                 setMounted(true);
                 requestAnimationFrame(() => {
                     setOpen(true);
@@ -82,7 +111,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                 });
             }, delayMs);
         },
-        [clearTimers, computeAndSetPos, delayMs]
+        [clearTimers, delayMs]
     );
 
     const scheduleHide = React.useCallback(() => {
@@ -96,11 +125,16 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
     React.useEffect(() => () => clearTimers(), [clearTimers]);
 
+    React.useLayoutEffect(() => {
+        if (!open || !anchorRef.current) return;
+        computeAndSetPos(anchorRef.current, bubbleRef.current);
+    }, [open, tooltip, computeAndSetPos, visible]);
+
     React.useEffect(() => {
         if (!open) return;
         const onScroll = () => {
             const el = anchorRef.current;
-            if (el) computeAndSetPos(el);
+            if (el) computeAndSetPos(el, bubbleRef.current);
         };
         const onResize = onScroll;
         window.addEventListener('scroll', onScroll, { passive: true });
@@ -109,6 +143,15 @@ export const Tooltip: React.FC<TooltipProps> = ({
             window.removeEventListener('scroll', onScroll);
             window.removeEventListener('resize', onResize);
         };
+    }, [open, computeAndSetPos]);
+
+    React.useEffect(() => {
+        if (!open || !anchorRef.current || !bubbleRef.current) return;
+        const ro = new ResizeObserver(() => {
+            computeAndSetPos(anchorRef.current as HTMLElement, bubbleRef.current);
+        });
+        ro.observe(bubbleRef.current);
+        return () => ro.disconnect();
     }, [open, computeAndSetPos]);
 
     React.useEffect(() => {
@@ -177,7 +220,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         } as Partial<DOMHandlers>);
     } else {
         child = (
-            <span
+            <div
                 className='inline-block align-baseline'
                 onMouseDown={() => {
                     isClicking.current = true;
@@ -202,7 +245,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                 }}
             >
                 {children}
-            </span>
+            </div>
         );
     }
 
@@ -210,12 +253,14 @@ export const Tooltip: React.FC<TooltipProps> = ({
         mounted && typeof window !== 'undefined'
             ? createPortal(
                 <div
-                    role='tooltip'
+                    ref={bubbleRef}
+                    role="tooltip"
                     className={[
                         'fixed z-[100] pointer-events-none select-none',
-                        'whitespace-nowrap rounded-md px-2 py-2',
+                        'rounded-md px-2 py-2',
                         'bg-surface-3 text-s-10 text-xs defined-shadow',
                         'transform transition duration-150',
+                        'whitespace-normal break-words',
                         visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95',
                         pos.placement === 'bottom' ? 'origin-top' : 'origin-bottom',
                     ].join(' ')}
@@ -223,6 +268,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
                         top: pos.top,
                         left: pos.left,
                         transform: 'translateX(-50%) ' + (visible ? 'scale(1)' : 'scale(0.95)'),
+                        width: 'max-content',
+                        maxWidth: `min(${maxWidthPx}px, 90vw)`,
+                        whiteSpace: 'normal',
+                        wordBreak: 'normal',
+                        overflowWrap: 'break-word',
+                        hyphens: 'auto',
                     }}
                 >
                     <div

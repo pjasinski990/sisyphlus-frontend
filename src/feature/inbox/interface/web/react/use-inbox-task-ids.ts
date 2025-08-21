@@ -1,29 +1,29 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Task } from '@/shared/feature/task/entity/task';
 import { taskController } from '@/shared/feature/task/interface/controller/inbox-controller';
+import type { Task } from '@/shared/feature/task/entity/task';
 import { keepPreviousData } from '@tanstack/query-core';
 import { taskKey } from '@/shared/feature/task/interface/web/react/use-tasks';
 
-export function useTasksByIdsQuery(ids: string[], opts?: { enabled?: boolean }) {
+export const inboxKey = ['tasks', 'inbox'] as const;
+
+export function useInboxTaskIdsQuery() {
     const qc = useQueryClient();
-    const norm = Array.from(new Set(ids)).sort();
 
     return useQuery({
-        queryKey: ['tasks', 'byIds', norm],
-        enabled: (opts?.enabled ?? true) && norm.length > 0,
+        queryKey: inboxKey,
         placeholderData: keepPreviousData,
         staleTime: 15_000,
         refetchOnWindowFocus: false,
         queryFn: async () => {
-            const res = await taskController.handleGetByIds(norm);
+            const res = await taskController.handleGetInboxTasks();
             if (!res.ok) throw new Error(res.error);
-            const list = res.value as Task[];
+            const tasks = res.value as Task[];
 
-            for (const t of list) {
+            for (const t of tasks) {
                 qc.setQueryData(taskKey(t.id), t);
             }
 
-            return new Map(list.map(t => [t.id, t] as const));
+            return tasks.map(t => t.id);
         },
     });
 }

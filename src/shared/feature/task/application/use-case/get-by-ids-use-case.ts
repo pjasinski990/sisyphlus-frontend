@@ -1,11 +1,11 @@
 import { GetByIds } from '@/shared/feature/task/application/port/in/get-by-ids';
-import { InboxApi } from '@/shared/feature/task/application/port/out/inbox-api';
+import { TaskApi } from '@/shared/feature/task/application/port/out/task-api';
 import { AsyncResult, nok, ok } from '@/shared/feature/auth/entity/result';
 import { Task } from '@/shared/feature/task/entity/task';
 
 export class GetByIdsUseCase implements GetByIds {
     constructor(
-        private readonly taskApi: InboxApi
+        private readonly taskApi: TaskApi
     ) { }
 
     async execute(ids: string[]): AsyncResult<string, Task[]> {

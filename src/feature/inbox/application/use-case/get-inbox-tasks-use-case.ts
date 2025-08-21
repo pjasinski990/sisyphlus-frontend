@@ -1,11 +1,11 @@
-import { GetInboxTasks } from '@/shared/feature/task/application/port/in/get-inbox-tasks';
+import { GetInboxTasks } from '@/feature/inbox/application/port/in/get-inbox-tasks';
 import { AsyncResult, nok, ok } from '@/shared/feature/auth/entity/result';
 import { Task } from '@/shared/feature/task/entity/task';
-import { InboxApi } from '@/shared/feature/task/application/port/out/inbox-api';
+import { TaskApi } from '@/shared/feature/task/application/port/out/task-api';
 
 export class GetInboxTasksUseCase implements GetInboxTasks {
     constructor(
-        private readonly taskApi: InboxApi
+        private readonly taskApi: TaskApi
     ) { }
 
     async execute(): AsyncResult<string, Task[]> {

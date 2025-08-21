@@ -1,11 +1,11 @@
-import { PushToInbox } from '@/shared/feature/task/application/port/in/push-to-inbox';
-import { Task } from '../../entity/task';
-import { InboxApi } from '@/shared/feature/task/application/port/out/inbox-api';
+import { PushToInbox } from '@/feature/inbox/application/port/in/push-to-inbox';
+import { Task } from '@/shared/feature/task/entity/task';
+import { TaskApi } from '@/shared/feature/task/application/port/out/task-api';
 import { AsyncResult, nok, ok } from '@/shared/feature/auth/entity/result';
 
 export class PushToInboxUseCase implements PushToInbox {
     constructor(
-        private readonly api: InboxApi
+        private readonly api: TaskApi
     ) {}
 
     async execute(task: Task): AsyncResult<string, Task> {

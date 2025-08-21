@@ -17,7 +17,7 @@ export const CurrentTimePointer: React.FC<{ progress: number; now: Date }> = ({ 
                     className={[
                         'h-[1px] w-full',
                         outOfRange ? 'bg-accent/30' : 'bg-accent',
-                        'shadow-[0_0_10px_2px] shadow-accent/30',
+                        'shadow-[0_0_20px_2px] shadow-accent/30',
                     ].join(' ')}
                 />
                 <div className='absolute -top-[12px] right-8 px-2 h-[24px] rounded-full text-[10px] bg-accent text-accent-contrast'>

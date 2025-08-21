@@ -1,4 +1,4 @@
-import { DayPlanApi } from '@/shared/feature/task/application/port/out/day-plan-api';
+import { DayPlanApi } from '@/feature/day-plan/application/port/out/day-plan-api';
 import { DayPlan } from '../entity/day-plan';
 import { httpClient } from '@/shared/feature/http/infra/fetch-http-client';
 import { Task } from '../entity/task';

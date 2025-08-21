@@ -6,7 +6,7 @@ import {
 } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
 import { Task } from '@/shared/feature/task/entity/task';
 import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
-import { usePushToInboxMutation } from '@/feature/inbox/interface/web/react/use-inbox-tasks';
+import { usePushToInboxMutation } from '@/feature/inbox/interface/web/react/use-push-to-inbox';
 
 const schema = z.object({
     title: z.string().min(1),

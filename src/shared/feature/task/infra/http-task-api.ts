@@ -1,8 +1,8 @@
-import { InboxApi } from '@/shared/feature/task/application/port/out/inbox-api';
+import { TaskApi } from '@/shared/feature/task/application/port/out/task-api';
 import { Task } from '@/shared/feature/task/entity/task';
 import { httpClient } from '@/shared/feature/http/infra/fetch-http-client';
 
-export class HttpTaskApi implements InboxApi {
+export class HttpTaskApi implements TaskApi {
     async create(task: Task): Promise<Task> {
         const res = await httpClient.post<Task>('/inbox', task);
         return res.data;
@@ -18,7 +18,6 @@ export class HttpTaskApi implements InboxApi {
         ids.forEach(id => params.append('ids', id));
 
         const url = `/task?${params.toString()}`;
-        console.log('get by ids url', url);
         const res = await httpClient.get<Task[]>(url);
         return res.data;
     }
