@@ -23,7 +23,11 @@
     "lucide-react": "^0.511.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.2",
+    "rehype-raw": "^7.0.0",
+    "remark-directive": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "tinykeys": "^3.0.0",
     "uuid": "^11.1.0",
     "zod": "^4.0.17"

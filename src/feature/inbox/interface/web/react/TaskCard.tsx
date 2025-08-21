@@ -5,6 +5,7 @@ import { Tooltip } from '@/shared/util/react/components/Tooltip';
 import { Wavy } from '@/shared/util/react/components/Wavy';
 import { Random } from '@/shared/util/random';
 import { AnimatePresence, motion } from 'framer-motion';
+import { MarkdownRenderer } from '@/shared/util/react/components/MarkdownRenderer';
 
 export const TaskCard: React.FC<{
     task: Task,
@@ -22,15 +23,17 @@ export const TaskCard: React.FC<{
             onMouseOverCapture={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
             style={{ background:
-                    `radial-gradient(circle at 30px 20px, transparent 0%, color-mix(in oklch, var(--color-${task.energy}-energy) 20%, transparent) 100%),
-                    color-mix(in oklch, var(--color-surface-2) 70%, var(--color-${task.energy}-energy) 40%)`
+                    `radial-gradient(circle at 20px 20px, transparent 0%, color-mix(in oklch, var(--color-${task.energy}-energy) 20%, transparent) 100%),
+                    color-mix(in oklch, var(--color-surface-2) 70%, var(--color-${task.energy}-energy) 15%)`
             }}
         >
             <div className={'flex justify-between'}>
                 <div>
                     <TopInfoRow task={task} />
-                    <p className={'font-bold'}>{task.title}</p>
-                    <p className={''}>{task.description}</p>
+                    <p className={'font-bold'}>
+                        {task.title}
+                    </p>
+                    <MarkdownRenderer content={task.description} />
                     <BottomInfoRow task={task} />
                 </div>
                 <AnimatePresence initial={false}>

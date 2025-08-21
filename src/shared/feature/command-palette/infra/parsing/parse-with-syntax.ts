@@ -11,7 +11,7 @@ export function parseWithSyntax(
     cfg: PaletteConfig
 ): Result<string, Record<string, unknown>> {
     const toks = tokenizeArgs(rest, syntax, cfg);
-    console.log(toks)
+    console.log(toks);
 
     const values: Record<string, unknown> = {};
     const positionals = syntax.positionals ?? [];

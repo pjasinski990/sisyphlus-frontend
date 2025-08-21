@@ -67,7 +67,7 @@ export function tokenizeArgs(rest: string, syntax: CommandSyntax, cfg: PaletteCo
         for (const spec of prefixes) {
             const next = matchHead(rest, i, spec.head);
             if (next !== null) {
-                const read = (spec as any).rest
+                const read = spec.rest
                     ? (s: string, p: number) => ({ value: s.slice(p), next: s.length })
                     : (s: string, p: number) => readQuotedOrBare(s, p, cfg, prefixes);
                 const { value, next: after } = read(rest, next);
