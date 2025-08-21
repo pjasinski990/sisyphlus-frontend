@@ -1,6 +1,6 @@
 import React from 'react';
 import { TimelinePanel } from '@/feature/timeline/interface/web/react/TimelinePanel';
-import { TodayList } from '@/feature/today/interface/web/react/TodayList';
+import { TodayList } from '@/feature/day-plan/interface/web/react/TodayList';
 
 export const Dashboard: React.FC = () => {
     return (

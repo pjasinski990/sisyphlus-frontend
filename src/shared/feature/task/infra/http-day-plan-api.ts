@@ -2,6 +2,7 @@ import { DayPlanApi } from '@/shared/feature/task/application/port/out/day-plan-
 import { DayPlan } from '../entity/day-plan';
 import { httpClient } from '@/shared/feature/http/infra/fetch-http-client';
 import { Task } from '../entity/task';
+import { Changeset } from '@/shared/feature/local-state/entity/changeset';
 
 export class HttpDayPlanApi implements DayPlanApi {
     async getPlan(localDate: string): Promise<DayPlan> {
@@ -9,15 +10,8 @@ export class HttpDayPlanApi implements DayPlanApi {
         return res.data;
     }
 
-    async scheduleTask(localDate: string, taskId: string): Promise<DayPlan> {
-        const res = await httpClient.post<DayPlan>(`/day-plan/${localDate}/entries`, { taskId });
+    async scheduleTask(localDate: string, taskId: string): Promise<Changeset> {
+        const res = await httpClient.post<Changeset>(`/day-plan/${localDate}/entries`, { taskId });
         return res.data;
-    }
-}
-
-export interface ScheduleTaskResponse {
-    changes: {
-        tasks: Array<Partial<Task & { id: string, _deleted: boolean }>>
-        dayPlans: Array<DayPlan & { id: string, _deleted: boolean }>
     }
 }

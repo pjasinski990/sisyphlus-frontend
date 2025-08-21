@@ -3,7 +3,7 @@ import { ShortcutHandler } from '@/shared/feature/keyboard/entity/shortcut-handl
 export interface ShortcutBinding {
     combos: string[];
     handler: ShortcutHandler;
-    // TODO change to reactnode, style descriptions to include special tokens (inbox, today...)
+    // TODO change to reactnode, style descriptions to include special tokens (inbox, day-plan...)
     description: string;
     group?: string;
 }

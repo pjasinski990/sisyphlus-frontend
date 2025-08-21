@@ -5,6 +5,7 @@ import { GetDayPlanUseCase } from '@/shared/feature/task/application/use-case/ge
 import { HttpDayPlanApi } from '@/shared/feature/task/infra/http-day-plan-api';
 import { ScheduleTask } from '@/shared/feature/task/application/port/in/schedule-task';
 import { ScheduleTaskUseCase } from '@/shared/feature/task/application/use-case/schedule-task-use-case';
+import { Changeset } from '@/shared/feature/local-state/entity/changeset';
 
 export class DayPlanController {
     constructor(
@@ -16,7 +17,7 @@ export class DayPlanController {
         return this.getPlan.execute(localDate);
     }
 
-    handleScheduleTask(localDate: string, taskId: string): AsyncResult<string, DayPlan> {
+    handleScheduleTask(localDate: string, taskId: string): AsyncResult<string, Changeset> {
         return this.scheduleTask.execute(localDate, taskId);
     }
 }

@@ -2,8 +2,9 @@ import { Timeline } from '@/feature/timeline/interface/web/react/Timeline';
 import React from 'react';
 import { TwoPartPillButton } from '@/shared/util/react/components/PillButton';
 import { InboxIcon, ListPlusIcon } from 'lucide-react';
-import { openCommandPalette } from '@/app/shortcut-handlers/open-command-pallete';
+import { openCommandPalette } from '@/app-init/shortcut-handlers/open-command-pallete';
 import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
+import { WavyText } from '@/shared/util/react/components/WavyText';
 
 export const TimelinePanel: React.FC = () => {
     return (
@@ -23,9 +24,7 @@ const TopBar: React.FC = () => {
                 <p className={'text-secondary-2 font-mono'}>
                     {today()}
                 </p>
-                <div>
-                    Current focus: Coffee & TV
-                </div>
+                <WavyText byLetter={false} className={'pt-2'} amp={'0.25rem'} text={'Current focus: Coffee & TV'} />
             </div>
             <div className={'flex flex-col py-8 gap-4'}>
                 <TwoPartPillButton

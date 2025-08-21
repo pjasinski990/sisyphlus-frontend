@@ -1,6 +1,6 @@
 import React from 'react';
 import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
-import { useDayPlanQuery } from '@/shared/feature/task/interface/web/react/use-day-plan';
+import { useDayPlanQuery } from '@/feature/day-plan/interface/web/react/use-day-plan';
 import { useTasksByIdsQuery } from '@/shared/feature/task/interface/web/react/use-tasks-by-ids';
 import type { Task } from '@/shared/feature/task/entity/task';
 import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';

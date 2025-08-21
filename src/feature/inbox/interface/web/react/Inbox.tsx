@@ -1,11 +1,11 @@
 import React from 'react';
 import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
-import { useInboxTasksQuery } from '@/shared/feature/task/interface/web/react/use-inbox-tasks';
+import { useInboxTasksQuery } from '@/feature/inbox/interface/web/react/use-inbox-tasks';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 import { todayLocalDate, tomorrowLocalDate } from '@/shared/util/local-date-helper';
-import { useScheduleTaskFor } from '@/shared/feature/task/interface/web/react/use-day-plan';
+import { useScheduleTaskFor } from '@/feature/day-plan/interface/web/react/use-day-plan';
 import { Task } from '@/shared/feature/task/entity/task';
-import { openCommandPalette } from '@/app/shortcut-handlers/open-command-pallete';
+import { openCommandPalette } from '@/app-init/shortcut-handlers/open-command-pallete';
 
 export async function openInbox() {
     await dialogController.handleOpen({

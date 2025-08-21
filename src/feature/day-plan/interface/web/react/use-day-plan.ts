@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '@/shared/feature/task/entity/task';
-import type { DayPlan, DayPlanEntry } from '@/shared/feature/task/entity/day-plan';
+import type { DayPlan } from '@/shared/feature/task/entity/day-plan';
 import { dayPlanController } from '@/shared/feature/task/interface/controller/day-plan-controller';
 import { keepPreviousData } from '@tanstack/query-core';
-
-const dayPlanKey = (localDate: string) => ['plan', localDate] as const;
+import { dayPlanKey } from '@/feature/day-plan/interface/web/react/day-plan-cache-adapter';
+import { applyChangeset } from '@/shared/feature/local-state/entity/cache-adapter';
 
 export function useDayPlanQuery(localDate: string) {
     return useQuery({
@@ -27,49 +27,34 @@ export function useScheduleTaskFor(localDate: string) {
     return useMutation({
         mutationFn: async (input: Task | { taskId: string }) => {
             const taskId = 'id' in input ? input.id : input.taskId;
-            const res = await dayPlanController.handleScheduleTask(localDate, taskId);
-            if (!res.ok) throw new Error(res.error);
-            return res.value as DayPlan;
+            return dayPlanController.handleScheduleTask(localDate, taskId);
         },
 
         onMutate: async (input) => {
             await qc.cancelQueries({ queryKey: key });
 
             const taskId = 'id' in input ? input.id : input.taskId;
-            const prev = qc.getQueryData<DayPlan>(key);
+            const prevPlan = qc.getQueryData<DayPlan>(key);
 
             const nextOrder =
-                (prev?.entries?.[prev.entries.length - 0]?.order ?? 0) + 10;
+                ((prevPlan?.entries?.[prevPlan.entries.length - 1]?.order) ?? 0) + 10;
 
-            const tempEntry: DayPlanEntry = {
-                id: `temp-${crypto.randomUUID()}`,
-                taskId,
-                order: nextOrder,
-                status: 'planned',
-            };
+            applyChangeset(qc, [
+                { kind: 'event', type: 'PlanEntryAdded', payload: { planDate: localDate, taskId, order: nextOrder } },
+            ]);
 
-            if (prev) {
-                qc.setQueryData<DayPlan>(key, {
-                    ...prev,
-                    entries: [...prev.entries, tempEntry],
-                });
-            } else {
-                qc.setQueryData<DayPlan>(key, {
-                    userId: 'me',
-                    localDate,
-                    entries: [tempEntry],
-                } as DayPlan);
-            }
-
-            return { prev, tempId: tempEntry.id };
+            return { prevPlan };
         },
 
         onError: (_err, _input, ctx) => {
-            if (ctx?.prev) qc.setQueryData<DayPlan>(key, ctx.prev);
+            if (ctx?.prevPlan) qc.setQueryData<DayPlan>(key, ctx.prevPlan);
         },
 
-        onSuccess: (serverPlan) => {
-            qc.setQueryData<DayPlan>(key, serverPlan);
+        onSuccess: (changeset) => {
+            if (!changeset.ok) {
+                throw new Error('Unexpected error in day-plan changeset');
+            }
+            applyChangeset(qc, changeset.value);
         },
 
         onSettled: () => {

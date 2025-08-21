@@ -2,8 +2,9 @@ import { dialogController } from '@/shared/feature/dialog/infra/controllers/dial
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { CommandSyntax, HeadMatcher, PrefixSpec } from '@/shared/feature/command-palette/entity/syntax';
-import { commandPaletteController } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
-import { defaultPaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
+import {
+    commandPaletteController
+} from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
 
 // TODO refactor, cleanup, show enum options, show required / optionals
 export async function openCommandPalette(withCommand?: string) {

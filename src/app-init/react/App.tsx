@@ -6,12 +6,14 @@ import { Layout } from '@/shared/util/react/components/Layout';
 import { KeyboardProvider } from '@/shared/feature/keyboard/infra/web/react/KeyboardProvider';
 import { registerDefaultDialogs } from '@/shared/feature/dialog/infra/web/react/bootstrap-dialogs';
 import { DialogHost } from '@/shared/feature/dialog/infra/web/react/DialogHost';
-import { DialogShortcuts, GlobalShortcuts } from '@/app/react/global-shortcuts';
-import { CommandPaletteEntries } from '@/app/react/global-command-palette-entries';
+import { DialogShortcuts, GlobalShortcuts } from '@/app-init/react/global-shortcuts';
+import { CommandPaletteEntries } from '@/app-init/react/global-command-palette-entries';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { bootstrapCache } from '@/app-init/react/bootstrap-cache';
 
 const qc = new QueryClient();
 registerDefaultDialogs();
+bootstrapCache();
 
 export function App() {
     const routing = useRoutes(routes);

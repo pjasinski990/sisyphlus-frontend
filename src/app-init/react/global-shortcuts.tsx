@@ -3,7 +3,7 @@ import { useDialog } from '@/shared/feature/dialog/infra/web/react/useDialog';
 import { useShortcut } from '@/shared/feature/keyboard/infra/web/react/useShortcut';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 import { openCommandPalette } from '../shortcut-handlers/open-command-pallete';
-import { openShortcutsHelp } from '@/app/shortcut-handlers/open-shortcuts-help';
+import { openShortcutsHelp } from '@/app-init/shortcut-handlers/open-shortcuts-help';
 import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 
 // TODO move component-specific shortcuts - eg. register openInbox in inbox, add task in palette (pull withCommand from alias)
