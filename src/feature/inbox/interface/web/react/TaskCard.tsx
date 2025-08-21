@@ -12,14 +12,14 @@ export const TaskCard: React.FC<{
     onSchedulePrimary?: () => void,
     onScheduleSecondary?: () => void
     onScheduleCustom?: () => void }
-> = ({ task, selected, onSchedulePrimary, onScheduleSecondary, onScheduleCustom }) => {
+> = ({ task, selected = false, onSchedulePrimary, onScheduleSecondary, onScheduleCustom }) => {
     const [hover, setHover] = React.useState(false);
     const showScheduling = selected || hover;
 
     return (
         <div
             className='stone-texture py-3 px-4 rounded-sm defined-shadow shrink-0'
-            onMouseEnter={() => setHover(true)}
+            onMouseOverCapture={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
             style={{ background:
                     `radial-gradient(circle at 30px 20px, transparent 0%, color-mix(in oklch, var(--color-${task.energy}-energy) 20%, transparent) 100%),

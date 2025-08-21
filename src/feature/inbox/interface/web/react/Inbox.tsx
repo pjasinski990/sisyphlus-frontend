@@ -101,16 +101,52 @@ const EmptyInboxPlaceholder = () => {
 };
 
 export const InboxTaskList: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
+    const [hoveredId, setHoveredId] = React.useState<string | null>(null);
+    const rootRef = React.useRef<HTMLDivElement | null>(null);
+    const rafRef = React.useRef<number | null>(null);
+
     const today = todayLocalDate();
     const tomorrow = tomorrowLocalDate();
 
     const { mutate: scheduleToday } = useScheduleTaskFor(today);
     const { mutate: scheduleTomorrow } = useScheduleTaskFor(tomorrow);
 
+    const updateHoverFromPoint = (clientX: number, clientY: number) => {
+        const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
+        const cardEl = el?.closest('[data-card-id]') as HTMLElement | null;
+        const id = cardEl?.getAttribute('data-card-id') ?? null;
+        setHoveredId(prev => (prev === id ? prev : id));
+    };
+
+    const scheduleUpdate = (e: React.PointerEvent) => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        const { clientX, clientY } = e;
+        rafRef.current = requestAnimationFrame(() => updateHoverFromPoint(clientX, clientY));
+    };
+
+    React.useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
+
+    React.useLayoutEffect(() => {
+        const root = rootRef.current;
+        if (!root) return;
+        const onMut = () => {
+            const m = root.matches(':hover');
+            if (!m) return;
+            const rect = root.getBoundingClientRect();
+            updateHoverFromPoint(rect.left + rect.width / 2, rect.top + 1);
+        };
+        const obs = new MutationObserver(onMut);
+        obs.observe(root, { childList: true, subtree: true, attributes: true });
+        return () => obs.disconnect();
+    }, [tasks.length]);
+
     return (
         <motion.div
             className='flex flex-col gap-4 p-4 min-h-[25vh] max-h-[80vh] overflow-y-auto'
             transition={{ duration: 0.18 }}
+            onPointerMove={scheduleUpdate}
+            onPointerDown={scheduleUpdate}
+            onPointerLeave={() => setHoveredId(null)}
         >
             <AnimatePresence mode='popLayout' initial={false}>
                 {tasks.map(item => (
@@ -124,6 +160,7 @@ export const InboxTaskList: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
                     >
                         <TaskCard
                             task={item}
+                            selected={hoveredId === item.id}
                             onSchedulePrimary={() => scheduleToday(item)}
                             onScheduleSecondary={() => scheduleTomorrow(item)}
                             onScheduleCustom={() => console.log('custom')}
