@@ -7,6 +7,7 @@ import { useScheduleTaskFor } from '@/feature/day-plan/interface/web/react/use-d
 import { Task } from '@/shared/feature/task/entity/task';
 import { openCommandPalette } from '@/app-init/shortcut-handlers/open-command-pallete';
 import { useTasksByIdsQuery } from '@/shared/feature/task/interface/web/react/use-tasks-by-ids';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export async function openInbox() {
     await dialogController.handleOpen({
@@ -27,68 +28,79 @@ export const Inbox: React.FC = () => {
     if (idsQ.status === 'pending') return <div>Loading...</div>;
     if (idsQ.status === 'error') return <div>Error: {(idsQ.error as Error)?.message}</div>;
 
-    if (ids.length === 0) {
-        return (
-            <div className='flex flex-1 flex-col px-4'>
-                <div className='flex justify-between items-center'>
-                    <p className='font-bold font-mono text-secondary-1'>inbox</p>
-                </div>
-                <EmptyInboxPlaceholder />
-            </div>
-        );
-    }
+    const hasTasks = ids.length > 0;
 
-    if (tasksQ.status === 'pending') return <div>Loading...</div>;
-    if (tasksQ.status === 'error') return <div>Error: {(tasksQ.error as Error)?.message}</div>;
+    const tasksInOrder: Task[] =
+        hasTasks && tasksQ.status === 'success'
+            ? ids.map(id => tasksQ.data?.get(id)).filter((t): t is Task => !!t)
+            : [];
 
-    const tasksInOrder: Task[] = ids
-        .map(id => tasksQ.data?.get(id))
-        .filter((t): t is Task => !!t);
+    if (hasTasks && tasksQ.status === 'pending') return <div>Loading...</div>;
+    if (hasTasks && tasksQ.status === 'error') return <div>Error: {(tasksQ.error as Error)?.message}</div>;
 
     return (
-        <div className={'flex flex-1 flex-col px-4'}>
-            <div className={'flex justify-between items-center'}>
-                <p className={'font-bold font-mono text-secondary-1'}>inbox</p>
+        <div className='flex flex-1 flex-col px-4'>
+            <div className='flex justify-between items-center'>
+                <p className='font-bold font-mono text-secondary-1'>inbox</p>
             </div>
-            <InboxTaskList tasks={tasksInOrder} />
+
+            <AnimatePresence mode='wait' initial={false}>
+                {hasTasks ? (
+                    <motion.div
+                        key='list'
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.16 }}
+                    >
+                        <InboxTaskList tasks={tasksInOrder} />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key='empty'
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.16 }}
+                    >
+                        <EmptyInboxPlaceholder />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
 const EmptyInboxPlaceholder = () => {
     return (
-        <div className={'text-muted px-8 pt-4 pb-8'}>
-            <h2>
-                Nothing here yet.
-            </h2>
+        <div className='text-muted px-8 pt-4 pb-8'>
+            <h2>Nothing here yet.</h2>
             <p>
-                * Dump your tasks quickly using the
+                * Dump your tasks quickly using the{' '}
                 <button
-                    className={'inline-block px-1 py-0.5 font-mono rounded-sm text-secondary-3 hover:bg-surface-1/50 cursor-pointer'}
+                    className='inline-block px-1 py-0.5 font-mono rounded-sm text-secondary-3 hover:bg-surface-1/50 cursor-pointer'
                     onClick={() => openCommandPalette()}
                 >
                     command palette [C-k]
                 </button>
                 .
             </p>
-            <p className={'inline'}>
-                * Press
+            <p className='inline'>
+                * Press{' '}
                 <button
-                    className={'inline-block px-1 py-0.5 font-mono rounded-sm text-secondary-3 hover:bg-surface-1/50 cursor-pointer'}
+                    className='inline-block px-1 py-0.5 font-mono rounded-sm text-secondary-3 hover:bg-surface-1/50 cursor-pointer'
                     onClick={() => openCommandPalette('add ')}
                 >
                     [A]
-                </button>
+                </button>{' '}
                 to immediately open it with &quot;add&quot; command.
             </p>
-            <p>
-                * These keyboard shortcuts work when no dialogs are open.
-            </p>
+            <p>* These keyboard shortcuts work when no dialogs are open.</p>
         </div>
     );
 };
 
-const InboxTaskList: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
+export const InboxTaskList: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
     const today = todayLocalDate();
     const tomorrow = tomorrowLocalDate();
 
@@ -96,16 +108,29 @@ const InboxTaskList: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
     const { mutate: scheduleTomorrow } = useScheduleTaskFor(tomorrow);
 
     return (
-        <div className={'flex flex-col gap-4 p-4 max-h-[80vh] overflow-y-auto'}>
-            { tasks.map((item) =>
-                <TaskCard
-                    key={item.id}
-                    task={item}
-                    onSchedulePrimary={() => scheduleToday(item)}
-                    onScheduleSecondary={() => scheduleTomorrow(item)}
-                    onScheduleCustom={() => console.log('custom')}
-                />
-            )}
-        </div>
+        <motion.div
+            className='flex flex-col gap-4 p-4 min-h-[25vh] max-h-[80vh] overflow-y-auto'
+            transition={{ duration: 0.18 }}
+        >
+            <AnimatePresence mode='popLayout' initial={false}>
+                {tasks.map(item => (
+                    <motion.div
+                        key={item.id}
+                        layout='position'
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ type: 'spring', stiffness: 380, damping: 30, mass: 0.6 }}
+                    >
+                        <TaskCard
+                            task={item}
+                            onSchedulePrimary={() => scheduleToday(item)}
+                            onScheduleSecondary={() => scheduleTomorrow(item)}
+                            onScheduleCustom={() => console.log('custom')}
+                        />
+                    </motion.div>
+                ))}
+            </AnimatePresence>
+        </motion.div>
     );
 };
