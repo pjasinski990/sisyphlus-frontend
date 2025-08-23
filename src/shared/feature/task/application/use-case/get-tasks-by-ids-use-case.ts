@@ -1,9 +1,9 @@
-import { GetByIds } from '@/shared/feature/task/application/port/in/get-by-ids';
+import { GetTasksByIds } from '@/shared/feature/task/application/port/in/get-tasks-by-ids';
 import { TaskApi } from '@/shared/feature/task/application/port/out/task-api';
 import { AsyncResult, nok, ok } from '@/shared/feature/auth/entity/result';
 import { Task } from '@/shared/feature/task/entity/task';
 
-export class GetByIdsUseCase implements GetByIds {
+export class GetTasksByIdsUseCase implements GetTasksByIds {
     constructor(
         private readonly taskApi: TaskApi
     ) { }

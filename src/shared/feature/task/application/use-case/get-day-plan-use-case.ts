@@ -1,6 +1,6 @@
 import { GetDayPlan } from '../port/in/get-day-plan';
 import { AsyncResult, nok, ok } from '@/shared/feature/auth/entity/result';
-import { DayPlan } from '@/shared/feature/task/entity/day-plan';
+import { DayPlan } from '@/feature/day-plan/entity/day-plan';
 import { DayPlanApi } from '@/feature/day-plan/application/port/out/day-plan-api';
 
 export class GetDayPlanUseCase implements GetDayPlan {

@@ -5,14 +5,14 @@ import { HttpTaskApi } from '@/shared/feature/task/infra/http-task-api';
 import { GetInboxTasksUseCase } from '@/feature/inbox/application/use-case/get-inbox-tasks-use-case';
 import { GetInboxTasks } from '@/feature/inbox/application/port/in/get-inbox-tasks';
 import { AsyncResult } from '@/shared/feature/auth/entity/result';
-import { GetByIdsUseCase } from '@/shared/feature/task/application/use-case/get-by-ids-use-case';
-import { GetByIds } from '@/shared/feature/task/application/port/in/get-by-ids';
+import { GetTasksByIdsUseCase } from '@/shared/feature/task/application/use-case/get-tasks-by-ids-use-case';
+import { GetTasksByIds } from '@/shared/feature/task/application/port/in/get-tasks-by-ids';
 
 export class InboxController {
     constructor(
         private readonly pushToInbox: PushToInbox,
         private readonly getInboxTasks: GetInboxTasks,
-        private readonly getByIds: GetByIds,
+        private readonly getByIds: GetTasksByIds,
     ) { }
 
     async handlePushToInbox(task: Task): AsyncResult<string, Task> {
@@ -31,7 +31,7 @@ export class InboxController {
 const api = new HttpTaskApi();
 const pushToInbox = new PushToInboxUseCase(api);
 const getInboxTasks = new GetInboxTasksUseCase(api);
-const getByIds = new GetByIdsUseCase(api);
+const getByIds = new GetTasksByIdsUseCase(api);
 
 export const taskController = new InboxController(
     pushToInbox,

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config';
+import { timelineConfig } from '@/feature/day-plan/entity/timeline-config';
 import { EyeIcon, EyeOffIcon, Plus, Trash2Icon } from 'lucide-react';
 import { clamp } from '@/shared/util/clamp';
 import { v4 as uuid } from 'uuid';

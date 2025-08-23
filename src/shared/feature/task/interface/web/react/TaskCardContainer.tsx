@@ -1,66 +1,47 @@
 import React, { ReactNode } from 'react';
 import { EnergyLevel, Task } from '@/shared/feature/task/entity/task';
-import { CalendarArrowUpIcon, CalendarClockIcon, CalendarFoldIcon, FlameIcon, TimerIcon } from 'lucide-react';
+import { FlameIcon, TimerIcon } from 'lucide-react';
 import { Tooltip } from '@/shared/util/react/components/Tooltip';
 import { Wavy } from '@/shared/util/react/components/Wavy';
 import { Random } from '@/shared/util/random';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MarkdownRenderer } from '@/shared/util/react/components/MarkdownRenderer';
 
-export const TaskCard: React.FC<{
+export const TaskCardContainer: React.FC<{
     task: Task,
-    selected?: boolean,
-    onSchedulePrimary?: () => void,
-    onScheduleSecondary?: () => void
-    onScheduleCustom?: () => void }
-> = ({ task, selected = false, onSchedulePrimary, onScheduleSecondary, onScheduleCustom }) => {
-    const [hover, setHover] = React.useState(false);
-    const showScheduling = selected || hover;
-
+    selected: boolean,
+    onSelectedMenu?: ReactNode,
+    topBarExtra?: ReactNode,
+    bottomBarExtra?: ReactNode,
+} & React.HTMLAttributes<HTMLDivElement>> = ({ task, selected, topBarExtra, onSelectedMenu, bottomBarExtra, ...rest }) => {
     return (
         <div
             className='stone-texture py-3 px-4 rounded-sm defined-shadow shrink-0'
-            onMouseOverCapture={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
             style={{ background:
                     `radial-gradient(circle at 20px 20px, transparent 0%, color-mix(in oklch, var(--color-${task.energy}-energy) 20%, transparent) 100%),
                     color-mix(in oklch, var(--color-surface-2) 70%, var(--color-${task.energy}-energy) 15%)`
             }}
+            {...rest}
         >
             <div className={'flex justify-between'}>
                 <div>
-                    <TopInfoRow task={task} />
+                    <TopInfoRow task={task} extra={topBarExtra} />
                     <p className={'font-bold'}>
                         {task.title}
                     </p>
                     <MarkdownRenderer content={task.description} />
-                    <BottomInfoRow task={task} />
+                    <BottomInfoRow task={task} extra={bottomBarExtra} />
                 </div>
-                <AnimatePresence initial={false}>
-                    {showScheduling && (
-                        <motion.div
-                            key='sched'
-                            initial={{ opacity: 0, x: 4 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 4 }}
-                            transition={{ duration: 0.15, ease: 'easeOut' }}
-                            className='transform-gpu will-change-[opacity,transform]'
-                        >
-                            <SchedulingOptions
-                                onSchedulePrimary={onSchedulePrimary}
-                                onScheduleSecondary={onScheduleSecondary}
-                                onScheduleCustom={onScheduleCustom}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                <OnSelectedColumn selected={selected} content={onSelectedMenu} />
             </div>
         </div>
     );
 };
 
-const TopInfoRow: React.FC<{ task: Task}> = ({ task }) => {
-    const randomPeriod = Random.int(1.1, 1.6);
+const TopInfoRow: React.FC<{ task: Task, extra: React.ReactNode }> = ({ task, extra }) => {
+    const extraFlat = React.Children.toArray(extra);
+
+    const randomPeriod = Random.int(1.1, 2.2);
     const flameIconWavePeriod = `${randomPeriod}s`;
 
     return (
@@ -82,11 +63,14 @@ const TopInfoRow: React.FC<{ task: Task}> = ({ task }) => {
                     </InfoTile>
                 </Tooltip>
             }
+            {...extraFlat}
         </div>
     );
 };
 
-const BottomInfoRow: React.FC<{ task: Task}> = ({ task }) => {
+const BottomInfoRow: React.FC<{ task: Task, extra: ReactNode }> = ({ task, extra }) => {
+    const extraFlat = React.Children.toArray(extra);
+
     return (
         <div className={'flex flex-wrap gap-3 mt-8'}>
             { task.context &&
@@ -107,45 +91,27 @@ const BottomInfoRow: React.FC<{ task: Task}> = ({ task }) => {
                     </Tooltip>
                 );
             })}
+            {...extraFlat}
         </div>
     );
 };
 
-const SchedulingOptions: React.FC<{
-    onSchedulePrimary?: () => void,
-    onScheduleSecondary?: () => void
-    onScheduleCustom?: () => void
-}> = ({ onSchedulePrimary, onScheduleSecondary, onScheduleCustom }) => {
+const OnSelectedColumn: React.FC<{ selected: boolean, content: ReactNode }> = ({ selected, content }) => {
     return (
-        <div className={'flex flex-col gap-2'}>
-            { onSchedulePrimary &&
-                <button
-                    className={'flex items-center gap-2 px-1 py-0.5 hover:bg-surface-1/50 cursor-pointer'}
-                    onClick={onSchedulePrimary}
+        <AnimatePresence initial={false}>
+            {selected && (
+                <motion.div
+                    key='sched'
+                    initial={{ opacity: 0, x: 4 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 4 }}
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    className='transform-gpu will-change-[opacity,transform]'
                 >
-                    <CalendarArrowUpIcon className={'inline w-4 h-4 stroke-secondary-2'} />
-                    <span className={'inline text-sm text-secondary-2 font-mono leading-none'}>[t]oday</span>
-                </button>
-            }
-            { onScheduleSecondary &&
-                <button
-                    className={'flex items-center gap-2 px-1 py-0.5 hover:bg-surface-1/50 cursor-pointer'}
-                    onClick={onScheduleSecondary}
-                >
-                    <CalendarFoldIcon className={'inline w-4 h-4 stroke-secondary-2'} />
-                    <span className={'inline text-sm text-secondary-2 font-mono leading-none'}>[T]mrrw</span>
-                </button>
-            }
-            { onScheduleCustom &&
-                <button
-                    className={'flex items-center gap-2 px-1 py-0.5 hover:bg-surface-1/50 cursor-pointer'}
-                    onClick={onScheduleCustom}
-                >
-                    <CalendarClockIcon className={'inline w-4 h-4 stroke-secondary-2'} />
-                    <span className={'inline text-sm text-secondary-2 font-mono leading-none'}>[o]ther</span>
-                </button>
-            }
-        </div>
+                    {content}
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };
 

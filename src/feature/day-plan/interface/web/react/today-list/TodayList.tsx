@@ -1,11 +1,14 @@
 import React from 'react';
-import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
 import { useDayPlanQuery } from '@/feature/day-plan/interface/web/react/use-day-plan';
 import { useTasksByIdsQuery } from '@/shared/feature/task/interface/web/react/use-tasks-by-ids';
 import type { Task } from '@/shared/feature/task/entity/task';
 import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
-import { WavyText } from '@/shared/util/react/components/WavyText';
 import { todayLocalDate } from '@/shared/util/local-date-helper';
+import { RowSkeleton } from '@/shared/util/react/components/RowSkeleton';
+import { WavyText } from '@/shared/util/react/components/WavyText';
+import { DayPlanTaskCard } from '@/feature/day-plan/interface/web/react/today-list/DayPlanTaskCard';
+import { timeblockController } from '@/feature/day-plan/interface/controller/timeblock-controller';
+import { ScheduleTaskBlockDesc } from '@/feature/day-plan/entity/schedule-block-description';
 
 export const TodayList: React.FC = () => {
     const today = todayLocalDate();
@@ -36,6 +39,15 @@ export const TodayList: React.FC = () => {
     }
 
     const taskById = (tasksQ.data ?? new Map<string, Task>());
+    const desc: (t: string) => ScheduleTaskBlockDesc = (taskId: string) => {
+        return {
+            taskId,
+            startLocalDate: '2024-08-23',
+            startLocalTime: '15:00',
+            timezone: 'Europe/Warsaw',
+            duration: 'PT90M'
+        };
+    }
 
     return (
         <div className='flex flex-1 flex-col bg-surface-2 rounded-xl defined-shadow my-8 min-h-0'>
@@ -50,7 +62,10 @@ export const TodayList: React.FC = () => {
                     const task = taskById.get(entry.taskId);
 
                     if (task) {
-                        return <TaskCard key={entry.id} task={task} />;
+                        return <DayPlanTaskCard
+                            key={entry.id} task={task}
+                            onBlockPrimary={() => timeblockController.handleScheduleTimeblock(desc(entry.taskId))}
+                        />;
                     }
 
                     if (tasksEnabled && tasksQ.status === 'pending') {
@@ -80,13 +95,6 @@ const TopFetchingBar: React.FC<{ active: boolean }> = ({ active }) => (
                       100% { transform: translateX(120%); }
                   }`}
         </style>
-    </div>
-);
-
-const RowSkeleton: React.FC = () => (
-    <div className='rounded-lg bg-surface-1/50 p-4'>
-        <div className='h-4 w-1/3 animate-pulse rounded bg-surface-1/80 mb-3' />
-        <div className='h-3 w-2/3 animate-pulse rounded bg-surface-1/80' />
     </div>
 );
 

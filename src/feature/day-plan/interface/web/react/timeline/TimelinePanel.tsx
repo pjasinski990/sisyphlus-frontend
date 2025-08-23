@@ -1,17 +1,19 @@
-import { Timeline } from '@/feature/timeline/interface/web/react/Timeline';
+import { Timeline } from '@/feature/day-plan/interface/web/react/timeline/Timeline';
 import React from 'react';
 import { TwoPartPillButton } from '@/shared/util/react/components/PillButton';
 import { InboxIcon, ListPlusIcon } from 'lucide-react';
 import { openCommandPalette } from '@/app-init/shortcut-handlers/open-command-pallete';
 import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 import { WavyText } from '@/shared/util/react/components/WavyText';
+import { todayLocalDate } from '@/shared/util/local-date-helper';
 
 export const TimelinePanel: React.FC = () => {
+
     return (
         <div className={'flex flex-2 my-8 bg-surface-2 rounded-xl defined-shadow'}>
             <div className={'flex flex-col items- w-full min-h-0'}>
                 <TopBar />
-                <Timeline blocks={[]} />
+                <Timeline />
             </div>
         </div>
     );
@@ -22,7 +24,7 @@ const TopBar: React.FC = () => {
         <div className={'flex justify-between mx-8 min-h-32'}>
             <div className='flex flex-col py-8'>
                 <p className={'text-secondary-2 font-mono'}>
-                    {today()}
+                    {todayLocalDate()}
                 </p>
                 <WavyText byLetter={false} className={'pt-2'} amp={'0.25rem'} text={'Current focus: Coffee & TV'} />
             </div>
@@ -60,8 +62,3 @@ const InboxPillRight = () => {
         <ListPlusIcon className={'w-6 h-6 stroke-secondary-1'} />
     );
 };
-
-function today(): string {
-    const now = new Date();
-    return now.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' });
-}

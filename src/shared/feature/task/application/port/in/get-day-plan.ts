@@ -1,4 +1,4 @@
-import { DayPlan } from '@/shared/feature/task/entity/day-plan';
+import { DayPlan } from '@/feature/day-plan/entity/day-plan';
 import { AsyncResult } from '@/shared/feature/auth/entity/result';
 
 export interface GetDayPlan {

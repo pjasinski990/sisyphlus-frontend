@@ -1,20 +1,20 @@
 import React from 'react';
 import { clamp } from '@/shared/util/clamp';
 import { Range } from '@/shared/util/range';
-import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config';
-import { TimelineGridBackground } from '@/feature/timeline/interface/web/react/GridBackground';
-import { HourRail } from '@/feature/timeline/interface/web/react/HourRail';
-import { CurrentTimePointer } from '@/feature/timeline/interface/web/react/CurrentTimePointer';
-import { BlockCard } from '@/feature/timeline/interface/web/react/BlockCard';
-import { Block, TimeOfDay } from '../../../entity/block';
-import { NightTint } from '@/feature/timeline/interface/web/react/NightTint';
+import { timelineConfig } from '@/feature/day-plan/entity/timeline-config';
+import { TimelineGridBackground } from '@/feature/day-plan/interface/web/react/timeline/GridBackground';
+import { HourRail } from '@/feature/day-plan/interface/web/react/timeline/HourRail';
+import { CurrentTimePointer } from '@/feature/day-plan/interface/web/react/timeline/CurrentTimePointer';
+import { BlockCard } from '@/feature/day-plan/interface/web/react/timeline/BlockCard';
+import { NightTint } from '@/feature/day-plan/interface/web/react/timeline/NightTint';
+import { TimeOfDay } from '@/feature/day-plan/entity/time-of-day';
+import { TaskLayer } from '@/feature/day-plan/interface/web/react/timeline/TaskLayer';
 
 type DailyTimelineProps = {
-    blocks?: Block[];
     onRequestCreate?: (range: Range<TimeOfDay>) => void;
 };
 
-export const Timeline: React.FC<DailyTimelineProps> = ({ blocks = [], onRequestCreate }) => {
+export const Timeline: React.FC<DailyTimelineProps> = ({ onRequestCreate }) => {
     const cfg = timelineConfig;
     const startHour = cfg.hourSpan.from;
     const endHour = cfg.hourSpan.to;
@@ -71,18 +71,7 @@ export const Timeline: React.FC<DailyTimelineProps> = ({ blocks = [], onRequestC
                                 <NightTint className={''} />
                                 <TimelineGridBackground />
                                 <CurrentTimePointer progress={progress} now={now} />
-                                <TaskLayer>
-                                    {blocks.map((t) => (
-                                        <BlockCard
-                                            key={`${t.timespan.from}-${t.timespan.to}-${t.title}`}
-                                            timespan={t.timespan}
-                                            title={t.title}
-                                            timelineStartHour={startHour}
-                                            timelineTotalMin={totalMin}
-                                        />
-                                    ))}
-                                </TaskLayer>
-
+                                <TaskLayer />
                                 <SelectionLayer
                                     ppm={ppm}
                                     totalMin={totalMin}
@@ -217,10 +206,6 @@ const SelectionLayer: React.FC<{
         </div>
     );
 };
-
-const TaskLayer: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <div className='h-full absolute inset-x-10 pointer-events-none'>{children}</div>
-);
 
 const useNow = (intervalMs = 30_000) => {
     const [now, setNow] = React.useState(() => new Date());

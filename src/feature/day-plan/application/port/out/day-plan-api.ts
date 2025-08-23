@@ -1,4 +1,4 @@
-import { DayPlan } from '@/shared/feature/task/entity/day-plan';
+import { DayPlan } from '@/feature/day-plan/entity/day-plan';
 import { Changeset } from '@/shared/feature/local-state/entity/changeset';
 
 export interface DayPlanApi {

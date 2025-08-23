@@ -1,5 +1,5 @@
 import React from 'react';
-import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config';
+import { timelineConfig } from '@/feature/day-plan/entity/timeline-config';
 
 export const NightTint: React.FC<{
     ranges?: Array<{ from: number; to: number }>;

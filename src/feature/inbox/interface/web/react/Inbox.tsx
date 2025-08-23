@@ -1,5 +1,5 @@
 import React from 'react';
-import { TaskCard } from '@/feature/inbox/interface/web/react/TaskCard';
+import { InboxTaskCard } from '@/feature/inbox/interface/web/react/InboxTaskCard';
 import { useInboxTaskIdsQuery } from '@/feature/inbox/interface/web/react/use-inbox-task-ids';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 import { todayLocalDate, tomorrowLocalDate } from '@/shared/util/local-date-helper';
@@ -158,7 +158,7 @@ export const InboxTaskList: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
                         exit={{ opacity: 0, y: -6 }}
                         transition={{ type: 'spring', stiffness: 380, damping: 30, mass: 0.6 }}
                     >
-                        <TaskCard
+                        <InboxTaskCard
                             task={item}
                             selected={hoveredId === item.id}
                             onSchedulePrimary={() => scheduleToday(item)}

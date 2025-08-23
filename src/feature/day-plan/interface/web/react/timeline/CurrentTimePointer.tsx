@@ -1,5 +1,5 @@
 import React from 'react';
-import { timelineConfig } from '@/feature/timeline/entity/daily-timeline-config';
+import { timelineConfig } from '@/feature/day-plan/entity/timeline-config';
 
 export const CurrentTimePointer: React.FC<{ progress: number; now: Date }> = ({ progress, now }) => {
     const { from: startHour, to: endHour } = timelineConfig.hourSpan;

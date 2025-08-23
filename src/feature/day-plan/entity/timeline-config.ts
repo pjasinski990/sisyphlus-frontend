@@ -1,12 +1,12 @@
 import { Range } from '@/shared/util/range';
 
-export interface DailyTimelineConfig {
+export interface TimelineConfig {
     hourSpan: Range<number>;
     pixelsPerMinute: number;
     segmentMinutes: number;
 }
 
-export const timelineConfig: DailyTimelineConfig = {
+export const timelineConfig: TimelineConfig = {
     hourSpan: {
         from: 0,
         to: 24,

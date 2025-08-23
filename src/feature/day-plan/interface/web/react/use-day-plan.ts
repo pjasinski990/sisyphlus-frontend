@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Task } from '@/shared/feature/task/entity/task';
-import type { DayPlan } from '@/shared/feature/task/entity/day-plan';
+import type { DayPlan } from '@/feature/day-plan/entity/day-plan';
 import { dayPlanController } from '@/shared/feature/task/interface/controller/day-plan-controller';
 import { keepPreviousData } from '@tanstack/query-core';
 import { dayPlanKey } from '@/feature/day-plan/interface/web/react/day-plan-cache-adapter';

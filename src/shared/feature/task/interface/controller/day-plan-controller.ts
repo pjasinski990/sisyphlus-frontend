@@ -1,6 +1,6 @@
 import { GetDayPlan } from '@/shared/feature/task/application/port/in/get-day-plan';
 import { AsyncResult } from '@/shared/feature/auth/entity/result';
-import { DayPlan } from '../../entity/day-plan';
+import { DayPlan } from '../../../../../feature/day-plan/entity/day-plan';
 import { GetDayPlanUseCase } from '@/shared/feature/task/application/use-case/get-day-plan-use-case';
 import { HttpDayPlanApi } from '@/shared/feature/task/infra/http-day-plan-api';
 import { ScheduleTask } from '@/shared/feature/task/application/port/in/schedule-task';

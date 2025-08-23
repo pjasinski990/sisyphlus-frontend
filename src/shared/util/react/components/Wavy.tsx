@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 type WavyProps = {
     children: React.ReactNode;
     className?: string;
+    tilt?: string;
     amp?: string;
     period?: string;
     stagger?: string;
@@ -16,6 +17,7 @@ type WavyProps = {
 export const Wavy: React.FC<WavyProps> = ({
     children,
     className,
+    tilt=false,
     amp = '0.20em',
     period = '1.1s',
     stagger = '0.06s',
@@ -55,7 +57,7 @@ export const Wavy: React.FC<WavyProps> = ({
             }
         >
             {React.Children.map(children, (child, i) => (
-                <span key={i} className='wavy-w' style={{ ['--i']: i } as React.CSSProperties}>
+                <span key={i} className={`wavy-w ${tilt ? '' : 'simple'}`} style={{ ['--i']: i } as React.CSSProperties}>
                     <span
                         className='wavy-s'
                         style={
