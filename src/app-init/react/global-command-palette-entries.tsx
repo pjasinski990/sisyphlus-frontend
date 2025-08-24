@@ -38,10 +38,10 @@ export const GlobalCommandPaletteEntries: React.FC = () => {
             keywords: ['add', 'task', 'todo', 'inbox'],
             aliases: ['add', 'in', 'todo'],
             syntax: {
-                positionals: [{ name: 'title', schema: z.string(), rest: true }],
+                positionals: [{ name: 'title', hint: 'Title', schema: z.string(), rest: true, required: true }],
                 prefixes: [
                     { head: { kind: 'literal', literal: '@' }, name: 'context', hint: 'Where does it occur / what does it relate to?' , schema: z.string() },
-                    { head: { kind: 'literal', literal: '!' }, name: 'energy', hint: 'How mentally draining is it?', schema: z.string() },
+                    { head: { kind: 'literal', literal: '!' }, name: 'energy', hint: 'How mentally draining is it?', schema: z.enum(['low', 'medium', 'high']) },
                     { head: { kind: 'literal', literal: '#' }, name: 'tags', hint: 'For grouping / filtering', schema: z.string(), multi: true },
                     { head: { kind: 'literal', literal: '%' }, name: 'duration', hint: 'Estimated duration', schema: z.string() },
                     { head: { kind: 'regex', regex: /\n/ }, name: 'description', hint: 'Details (markdown supported)', schema: z.string(), rest: true },

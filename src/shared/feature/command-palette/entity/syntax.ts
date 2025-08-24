@@ -10,6 +10,7 @@ export interface PositionalSpec {
     rest?: boolean;
     hint?: string;
     example?: string;
+    required?: boolean;
 }
 
 export interface PrefixSpec {
@@ -20,6 +21,7 @@ export interface PrefixSpec {
     rest?: boolean;
     hint?: string;
     example?: string;
+    required?: boolean;
 }
 
 export interface CommandSyntax {

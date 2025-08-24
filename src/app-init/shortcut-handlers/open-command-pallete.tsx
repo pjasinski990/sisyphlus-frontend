@@ -15,8 +15,14 @@ export async function openCommandPalette(withCommand?: string, context?: Command
 }
 
 function findActiveAlias(input: string, aliases: string[]): string | null {
+    const delimiter = commandPaletteController.handleGetConfig().delimiter;
     for (const a of aliases) {
-        if (input.startsWith(a)) return a;
+        if (input.startsWith(a)) {
+            const rest = input.slice(a.length);
+            if (delimiter.test(rest)) {
+                return a;
+            }
+        }
     }
     return null;
 }
@@ -28,7 +34,7 @@ function sliceAfterAlias(input: string, alias: string): string {
     return rest.startsWith(' ') ? rest.slice(1) : rest;
 }
 
-export const CommandPalette: React.FC<{ initialValue?: string, context?: CommandContext }> = ({ context, initialValue }) => {
+export const CommandPalette: React.FC<{ initialValue?: string, context?: CommandContext }> = ({ initialValue, context }) => {
     const [value, setValue] = React.useState<string>(initialValue ?? '');
     const [error, setError] = React.useState<string | null>(null);
     const [submitting, setSubmitting] = React.useState(false);
@@ -122,7 +128,7 @@ export const CommandPalette: React.FC<{ initialValue?: string, context?: Command
                 <textarea
                     ref={inputRef}
                     className='w-full bg-transparent outline-none text-base placeholder:text-muted-foreground text-[1.1rem] leading-[1.4] resize-none min-h-[2.5rem] max-h-[14rem]'
-                    placeholder={'in do laundry @home !low #chore'}
+                    placeholder={''}
                     value={value}
                     onChange={(e) => { setValue(e.target.value); setError(null); }}
                     onKeyDown={onKeyDown}
@@ -200,7 +206,9 @@ export const CommandPalette: React.FC<{ initialValue?: string, context?: Command
                                     type='button'
                                     className='flex justify-between items-start gap-3 p-3 text-sm hover:bg-secondary-1/10 cursor-pointer w-full bg-transparent text-left'
                                     onClick={() => {
-                                        setValue(s.aliases.at(0) ?? '');
+                                        const alias = s.aliases.at(0);
+                                        const fill = alias ? `${alias} ` : '';
+                                        setValue(fill);
                                         inputRef.current?.focus();
                                     }}
                                 >

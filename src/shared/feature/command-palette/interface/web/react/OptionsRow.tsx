@@ -3,19 +3,11 @@ import { parseWithSyntax } from '@/shared/feature/command-palette/infra/parsing/
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CommandSyntax, type HeadMatcher } from '@/shared/feature/command-palette/entity/syntax';
-import {
-    commandPaletteController
-} from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
+import { commandPaletteController } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
+import { Tooltip } from '@/shared/util/react/components/Tooltip';
 
 const presentAnimate = { scale: [1, 1.15, 1], opacity: [1, 0.85, 1] };
 const presentTransition = { duration: 0.18 };
-
-function summarize(v: unknown): string {
-    if (Array.isArray(v)) return v.slice(0, 2).join(', ') + (v.length > 2 ? '…' : '');
-    if (typeof v === 'string') return v.length > 24 ? v.slice(0, 24) + '…' : v;
-    if (v == null) return '';
-    return String(v);
-}
 
 const Chip: React.FC<{
     label: string;
@@ -24,11 +16,9 @@ const Chip: React.FC<{
     value?: string;
     tooltip?: string;
     rightIcon?: React.ReactNode;
-}> = ({ label, provided, valid = true, value, tooltip, rightIcon }) => {
-    const state =
-        provided && valid ? 'on' :
-            provided && !valid ? 'bad' : 'off';
-
+    error?: boolean;
+}> = ({ label, provided, valid = true, value, tooltip, rightIcon, error = false }) => {
+    const state = error ? 'bad' : provided && !valid ? 'bad' : provided ? 'on' : 'off';
     const cls =
         state === 'on'
             ? 'border-secondary-1 bg-secondary-1/30'
@@ -37,20 +27,72 @@ const Chip: React.FC<{
                 : 'text-muted-foreground border-surface-1/60';
 
     return (
-        <motion.span
-            key={`${label}-${state}-${value ?? ''}`}
-            className={`px-2 py-1 rounded-md border text-xs inline-flex items-center gap-1 ${cls}`}
-            animate={provided ? presentAnimate : {}}
-            transition={presentTransition}
-            title={tooltip}
-        >
-            <span className='truncate max-w-[16rem]'>
-                {label}{value ? ': ' : ''}{value}
-            </span>
-            {rightIcon}
-        </motion.span>
+        <Tooltip tooltip={tooltip}>
+            <motion.span
+                key={`${label}-${state}-${value ?? ''}`}
+                className={`px-2 py-1 rounded-md border text-xs inline-flex items-center gap-1 ${cls}`}
+                animate={provided ? presentAnimate : {}}
+                transition={presentTransition}
+            >
+                <span className='truncate max-w-[16rem]'>
+                    {label}{value ? ': ' : ''}{value}
+                </span>
+                {rightIcon}
+            </motion.span>
+        </Tooltip>
     );
 };
+
+function isProvidedScalar(v: unknown): boolean {
+    if (v == null) return false;
+    if (typeof v === 'string') return v.trim().length > 0;
+    return true;
+}
+
+function isProvidedValue(v: unknown): boolean {
+    if (Array.isArray(v)) return v.length > 0 && v.some(isProvidedScalar);
+    return isProvidedScalar(v);
+}
+
+function validateScalar(schema: z.ZodType, v: unknown): { ok: boolean; msg?: string } {
+    const res = schema.safeParse(v);
+    if (res.success) return { ok: true };
+    const first = res.error.issues[0];
+    const path = first?.path?.join('.') || '';
+    const msg = first?.message || 'Invalid value';
+    return { ok: false, msg: path ? `${path}: ${msg}` : msg };
+}
+
+function validateValue(schema: z.ZodType, v: unknown): { ok: boolean; msg?: string } {
+    if (Array.isArray(v)) {
+        for (const it of v) {
+            const r = validateScalar(schema, it);
+            if (!r.ok) return r;
+        }
+        return { ok: true };
+    }
+    return validateScalar(schema, v);
+}
+
+function buildTip(baseHint?: string, example?: string, invalidMsg?: string, head?: HeadMatcher): string | undefined {
+    if (invalidMsg) return invalidMsg;
+    if (baseHint) return baseHint;
+    if (example && head) return `e.g. ${headToDisplay(head)}${example}`;
+    if (example) return `e.g. ${example}`;
+    return undefined;
+}
+
+function headToDisplay(head: HeadMatcher): string {
+    if (head.kind === 'regex' && head.regex.test('\n')) return '⏎ ';
+    return head.kind === 'literal' ? head.literal : `${head.regex.source}`;
+}
+
+function summarize(v: unknown): string {
+    if (Array.isArray(v)) return v.slice(0, 2).join(', ') + (v.length > 2 ? '…' : '');
+    if (typeof v === 'string') return v.length > 24 ? v.slice(0, 24) + '…' : v;
+    if (v == null) return '';
+    return String(v);
+}
 
 export const OptionsRow: React.FC<{
     syntax?: CommandSyntax;
@@ -74,18 +116,24 @@ export const OptionsRow: React.FC<{
                 <div className='flex flex-wrap items-center gap-2'>
                     {pos.map((p, i) => {
                         const raw = values[p.name];
-                        const provided = raw != null && String(raw).trim().length > 0;
-                        const valid = provided ? (p.schema as z.ZodType).safeParse(raw).success : false;
-                        const label = p.rest ? p.name : p.name;
-                        const tip = p.hint ?? (p.example ? `e.g. ${p.example}` : undefined);
+                        const provided = isProvidedValue(raw);
+                        const required = p.required ?? false;
+                        const missingError = required && !provided;
+                        const vres = provided ? validateValue(p.schema as z.ZodType, raw) : { ok: true };
+                        const tip = buildTip(
+                            p.hint,
+                            p.example,
+                            missingError ? 'Required' : provided && !vres.ok ? vres.msg : undefined
+                        );
                         return (
                             <Chip
                                 key={`pos-${i}`}
-                                label={label}
+                                label={p.name}
                                 provided={provided}
-                                valid={provided ? valid : true}
+                                valid={vres.ok}
                                 value={provided ? summarize(raw) : undefined}
                                 tooltip={tip}
+                                error={missingError}
                             />
                         );
                     })}
@@ -96,30 +144,30 @@ export const OptionsRow: React.FC<{
                 <div className='flex flex-wrap items-center gap-2'>
                     {pre.map((p, i) => {
                         const raw = values[p.name];
-                        const provided = Array.isArray(raw) ? raw.length > 0 : raw != null && String(raw).length > 0;
-
-                        let valid = true;
-                        if (provided) {
-                            if (Array.isArray(raw)) {
-                                valid = raw.every(v => (p.schema as z.ZodType).safeParse(v).success);
-                            } else {
-                                valid = (p.schema as z.ZodType).safeParse(raw).success;
-                            }
-                        }
-
+                        const provided = isProvidedValue(raw);
+                        const required = p.required ?? false;
+                        const missingError = required && !provided;
+                        const vres = provided ? validateValue(p.schema as z.ZodType, raw) : { ok: true };
                         const baseLabel = `${headToDisplay(p.head)}${p.name}`;
-                        const tip = p.hint ?? (p.example ? `e.g. ${headToDisplay(p.head)}${p.example}` : undefined);
-                        const value = provided ? summarize(raw) : undefined;
+                        const tip = buildTip(
+                            p.hint,
+                            p.example,
+                            missingError ? 'Required' : provided && !vres.ok ? vres.msg : undefined,
+                            p.head
+                        );
+                        const count = Array.isArray(raw) ? raw.length : provided ? 1 : 0;
+                        const rightIcon = p.multi && provided ? <span aria-hidden>×{count}</span> : undefined;
 
                         return (
                             <Chip
                                 key={`pre-${i}`}
                                 label={baseLabel}
                                 provided={provided}
-                                valid={valid}
-                                value={value}
+                                valid={vres.ok}
+                                value={provided ? summarize(raw) : undefined}
                                 tooltip={tip}
-                                rightIcon={p.multi ? <span aria-hidden>⋮</span> : undefined}
+                                rightIcon={rightIcon}
+                                error={missingError}
                             />
                         );
                     })}
@@ -128,7 +176,3 @@ export const OptionsRow: React.FC<{
         </motion.div>
     );
 };
-
-function headToDisplay(head: HeadMatcher): string {
-    return head.kind === 'literal' ? head.literal : `/${head.regex.source}/`;
-}

@@ -36,6 +36,10 @@ export class CommandPaletteController {
         private readonly executeLine: ExecuteLine,
     ) {}
 
+    handleGetConfig() {
+        return this.config;
+    }
+
     handleRegisterCommand<TParsed, TArgs>(cmd: Command<TParsed, TArgs>): void {
         this.register.register(cmd);
     }

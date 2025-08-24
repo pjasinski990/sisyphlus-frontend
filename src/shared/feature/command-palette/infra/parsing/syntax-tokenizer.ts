@@ -83,10 +83,17 @@ function isValidPrefixAt(
     cfg: PaletteConfig,
     prefixes: ReadonlyArray<PrefixSpec>
 ): boolean {
-    if (!isTokenBoundary(src, pos, cfg)) return false;
+    if (!isTokenBoundary(src, pos, cfg) && !(src[pos] === '\n' && isNewlineHead(spec.head))) return false;
     const afterHead = advanceIfHeadMatch(src, pos, spec.head);
     if (afterHead === null) return false;
     return hasNonEmptyValueAfterHead(src, afterHead, cfg, prefixes);
+}
+
+function isNewlineHead(head: HeadMatcher): boolean {
+    if (head.kind !== 'regex') return false;
+    head.regex.lastIndex = 0;
+    const m = head.regex.exec('\n');
+    return !!m && m.index === 0;
 }
 
 function advanceIfHeadMatch(src: string, pos: number, head: HeadMatcher): number | null {
