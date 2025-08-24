@@ -8,7 +8,7 @@ import { Task } from '@/shared/feature/task/entity/task';
 import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
 import { usePushToInboxMutation } from '@/feature/inbox/interface/web/react/use-push-to-inbox';
 
-const schema = z.object({
+const AddToInboxCommandSchema = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
     context: z.string().optional(),
@@ -17,7 +17,7 @@ const schema = z.object({
     duration: z.coerce.number().int().positive().optional(),
 });
 
-export const CommandPaletteEntries: React.FC = () => {
+export const GlobalCommandPaletteEntries: React.FC = () => {
     const id = uuid();
     const authState = useAuth();
     const userId = authState.status === 'authenticated' ? authState.user.id : null;
@@ -27,6 +27,7 @@ export const CommandPaletteEntries: React.FC = () => {
     useEffect(() => {
         commandPaletteController.handleRegisterCommand({
             id,
+            scope: 'global',
             title: 'Create Inbox Task',
             subtitle: 'Push a task to the Inbox',
             group: 'Tasks',
@@ -42,9 +43,9 @@ export const CommandPaletteEntries: React.FC = () => {
                     { head: { kind: 'regex', regex: /\n/ }, name: 'description', schema: z.string(), rest: true },
                 ],
             },
-            input: { schema, placeholder: '/in do laundry @home !low #chore' },
+            input: { schema: AddToInboxCommandSchema, placeholder: '/in do laundry @home !low #chore' },
             run: async (opts) => {
-                const v = schema.parse(opts);
+                const v = AddToInboxCommandSchema.parse(opts);
                 // TODO this should be a use case - business logic
                 const task: Task = {
                     id: uuid(),

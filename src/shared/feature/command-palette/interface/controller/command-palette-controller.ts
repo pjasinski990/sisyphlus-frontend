@@ -1,9 +1,15 @@
 import { InMemoryCommandRegistry } from '@/shared/feature/command-palette/infra/providers/in-memory-command-registry';
 import { BasicFuzzySearchEngine } from '@/shared/feature/command-palette/infra/providers/basic-fuzzy-search-engine';
-import { RegisterCommandUseCase } from '@/shared/feature/command-palette/application/use-case/register-command-use-case';
-import { UnregisterCommandUseCase } from '@/shared/feature/command-palette/application/use-case/unregister-command-use-case';
+import {
+    RegisterCommandUseCase
+} from '@/shared/feature/command-palette/application/use-case/register-command-use-case';
+import {
+    UnregisterCommandUseCase
+} from '@/shared/feature/command-palette/application/use-case/unregister-command-use-case';
 import { ListCommandsUseCase } from '@/shared/feature/command-palette/application/use-case/list-commands-use-case';
-import { SuggestCommandsUseCase } from '@/shared/feature/command-palette/application/use-case/suggest-commands-use-case';
+import {
+    SuggestCommandsUseCase
+} from '@/shared/feature/command-palette/application/use-case/suggest-commands-use-case';
 import { ExecuteLineUseCase } from '@/shared/feature/command-palette/application/use-case/execute-line-use-case';
 import { RegisterCommand } from '@/shared/feature/command-palette/application/port/in/register-command';
 import { UnregisterCommand } from '@/shared/feature/command-palette/application/port/in/unregister-command';
@@ -13,6 +19,7 @@ import { ExecuteLine } from '@/shared/feature/command-palette/application/port/i
 import { CommandSuggestion } from '@/shared/feature/command-palette/entity/listed-command';
 import { defaultPaletteConfig, PaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
 import { AsyncResult } from '@/shared/feature/auth/entity/result';
+import { Command, CommandContext } from '@/shared/feature/command-palette/entity/command';
 
 export class CommandPaletteController {
     constructor(
@@ -24,18 +31,19 @@ export class CommandPaletteController {
         private readonly executeLine: ExecuteLine,
     ) {}
 
-    handleRegisterCommand(cmd: Parameters<RegisterCommand['register']>[0]): void {
+    handleRegisterCommand(cmd: Command): void {
         this.register.register(cmd);
     }
 
     handleUnregisterCommand(id: string) { this.unregister.unregister(id); }
 
-    handleList() { return this.list.execute(); }
+    // TODO how come this is unused?
+    handleList(context?: CommandContext) { return this.list.execute(context); }
 
-    handleSuggest(q: string, limit?: number): CommandSuggestion[] { return this.suggest.execute(q, limit); }
+    handleSuggest(q: string, context?: CommandContext, limit?: number): CommandSuggestion[] { return this.suggest.execute(q, context, limit); }
 
-    async handleExecuteLine(line: string): AsyncResult<string, null> {
-        return this.executeLine.execute(line);
+    async handleExecuteLine(line: string, ctx: CommandContext = {}): AsyncResult<string, null> {
+        return this.executeLine.execute(line, ctx);
     }
 }
 
@@ -45,7 +53,7 @@ const search = new BasicFuzzySearchEngine();
 const register = new RegisterCommandUseCase(registry);
 const unregister = new UnregisterCommandUseCase(registry);
 const list = new ListCommandsUseCase(registry);
-const suggest = new SuggestCommandsUseCase(registry, search);
+const suggest = new SuggestCommandsUseCase(search, list);
 const executeLine = new ExecuteLineUseCase(registry, config);
 
 export const commandPaletteController = new CommandPaletteController(

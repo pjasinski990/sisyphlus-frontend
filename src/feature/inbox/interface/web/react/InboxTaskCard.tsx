@@ -9,7 +9,7 @@ export const InboxTaskCard: React.FC<{
     onSchedulePrimary?: () => void,
     onScheduleSecondary?: () => void
     onScheduleCustom?: () => void }
-> = ({ task, selected = false, onBlockPrimary, onScheduleSecondary, onScheduleCustom }) => {
+> = ({ task, selected = false, onSchedulePrimary, onScheduleSecondary, onScheduleCustom }) => {
     const [hover, setHover] = React.useState(false);
     const showScheduling = selected || hover;
 
@@ -20,7 +20,7 @@ export const InboxTaskCard: React.FC<{
             task={task} selected={showScheduling}
             onSelectedMenu={
                 <SchedulingOptions
-                    onSchedulePrimary={onBlockPrimary}
+                    onSchedulePrimary={onSchedulePrimary}
                     onScheduleSecondary={onScheduleSecondary}
                     onScheduleCustom={onScheduleCustom}
                 />

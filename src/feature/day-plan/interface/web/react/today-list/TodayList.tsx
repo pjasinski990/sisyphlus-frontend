@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDayPlanQuery } from '@/feature/day-plan/interface/web/react/use-day-plan';
 import { useTasksByIdsQuery } from '@/shared/feature/task/interface/web/react/use-tasks-by-ids';
 import type { Task } from '@/shared/feature/task/entity/task';
@@ -8,7 +8,14 @@ import { RowSkeleton } from '@/shared/util/react/components/RowSkeleton';
 import { WavyText } from '@/shared/util/react/components/WavyText';
 import { DayPlanTaskCard } from '@/feature/day-plan/interface/web/react/today-list/DayPlanTaskCard';
 import { timeblockController } from '@/feature/day-plan/interface/controller/timeblock-controller';
-import { ScheduleTaskBlockDesc } from '@/feature/day-plan/entity/schedule-block-description';
+import { ScheduleBlockDesc, ScheduleTaskBlockDesc } from '@/feature/day-plan/entity/schedule-block-description';
+import { openCommandPalette } from '@/app-init/shortcut-handlers/open-command-pallete';
+import {
+    commandPaletteController
+} from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
+import { v4 as uuid } from 'uuid';
+import z from 'zod';
+import { Command } from '@/shared/feature/command-palette/entity/command';
 
 export const TodayList: React.FC = () => {
     const today = todayLocalDate();
@@ -39,15 +46,6 @@ export const TodayList: React.FC = () => {
     }
 
     const taskById = (tasksQ.data ?? new Map<string, Task>());
-    const desc: (t: string) => ScheduleTaskBlockDesc = (taskId: string) => {
-        return {
-            taskId,
-            startLocalDate: '2024-08-23',
-            startLocalTime: '15:00',
-            timezone: 'Europe/Warsaw',
-            duration: 'PT90M'
-        };
-    }
 
     return (
         <div className='flex flex-1 flex-col bg-surface-2 rounded-xl defined-shadow my-8 min-h-0'>
@@ -62,9 +60,12 @@ export const TodayList: React.FC = () => {
                     const task = taskById.get(entry.taskId);
 
                     if (task) {
+                        const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
                         return <DayPlanTaskCard
                             key={entry.id} task={task}
-                            onBlockPrimary={() => timeblockController.handleScheduleTimeblock(desc(entry.taskId))}
+                            onBlockPrimary={() => {
+                                void openCommandPalette('block ', { scope: 'timeblock', hidden: { taskId: task.id, startLocalDate: todayLocalDate(), timezone: zone } })} }
                         />;
                     }
 
@@ -114,3 +115,47 @@ const EmptyPlanPlaceholder: React.FC = () => {
         </div>
     );
 };
+
+const ScheduleTimeblockCommandSchema = z.object({
+    taskId: z.string().min(1),
+    timezone: z.string().min(1),
+    startLocalDate: z.string().min(1),
+    startLocalTime: z.string(),
+    duration: z.string(),
+});
+
+export const TimeblockCommandPaletteEntries: React.FC = () => {
+    useEffect(() => {
+        const id = uuid();
+        const scheduleBlockCommand: Command<z.infer<typeof ScheduleTimeblockCommandSchema>> = {
+            id,
+            scope: 'timeblock',
+            title: 'Schedule Time Block',
+            subtitle: 'Add a time block for a task',
+            group: 'Timeblocks',
+            keywords: ['schedule', 'plan', 'block'],
+            aliases: ['block', 'plan'],
+            syntax: {
+                positionals: [
+                    { name: 'startLocalTime', schema: z.string(), rest: false },
+                    { name: 'duration', schema: z.string(), rest: false }
+                ],
+            },
+            input: { schema: ScheduleTimeblockCommandSchema, placeholder: '' },
+            run: async (opts, ctx) => {
+                const v = ScheduleTimeblockCommandSchema.parse(opts);
+                const desc: ScheduleBlockDesc = {
+                    taskId: v.taskId,
+                    timezone: v.timezone,
+                    duration: v.duration,
+                    startLocalDate: v.startLocalDate,
+                    startLocalTime: v.startLocalTime,
+                };
+                await timeblockController.handleScheduleTimeblock(desc);
+            },
+        }
+        commandPaletteController.handleRegisterCommand(scheduleBlockCommand);
+    })
+
+    return null;
+}

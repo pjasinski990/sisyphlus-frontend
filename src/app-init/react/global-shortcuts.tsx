@@ -10,7 +10,7 @@ import { openInbox } from '@/feature/inbox/interface/web/react/Inbox';
 export function GlobalShortcuts() {
     useShortcutScope('global', true);
     useShortcut('global', [
-        { combos: ['Control+K', 'Meta+K'], handler: () => openCommandPalette(''), description: 'Open Command Palette', group: 'Navigation' },
+        { combos: ['Control+K', 'Meta+K'], handler: () => openCommandPalette(), description: 'Open Command Palette', group: 'Navigation' },
         { combos: ['char:?'], handler: openShortcutsHelp, description: 'Open shortcuts help', group: 'Help' },
         { combos: ['I'], handler: openInbox, description: 'Open Inbox', group: 'Navigation' },
         { combos: ['A'], handler: () => openCommandPalette('add '), description: 'Add to Inbox', group: 'Navigation' },

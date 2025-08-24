@@ -32,6 +32,7 @@ export class InMemoryCommandRegistry implements CommandRegistry {
         return Array.from(this.byId.values()).map(c => ({
             id: c.id,
             title: c.title,
+            scope: c.scope,
             subtitle: c.subtitle,
             group: c.group,
             keywords: c.keywords ?? [],

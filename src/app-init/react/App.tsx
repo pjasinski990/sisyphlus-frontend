@@ -7,9 +7,10 @@ import { KeyboardProvider } from '@/shared/feature/keyboard/infra/web/react/Keyb
 import { registerDefaultDialogs } from '@/shared/feature/dialog/infra/web/react/bootstrap-dialogs';
 import { DialogHost } from '@/shared/feature/dialog/infra/web/react/DialogHost';
 import { DialogShortcuts, GlobalShortcuts } from '@/app-init/react/global-shortcuts';
-import { CommandPaletteEntries } from '@/app-init/react/global-command-palette-entries';
+import { GlobalCommandPaletteEntries } from '@/app-init/react/global-command-palette-entries';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { bootstrapCache } from '@/app-init/react/bootstrap-cache';
+import { TimeblockCommandPaletteEntries } from '@/feature/day-plan/interface/web/react/today-list/TodayList';
 
 const qc = new QueryClient();
 registerDefaultDialogs();
@@ -21,7 +22,8 @@ export function App() {
         <QueryClientProvider client={qc}>
             <AuthProvider>
                 <KeyboardProvider>
-                    <CommandPaletteEntries />
+                    <GlobalCommandPaletteEntries />
+                    <TimeblockCommandPaletteEntries />
                     <GlobalShortcuts />
                     <DialogShortcuts />
                     <DialogHost />

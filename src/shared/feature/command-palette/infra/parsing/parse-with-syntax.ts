@@ -1,15 +1,12 @@
-import { z } from 'zod';
 import { CommandSyntax } from '@/shared/feature/command-palette/entity/syntax';
 import { PaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
 import { ArgToken, tokenizeArgs } from './syntax-tokenizer';
-import { nok, ok, Result } from '@/shared/feature/auth/entity/result';
 
 export function parseWithSyntax(
     rest: string,
     syntax: CommandSyntax,
-    schema: z.ZodTypeAny,
     cfg: PaletteConfig
-): Result<string, Record<string, unknown>> {
+): Record<string, unknown> {
     const toks = tokenizeArgs(rest, syntax, cfg);
 
     const values: Record<string, unknown> = {};
@@ -31,16 +28,12 @@ export function parseWithSyntax(
     }
 
     let ti = 0;
-
-    const skipPrefixed = () => {
-        while (ti < toks.length && toks[ti]!.kind === 'prefixed') ti++;
-    };
+    const skipPrefixed = () => { while (ti < toks.length && toks[ti]!.kind === 'prefixed') ti++; };
 
     for (let pi = 0; pi < positionals.length; pi++) {
         const spec = positionals[pi]!;
-
+        skipPrefixed();
         if (spec.rest) {
-            skipPrefixed();
             const parts: string[] = [];
             while (ti < toks.length && toks[ti]!.kind === 'word') {
                 parts.push((toks[ti]! as Extract<ArgToken, { kind: 'word' }>).value);
@@ -49,7 +42,6 @@ export function parseWithSyntax(
             const joined = parts.join(' ').trim();
             values[spec.name] = joined.length ? joined : undefined;
         } else {
-            skipPrefixed();
             if (ti < toks.length && toks[ti]!.kind === 'word') {
                 values[spec.name] = (toks[ti]! as Extract<ArgToken, { kind: 'word' }>).value;
                 ti++;
@@ -58,14 +50,5 @@ export function parseWithSyntax(
             }
         }
     }
-
-    const res = schema.safeParse(values);
-    if (res.success) {
-        return ok(res);
-    } else {
-        const msg = res.error.issues
-            .map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-            .join('; ');
-        return nok(msg);
-    }
+    return values;
 }

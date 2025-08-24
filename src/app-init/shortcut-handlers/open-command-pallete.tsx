@@ -5,12 +5,13 @@ import type { CommandSyntax, HeadMatcher, PrefixSpec } from '@/shared/feature/co
 import {
     commandPaletteController
 } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
+import { CommandContext } from '@/shared/feature/command-palette/entity/command';
 
 // TODO refactor, cleanup, show enum options, show required / optionals
-export async function openCommandPalette(withCommand?: string) {
+export async function openCommandPalette(withCommand?: string, context?: CommandContext) {
     await dialogController.handleOpen({
         key: 'custom',
-        payload: { children: <CommandPalette initialValue={withCommand ?? ''} /> },
+        payload: { children: <CommandPalette context={context} initialValue={withCommand ?? ''} /> },
         options: { modal: true, dismissible: true },
     });
 }
@@ -113,7 +114,7 @@ const OptionsRow: React.FC<{
     );
 };
 
-export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialValue }) => {
+export const CommandPalette: React.FC<{ initialValue?: string, context?: CommandContext }> = ({ context, initialValue }) => {
     const [value, setValue] = React.useState<string>(initialValue ?? '');
     const [error, setError] = React.useState<string | null>(null);
     const [submitting, setSubmitting] = React.useState(false);
@@ -143,7 +144,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
         const trimmed = value.trimStart();
         const match = trimmed.match(/^\S+/);
         const command = match ? match[0] : '';
-        return commandPaletteController.handleSuggest(command, 20);
+        return commandPaletteController.handleSuggest(command, context, 20);
     }, [value]);
 
     const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = async (e) => {
@@ -187,7 +188,7 @@ export const CommandPalette: React.FC<{ initialValue?: string }> = ({ initialVal
 
         setSubmitting(true);
         setError(null);
-        const res = await commandPaletteController.handleExecuteLine(value);
+        const res = await commandPaletteController.handleExecuteLine(value, context);
         if (!res.ok) {
             setError(res.error);
         } else {

@@ -1,10 +1,14 @@
 import { z } from 'zod';
 import { CommandSyntax } from './syntax';
 
-export type CommandId = string;
+export interface CommandContext {
+    scope?: string;
+    hidden?: Record<string, unknown>;
+}
 
 export interface Command<TParsed = unknown> {
-    id: CommandId;
+    id: string;
+    scope: string;
     title: string;
     subtitle?: string;
     group?: string;
@@ -15,5 +19,5 @@ export interface Command<TParsed = unknown> {
         schema: z.ZodType<TParsed>;
         placeholder?: string;
     };
-    run: (opts: TParsed) => void | Promise<void>;
+    run(opts: TParsed, ctx: CommandContext): void | Promise<void>;
 }
