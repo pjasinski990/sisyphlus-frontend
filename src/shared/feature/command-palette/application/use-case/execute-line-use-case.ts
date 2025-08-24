@@ -13,42 +13,35 @@ export class ExecuteLineUseCase implements ExecuteLine {
         private readonly cfg: PaletteConfig
     ) {}
 
-    async execute(rawLine: string, ctx: CommandContext = {}): AsyncResult<string, null> {
-        const scope = ctx.scope;
+    async execute(rawLine: string, ctx: CommandContext = {}) {
         const head = parseAlias(rawLine, this.cfg);
         if (!head) return nok('No command provided');
 
         const cmd = this.registry.getByAlias(head.alias);
-        if (scope && cmd?.scope !== scope) return nok('Command not available here');
         if (!cmd) return nok('Invalid command provided');
+        if (ctx.scope && cmd.scope !== ctx.scope) return nok('Command not available here');
 
-        if (cmd.syntax && cmd.input?.schema) {
-            const values = parseWithSyntax(head.rest, cmd.syntax, this.cfg);
-            const merged = { ...values, ...(ctx.hidden ?? {}) };
-            const res = (cmd.input.schema as z.ZodType).safeParse(merged);
-            if (!res.success) {
-                const msg = res.error.issues
-                    .map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-                    .join('; ');
-                return nok(msg);
-            }
-            await cmd.run(res.data, ctx);
-            return ok(null);
+        const values = parseWithSyntax(head.rest, cmd.syntax ?? {}, this.cfg);
+
+        let parsed: unknown = values;
+        if (cmd.input?.parser) {
+            const base = typeof values['natural'] === 'string' ? values['natural'] : head.rest;
+            const r = cmd.input.parser.parse(base);
+            if (!r.ok) return nok(r.error);
+            parsed = r.value;
         }
 
         if (cmd.input?.schema) {
-            const res = (cmd.input.schema as z.ZodType).safeParse(ctx.hidden ?? {});
+            const res = (cmd.input.schema as z.ZodType).safeParse(parsed);
             if (!res.success) {
-                const msg = res.error.issues
-                    .map(i => `${i.path.join('.') || '(root)'}: ${i.message}`)
-                    .join('; ');
+                const msg = res.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`).join('; ');
                 return nok(msg);
             }
             await cmd.run(res.data, ctx);
             return ok(null);
         }
 
-        await cmd.run(undefined as unknown, ctx);
+        await cmd.run(parsed as any, ctx);
         return ok(null);
     }
 }

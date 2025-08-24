@@ -8,7 +8,7 @@ import { RowSkeleton } from '@/shared/util/react/components/RowSkeleton';
 import { WavyText } from '@/shared/util/react/components/WavyText';
 import { DayPlanTaskCard } from '@/feature/day-plan/interface/web/react/today-list/DayPlanTaskCard';
 import { timeblockController } from '@/feature/day-plan/interface/controller/timeblock-controller';
-import { ScheduleBlockDesc, ScheduleTaskBlockDesc } from '@/feature/day-plan/entity/schedule-block-description';
+import { ScheduleBlockDesc } from '@/feature/day-plan/entity/schedule-block-description';
 import { openCommandPalette } from '@/app-init/shortcut-handlers/open-command-pallete';
 import {
     commandPaletteController

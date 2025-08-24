@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
-import {
-    commandPaletteController
-} from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
-import { Task } from '@/shared/feature/task/entity/task';
+import { commandPaletteController } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
+import { EnergyLevel, Task } from '@/shared/feature/task/entity/task';
 import { useAuth } from '@/shared/feature/auth/interface/web/react/auth/hook/useAuth';
 import { usePushToInboxMutation } from '@/feature/inbox/interface/web/react/use-push-to-inbox';
+import { parseDurationToMinutes } from '@/shared/feature/command-palette/infra/parsing/smart-duration';
+import { InboxTaskCard } from '@/feature/inbox/interface/web/react/InboxTaskCard';
 
 const AddToInboxCommandSchema = z.object({
     title: z.string().min(1),
@@ -14,14 +14,18 @@ const AddToInboxCommandSchema = z.object({
     context: z.string().optional(),
     energy: z.enum(['low', 'medium', 'high']).optional(),
     tags: z.array(z.string()).optional(),
-    duration: z.coerce.number().int().positive().optional(),
+    duration: z
+        .union([
+            z.coerce.number().int().positive(),
+            z.string().min(1).refine((s) => parseDurationToMinutes(s) !== null, 'Invalid duration'),
+        ])
+        .optional(),
 });
 
 export const GlobalCommandPaletteEntries: React.FC = () => {
     const id = uuid();
     const authState = useAuth();
     const userId = authState.status === 'authenticated' ? authState.user.id : null;
-
     const { mutate } = usePushToInboxMutation();
 
     useEffect(() => {
@@ -43,29 +47,78 @@ export const GlobalCommandPaletteEntries: React.FC = () => {
                     { head: { kind: 'regex', regex: /\n/ }, name: 'description', schema: z.string(), rest: true },
                 ],
             },
-            input: { schema: AddToInboxCommandSchema, placeholder: '/in do laundry @home !low #chore' },
+
+            renderPreview: ({ parse, hints, ready }) => {
+                const v = parse.ok ? (parse.value as Record<string, unknown>) : {};
+                const title = (v.title as string) || '[title]';
+                const description = (v.description as string) || '';
+                const context = (v.context as string) || '';
+                const energy = ['low', 'medium', 'high'].includes(v.energy as string) ? v.energy as EnergyLevel : 'medium';
+                const tags = (v.tags as string[]) || [];
+                const rawDur = v.duration as string | number | undefined;
+
+                let minutes: number | undefined;
+                let durError: string | null = null;
+
+                if (typeof rawDur === 'number') minutes = rawDur;
+                else if (typeof rawDur === 'string') {
+                    const parsed = parseDurationToMinutes(rawDur);
+                    if (parsed === null) durError = `Unrecognized duration: “${rawDur}”`;
+                    else minutes = parsed;
+                }
+
+                const task: Task = {
+                    id: 'temp',
+                    userId: 'temp',
+                    category: 'simple',
+                    status: 'todo',
+                    title,
+                    description,
+                    energy,
+                    context,
+                    tags,
+                    estimatedMin: minutes,
+                };
+
+                return (
+                    <InboxTaskCard task={task} />
+                );
+            },
+
+            input: {
+                schema: AddToInboxCommandSchema,
+                placeholder: '/in do laundry @home !low #chore %1h30m',
+            },
+
             run: async (opts) => {
                 const v = AddToInboxCommandSchema.parse(opts);
-                // TODO this should be a use case - business logic
+
+                let estimatedMin: number | undefined;
+                if (typeof v.duration === 'number') {
+                    estimatedMin = v.duration;
+                } else if (typeof v.duration === 'string') {
+                    estimatedMin = parseDurationToMinutes(v.duration)!;
+                }
+
                 const task: Task = {
                     id: uuid(),
-                    // TODO fix loading of user-specific content before auth completes
-                    // @ts-expect-error ignore for now
+                    // @ts-expect-error user gets resolved post-auth
                     userId,
                     title: v.title,
                     description: v.description,
                     context: v.context,
                     energy: v.energy ?? 'medium',
                     tags: v.tags ?? [],
-                    estimatedMin: v.duration,
-
+                    estimatedMin,
                     category: 'simple',
                     status: 'todo',
                 };
                 mutate(task);
             },
         });
+
         return () => commandPaletteController.handleUnregisterCommand(id);
     }, [id, mutate, userId]);
+
     return null;
 };

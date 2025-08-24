@@ -24,7 +24,7 @@ export const InboxTaskCard: React.FC<{
                     onScheduleSecondary={onScheduleSecondary}
                     onScheduleCustom={onScheduleCustom}
                 />
-        } />
+            } />
     );
 };
 

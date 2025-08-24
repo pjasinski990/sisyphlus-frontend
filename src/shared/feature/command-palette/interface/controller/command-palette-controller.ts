@@ -20,10 +20,15 @@ import { CommandSuggestion } from '@/shared/feature/command-palette/entity/liste
 import { defaultPaletteConfig, PaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
 import { AsyncResult } from '@/shared/feature/auth/entity/result';
 import { Command, CommandContext } from '@/shared/feature/command-palette/entity/command';
+import { parseAlias } from '@/shared/feature/command-palette/entity/parsed-alias';
+import { parseWithSyntax } from '@/shared/feature/command-palette/infra/parsing/parse-with-syntax';
+import { CommandRegistry } from '@/shared/feature/command-palette/application/port/out/command-registry';
+import React, { ReactNode } from 'react';
 
 export class CommandPaletteController {
     constructor(
         readonly config: PaletteConfig,
+        private readonly registry: CommandRegistry,
         private readonly register: RegisterCommand,
         private readonly unregister: UnregisterCommand,
         private readonly list: ListCommands,
@@ -45,6 +50,26 @@ export class CommandPaletteController {
     async handleExecuteLine(line: string, ctx: CommandContext = {}): AsyncResult<string, null> {
         return this.executeLine.execute(line, ctx);
     }
+
+    handlePreview(line: string): { preview?: ReactNode } {
+        const head = parseAlias(line, this.config);
+        if (!head) return {};
+        const cmd = this.registry.getByAlias(head.alias);
+        if (!cmd?.renderPreview) return {};
+
+        const values = parseWithSyntax(head.rest, cmd.syntax ?? {}, this.config);
+        const base = typeof values['natural'] === 'string' ? values['natural'] : head.rest;
+
+        const parse = cmd.input?.parser?.parse(base) ?? { ok: true, value: values, hints: [] };
+        const hints = (parse as any).hints ?? [];
+
+        const ready =
+            parse.ok && (cmd.input?.schema ? (cmd.input.schema.safeParse(parse.value).success) : true);
+
+        return {
+            preview: cmd.renderPreview({ rawInput: base, parse, hints, ready }) as any
+        };
+    }
 }
 
 const config = defaultPaletteConfig;
@@ -58,6 +83,7 @@ const executeLine = new ExecuteLineUseCase(registry, config);
 
 export const commandPaletteController = new CommandPaletteController(
     config,
+    registry,
     register,
     unregister,
     list,

@@ -8,6 +8,8 @@ export interface PositionalSpec {
     name: string;
     schema: z.ZodType;
     rest?: boolean;
+    hint?: string;
+    example?: string;
 }
 
 export interface PrefixSpec {
@@ -16,6 +18,8 @@ export interface PrefixSpec {
     schema: z.ZodType;
     multi?: boolean;
     rest?: boolean;
+    hint?: string;
+    example?: string;
 }
 
 export interface CommandSyntax {
