@@ -3,27 +3,25 @@ import { Command } from '@/shared/feature/command-palette/entity/command';
 import { ListedCommand } from '@/shared/feature/command-palette/entity/listed-command';
 
 export class InMemoryCommandRegistry implements CommandRegistry {
-    private byId = new Map<string, Command>();
+    private byId = new Map<string, Command<unknown, unknown>>();
     private byAlias = new Map<string, string>();
 
-    add(cmd: Command): void {
-        this.byId.set(cmd.id, cmd);
+    add<TParsed, TArgs>(cmd: Command<TParsed, TArgs>): void {
+        this.byId.set(cmd.id, cmd as unknown as Command<unknown, unknown>);
         for (const a of cmd.aliases) this.byAlias.set(a.toLowerCase(), cmd.id);
     }
 
     remove(id: string): void {
         const cmd = this.byId.get(id);
-        if (cmd) {
-            for (const a of cmd.aliases) this.byAlias.delete(a.toLowerCase());
-        }
+        if (cmd) for (const a of cmd.aliases) this.byAlias.delete(a.toLowerCase());
         this.byId.delete(id);
     }
 
-    getById(id: string): Command<unknown> | null {
+    getById(id: string): Command<unknown, unknown> | null {
         return this.byId.get(id) ?? null;
     }
 
-    getByAlias(alias: string): Command<unknown> | null {
+    getByAlias(alias: string): Command<unknown, unknown> | null {
         const id = this.byAlias.get(alias.toLowerCase());
         return id ? this.getById(id) : null;
     }

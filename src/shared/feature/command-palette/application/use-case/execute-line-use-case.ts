@@ -25,14 +25,16 @@ export class ExecuteLineUseCase implements ExecuteLine {
 
         let parsed: unknown = values;
         if (cmd.input?.parser) {
-            const base = typeof values['natural'] === 'string' ? values['natural'] : head.rest;
+            const base = typeof (values as any)['natural'] === 'string' ? (values as any)['natural'] : head.rest;
             const r = cmd.input.parser.parse(base);
             if (!r.ok) return nok(r.error);
             parsed = r.value;
         }
 
+        const merged = { ...(ctx.callerArgs ?? {}), ...(parsed as any) };
+
         if (cmd.input?.schema) {
-            const res = (cmd.input.schema as z.ZodType).safeParse(parsed);
+            const res = (cmd.input.schema as z.ZodType).safeParse(merged);
             if (!res.success) {
                 const msg = res.error.issues.map(i => `${i.path.join('.') || '(root)'}: ${i.message}`).join('; ');
                 return nok(msg);
@@ -41,7 +43,7 @@ export class ExecuteLineUseCase implements ExecuteLine {
             return ok(null);
         }
 
-        await cmd.run(parsed as any, ctx);
+        await cmd.run(merged as any, ctx);
         return ok(null);
     }
 }

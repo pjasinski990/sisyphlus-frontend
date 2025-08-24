@@ -36,7 +36,7 @@ export class CommandPaletteController {
         private readonly executeLine: ExecuteLine,
     ) {}
 
-    handleRegisterCommand(cmd: Command): void {
+    handleRegisterCommand<TParsed, TArgs>(cmd: Command<TParsed, TArgs>): void {
         this.register.register(cmd);
     }
 

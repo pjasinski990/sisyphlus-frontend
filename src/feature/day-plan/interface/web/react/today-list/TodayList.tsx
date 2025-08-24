@@ -13,9 +13,9 @@ import { openCommandPalette } from '@/app-init/shortcut-handlers/open-command-pa
 import {
     commandPaletteController
 } from '@/shared/feature/command-palette/interface/controller/command-palette-controller';
-import { v4 as uuid } from 'uuid';
 import z from 'zod';
 import { Command } from '@/shared/feature/command-palette/entity/command';
+import { smartTimeOfDayParser } from '@/shared/feature/command-palette/infra/parsing/smart-time-of-day';
 
 export const TodayList: React.FC = () => {
     const today = todayLocalDate();
@@ -60,12 +60,21 @@ export const TodayList: React.FC = () => {
                     const task = taskById.get(entry.taskId);
 
                     if (task) {
-                        const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
                         return <DayPlanTaskCard
                             key={entry.id} task={task}
                             onBlockPrimary={() => {
-                                void openCommandPalette('block ', { scope: 'timeblock', callerArgs: { taskId: task.id, startLocalDate: todayLocalDate(), timezone: zone } })} }
+                                const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                                const callerArgs = {
+                                    taskId: task.id,
+                                    startLocalDate: todayLocalDate(),
+                                    timezone: zone,
+                                };
+                                const callContext = {
+                                    scope: 'timeblock',
+                                    callerArgs,
+                                };
+                                void openCommandPalette('block ', callContext);
+                            }}
                         />;
                     }
 
@@ -116,49 +125,58 @@ const EmptyPlanPlaceholder: React.FC = () => {
     );
 };
 
-const ScheduleTimeblockCommandSchema = z.object({
+const ScheduleTimeblockParsedSchema = z.object({
+    startLocalTime: z.string().min(1),
+    duration: z.string().min(1),
+});
+const ScheduleTimeblockArgsSchema = z.object({
     taskId: z.string().min(1),
     timezone: z.string().min(1),
     startLocalDate: z.string().min(1),
-    startLocalTime: z.string(),
-    duration: z.string(),
 });
+const ScheduleTimeblockCommandSchema = z.intersection(
+    ScheduleTimeblockParsedSchema,
+    ScheduleTimeblockArgsSchema
+);
+
+type ScheduleTimeblockParsed = z.infer<typeof ScheduleTimeblockParsedSchema>;
+type ScheduleTimeblockAll = z.infer<typeof ScheduleTimeblockCommandSchema>;
+
+const id = 'timeblock.schedule';
+const scheduleBlockCommand: Command<ScheduleTimeblockParsed, ScheduleTimeblockAll> = {
+    id,
+    scope: 'timeblock',
+    title: 'Schedule Time Block',
+    subtitle: 'Add a time block for a task',
+    group: 'Timeblocks',
+    keywords: ['schedule', 'plan', 'block'],
+    aliases: ['block'],
+    syntax: {
+        positionals: [
+            { name: 'natural', schema: z.string(), rest: true, hint: 'e.g. 12am 90min, 8:30 1h, noon half hour' },
+        ],
+    },
+    input: {
+        parser: smartTimeOfDayParser,
+        schema: ScheduleTimeblockCommandSchema,
+        placeholder: 'e.g. 12am 90min',
+    },
+    run: async (opts) => {
+        const v = ScheduleTimeblockCommandSchema.parse(opts);
+        const desc: ScheduleBlockDesc = {
+            taskId: v.taskId,
+            timezone: v.timezone,
+            duration: v.duration,
+            startLocalDate: v.startLocalDate,
+            startLocalTime: v.startLocalTime,
+        };
+        await timeblockController.handleScheduleTimeblock(desc);
+    },
+};
 
 export const TimeblockCommandPaletteEntries: React.FC = () => {
-    const id = 'timeblock.schedule';
-
     useEffect(() => {
-        const scheduleBlockCommand: Command<z.infer<typeof ScheduleTimeblockCommandSchema>> = {
-            id,
-            scope: 'timeblock',
-            title: 'Schedule Time Block',
-            subtitle: 'Add a time block for a task',
-            group: 'Timeblocks',
-            keywords: ['schedule', 'plan', 'block'],
-            aliases: ['block', 'plan'],
-            syntax: {
-                positionals: [
-                    { name: 'startLocalTime', schema: z.string(), rest: false },
-                    { name: 'duration', schema: z.string(), rest: false }
-                ],
-            },
-            input: { schema: ScheduleTimeblockCommandSchema, placeholder: '' },
-            run: async (opts, ctx) => {
-                // TODO fix passing
-                const { localDate, timezone, taskId } = ctx.callerArgs;
-                const v = ScheduleTimeblockCommandSchema.parse(opts);
-                const desc: ScheduleBlockDesc = {
-                    taskId: v.taskId,
-                    timezone: v.timezone,
-                    duration: v.duration,
-                    startLocalDate: v.startLocalDate,
-                    startLocalTime: v.startLocalTime,
-                };
-                await timeblockController.handleScheduleTimeblock(desc);
-            },
-        };
         commandPaletteController.handleRegisterCommand(scheduleBlockCommand);
-    });
-
+    }, []);
     return null;
 };

@@ -14,7 +14,7 @@ export interface PreviewProps<TParsed> {
     ready: boolean;
 }
 
-export interface Command<TParsed = unknown> {
+export interface Command<TParsed = unknown, TAll = TParsed> {
     id: string;
     scope: string;
     title: string;
@@ -26,10 +26,10 @@ export interface Command<TParsed = unknown> {
 
     input?: {
         parser?: InputParser<TParsed>;
-        schema?: z.ZodType<TParsed>;
+        schema?: z.ZodType<TAll>;
         placeholder?: string;
     };
 
-    renderPreview?: (p: PreviewProps<TParsed>) => ReactNode;
-    run<TArgs>(opts: TParsed, ctx: CommandContext<TArgs>): void | Promise<void>;
+    renderPreview?(p: PreviewProps<TParsed>): ReactNode;
+    run<TArgs>(opts: TAll, ctx: CommandContext<TArgs>): void | Promise<void>;
 }

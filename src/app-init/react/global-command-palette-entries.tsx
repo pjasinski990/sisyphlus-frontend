@@ -48,7 +48,8 @@ export const GlobalCommandPaletteEntries: React.FC = () => {
                 ],
             },
 
-            renderPreview: ({ parse, ready }) => {
+            // TODO cleanup
+            renderPreview: ({ parse }) => {
                 const v = parse.ok ? (parse.value as Record<string, unknown>) : {};
                 const title = (v.title as string) || '[title]';
                 const description = (v.description as string) || '';

@@ -11,6 +11,6 @@ export const timelineConfig: TimelineConfig = {
         from: 0,
         to: 24,
     },
-    pixelsPerMinute: 1.2,
+    pixelsPerMinute: 1.4,
     segmentMinutes: 15,
 };
