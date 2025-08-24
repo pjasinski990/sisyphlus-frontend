@@ -10,7 +10,7 @@ export class SuggestCommandsUseCase implements SuggestCommands {
         private readonly listCommands: ListCommands,
     ) {}
     execute(query: string, context?: CommandContext, limit?: number): CommandSuggestion[] {
-        let items = this.listCommands.execute(context);
+        const items = this.listCommands.execute(context);
         return this.search.search(query, items, limit);
     }
 }

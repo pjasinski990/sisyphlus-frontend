@@ -3,7 +3,7 @@ import { CommandRegistry } from '@/shared/feature/command-palette/application/po
 import { PaletteConfig } from '@/shared/feature/command-palette/entity/palette-config';
 import { z } from 'zod';
 import { parseAlias } from '@/shared/feature/command-palette/entity/parsed-alias';
-import { AsyncResult, nok, ok } from '@/shared/feature/auth/entity/result';
+import { nok, ok } from '@/shared/feature/auth/entity/result';
 import { CommandContext } from '@/shared/feature/command-palette/entity/command';
 import { parseWithSyntax } from '@/shared/feature/command-palette/infra/parsing/parse-with-syntax';
 

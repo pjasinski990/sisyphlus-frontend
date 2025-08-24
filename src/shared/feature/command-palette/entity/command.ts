@@ -1,17 +1,16 @@
 import type { ReactNode } from 'react';
 import { z } from 'zod';
-import type { RichParse, RichInputParser, Hint } from './input-parser';
+import type { InputParser, Parsed } from './input-parser';
 import { CommandSyntax } from '@/shared/feature/command-palette/entity/syntax';
 
-export interface CommandContext {
+export interface CommandContext<TArgs = unknown> {
     scope?: string;
-    hidden?: Record<string, unknown>;
+    callerArgs?: Record<string, TArgs>;
 }
 
 export interface PreviewProps<TParsed> {
     rawInput: string;
-    parse: RichParse<TParsed>;
-    hints: Hint[];
+    parse: Parsed<TParsed>;
     ready: boolean;
 }
 
@@ -26,11 +25,11 @@ export interface Command<TParsed = unknown> {
     syntax?: CommandSyntax;
 
     input?: {
-        parser?: RichInputParser<TParsed>;
+        parser?: InputParser<TParsed>;
         schema?: z.ZodType<TParsed>;
         placeholder?: string;
     };
 
     renderPreview?: (p: PreviewProps<TParsed>) => ReactNode;
-    run(opts: TParsed, ctx: CommandContext): void | Promise<void>;
+    run<TArgs>(opts: TParsed, ctx: CommandContext<TArgs>): void | Promise<void>;
 }

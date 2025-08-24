@@ -65,7 +65,7 @@ export const TodayList: React.FC = () => {
                         return <DayPlanTaskCard
                             key={entry.id} task={task}
                             onBlockPrimary={() => {
-                                void openCommandPalette('block ', { scope: 'timeblock', hidden: { taskId: task.id, startLocalDate: todayLocalDate(), timezone: zone } })} }
+                                void openCommandPalette('block ', { scope: 'timeblock', callerArgs: { taskId: task.id, startLocalDate: todayLocalDate(), timezone: zone } })} }
                         />;
                     }
 
@@ -125,8 +125,9 @@ const ScheduleTimeblockCommandSchema = z.object({
 });
 
 export const TimeblockCommandPaletteEntries: React.FC = () => {
+    const id = 'timeblock.schedule';
+
     useEffect(() => {
-        const id = uuid();
         const scheduleBlockCommand: Command<z.infer<typeof ScheduleTimeblockCommandSchema>> = {
             id,
             scope: 'timeblock',
@@ -143,6 +144,8 @@ export const TimeblockCommandPaletteEntries: React.FC = () => {
             },
             input: { schema: ScheduleTimeblockCommandSchema, placeholder: '' },
             run: async (opts, ctx) => {
+                // TODO fix passing
+                const { localDate, timezone, taskId } = ctx.callerArgs;
                 const v = ScheduleTimeblockCommandSchema.parse(opts);
                 const desc: ScheduleBlockDesc = {
                     taskId: v.taskId,
@@ -153,9 +156,9 @@ export const TimeblockCommandPaletteEntries: React.FC = () => {
                 };
                 await timeblockController.handleScheduleTimeblock(desc);
             },
-        }
+        };
         commandPaletteController.handleRegisterCommand(scheduleBlockCommand);
-    })
+    });
 
     return null;
-}
+};

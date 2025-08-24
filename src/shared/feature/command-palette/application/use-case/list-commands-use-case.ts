@@ -7,7 +7,7 @@ export class ListCommandsUseCase implements ListCommands {
     constructor(private readonly registry: CommandRegistry) {}
     execute(context?: CommandContext): ListedCommand[] {
         const scope = context?.scope ?? 'global';
-        let res = this.registry.list()
+        let res = this.registry.list();
         res = res.filter(c => c.scope === scope);
         return res;
     }

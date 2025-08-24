@@ -7,48 +7,101 @@ export function parseWithSyntax(
     syntax: CommandSyntax,
     cfg: PaletteConfig
 ): Record<string, unknown> {
-    const toks = tokenizeArgs(rest, syntax, cfg);
+    const tokens = tokenizeArgs(rest, syntax, cfg);
 
     const values: Record<string, unknown> = {};
     const positionals = syntax.positionals ?? [];
-    const prefixes = new Map<string, { multi: boolean }>();
-    for (const p of (syntax.prefixes ?? [])) prefixes.set(p.name, { multi: !!p.multi });
 
-    const prefBuckets = new Map<string, Array<string>>();
-    for (const t of toks) {
-        if (t.kind === 'prefixed') {
-            const bucket = prefBuckets.get(t.name) ?? [];
-            bucket.push(t.raw);
-            prefBuckets.set(t.name, bucket);
-        }
-    }
-    for (const [name, { multi }] of prefixes.entries()) {
-        const arr = prefBuckets.get(name) ?? [];
-        values[name] = multi ? arr : (arr[0] ?? undefined);
-    }
+    // prefixes
+    const prefixCfg = buildPrefixConfigMap(syntax);
+    const prefBuckets = bucketPrefixedTokens(tokens);
+    assignPrefixValues(values, prefixCfg, prefBuckets);
 
-    let ti = 0;
-    const skipPrefixed = () => { while (ti < toks.length && toks[ti]!.kind === 'prefixed') ti++; };
+    // positionals
+    const positionalValues = extractPositionals(tokens, positionals);
+    Object.assign(values, positionalValues);
 
-    for (let pi = 0; pi < positionals.length; pi++) {
-        const spec = positionals[pi]!;
-        skipPrefixed();
-        if (spec.rest) {
-            const parts: string[] = [];
-            while (ti < toks.length && toks[ti]!.kind === 'word') {
-                parts.push((toks[ti]! as Extract<ArgToken, { kind: 'word' }>).value);
-                ti++;
-            }
-            const joined = parts.join(' ').trim();
-            values[spec.name] = joined.length ? joined : undefined;
-        } else {
-            if (ti < toks.length && toks[ti]!.kind === 'word') {
-                values[spec.name] = (toks[ti]! as Extract<ArgToken, { kind: 'word' }>).value;
-                ti++;
-            } else {
-                values[spec.name] = undefined;
-            }
-        }
-    }
     return values;
+}
+
+function buildPrefixConfigMap(syntax: CommandSyntax): Map<string, { multi: boolean }> {
+    const map = new Map<string, { multi: boolean }>();
+    for (const p of syntax.prefixes ?? []) map.set(p.name, { multi: !!p.multi });
+    return map;
+}
+
+function bucketPrefixedTokens(tokens: ArgToken[]): Map<string, string[]> {
+    const buckets = new Map<string, string[]>();
+    for (const t of tokens) {
+        if (!isPrefixed(t)) continue;
+        const bucket = buckets.get(t.name) ?? [];
+        bucket.push(t.raw);
+        buckets.set(t.name, bucket);
+    }
+    return buckets;
+}
+
+function isPrefixed(t: ArgToken): t is Extract<ArgToken, { kind: 'prefixed' }> {
+    return t.kind === 'prefixed';
+}
+
+function assignPrefixValues(
+    out: Record<string, unknown>,
+    prefixCfg: Map<string, { multi: boolean }>,
+    buckets: Map<string, string[]>
+): void {
+    for (const [name, { multi }] of prefixCfg.entries()) {
+        const arr = buckets.get(name) ?? [];
+        out[name] = multi ? arr : arr[0] ?? undefined;
+    }
+}
+
+function extractPositionals(
+    tokens: ArgToken[],
+    positionals: NonNullable<CommandSyntax['positionals']>
+): Record<string, unknown> {
+    const out: Record<string, unknown> = {};
+    let i = 0;
+
+    for (const spec of positionals) {
+        i = skipPrefixed(tokens, i);
+
+        if (spec.rest) {
+            const { text, next } = takeRestWords(tokens, i);
+            out[spec.name] = text.length ? text : undefined;
+            i = next;
+            continue;
+        }
+
+        const { value, next } = takeSingleWord(tokens, i);
+        out[spec.name] = value;
+        i = next;
+    }
+    return out;
+}
+
+function skipPrefixed(tokens: ArgToken[], idx: number): number {
+    while (idx < tokens.length && isPrefixed(tokens[idx]!)) idx++;
+    return idx;
+}
+
+function takeRestWords(tokens: ArgToken[], idx: number): { text: string; next: number } {
+    const parts: string[] = [];
+    let i = idx;
+    while (i < tokens.length && isWord(tokens[i]!)) {
+        parts.push((tokens[i]! as Extract<ArgToken, { kind: 'word' }>).value);
+        i++;
+    }
+    return { text: parts.join(' ').trim(), next: i };
+}
+
+function takeSingleWord(tokens: ArgToken[], idx: number): { value: string | undefined; next: number } {
+    if (idx < tokens.length && isWord(tokens[idx]!)) {
+        return { value: tokens[idx]!.value, next: idx + 1 };
+    }
+    return { value: undefined, next: idx };
+}
+
+function isWord(t: ArgToken): t is Extract<ArgToken, { kind: 'word' }> {
+    return t.kind === 'word';
 }

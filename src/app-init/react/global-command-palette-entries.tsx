@@ -36,19 +36,19 @@ export const GlobalCommandPaletteEntries: React.FC = () => {
             subtitle: 'Push a task to the Inbox',
             group: 'Tasks',
             keywords: ['add', 'task', 'todo', 'inbox'],
-            aliases: ['add', 'in', 'task'],
+            aliases: ['add', 'in', 'todo'],
             syntax: {
                 positionals: [{ name: 'title', schema: z.string(), rest: true }],
                 prefixes: [
-                    { head: { kind: 'literal', literal: '@' }, name: 'context', schema: z.string() },
-                    { head: { kind: 'literal', literal: '!' }, name: 'energy', schema: z.string() },
-                    { head: { kind: 'literal', literal: '#' }, name: 'tags', schema: z.string(), multi: true },
-                    { head: { kind: 'literal', literal: '%' }, name: 'duration', schema: z.string() },
-                    { head: { kind: 'regex', regex: /\n/ }, name: 'description', schema: z.string(), rest: true },
+                    { head: { kind: 'literal', literal: '@' }, name: 'context', hint: 'Where does it occur / what does it relate to?' , schema: z.string() },
+                    { head: { kind: 'literal', literal: '!' }, name: 'energy', hint: 'How mentally draining is it?', schema: z.string() },
+                    { head: { kind: 'literal', literal: '#' }, name: 'tags', hint: 'For grouping / filtering', schema: z.string(), multi: true },
+                    { head: { kind: 'literal', literal: '%' }, name: 'duration', hint: 'Estimated duration', schema: z.string() },
+                    { head: { kind: 'regex', regex: /\n/ }, name: 'description', hint: 'Details (markdown supported)', schema: z.string(), rest: true },
                 ],
             },
 
-            renderPreview: ({ parse, hints, ready }) => {
+            renderPreview: ({ parse, ready }) => {
                 const v = parse.ok ? (parse.value as Record<string, unknown>) : {};
                 const title = (v.title as string) || '[title]';
                 const description = (v.description as string) || '';

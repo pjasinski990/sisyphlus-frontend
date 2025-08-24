@@ -23,7 +23,7 @@ import { Command, CommandContext } from '@/shared/feature/command-palette/entity
 import { parseAlias } from '@/shared/feature/command-palette/entity/parsed-alias';
 import { parseWithSyntax } from '@/shared/feature/command-palette/infra/parsing/parse-with-syntax';
 import { CommandRegistry } from '@/shared/feature/command-palette/application/port/out/command-registry';
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 export class CommandPaletteController {
     constructor(
@@ -61,13 +61,12 @@ export class CommandPaletteController {
         const base = typeof values['natural'] === 'string' ? values['natural'] : head.rest;
 
         const parse = cmd.input?.parser?.parse(base) ?? { ok: true, value: values, hints: [] };
-        const hints = (parse as any).hints ?? [];
 
         const ready =
             parse.ok && (cmd.input?.schema ? (cmd.input.schema.safeParse(parse.value).success) : true);
 
         return {
-            preview: cmd.renderPreview({ rawInput: base, parse, hints, ready }) as any
+            preview: cmd.renderPreview({ rawInput: base, parse, ready })
         };
     }
 }
