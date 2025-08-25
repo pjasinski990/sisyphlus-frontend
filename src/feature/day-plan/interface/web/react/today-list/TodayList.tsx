@@ -16,6 +16,8 @@ import {
 import z from 'zod';
 import { Command } from '@/shared/feature/command-palette/entity/command';
 import { smartTimeOfDayParser } from '@/shared/feature/command-palette/infra/parsing/smart-time-of-day';
+import { usePushToInboxMutation } from '@/feature/inbox/interface/web/react/use-push-to-inbox';
+import { useAddBlockToDayPlanMutation } from '@/feature/day-plan/interface/web/react/use-add-timeblock-mutation';
 
 export const TodayList: React.FC = () => {
     const today = todayLocalDate();
@@ -142,41 +144,49 @@ const ScheduleTimeblockCommandSchema = z.intersection(
 type ScheduleTimeblockParsed = z.infer<typeof ScheduleTimeblockParsedSchema>;
 type ScheduleTimeblockAll = z.infer<typeof ScheduleTimeblockCommandSchema>;
 
-const id = 'timeblock.schedule';
-const scheduleBlockCommand: Command<ScheduleTimeblockParsed, ScheduleTimeblockAll> = {
-    id,
-    scope: 'timeblock',
-    title: 'Schedule Time Block',
-    subtitle: 'Add a time block for a task',
-    group: 'Timeblocks',
-    keywords: ['schedule', 'plan', 'block'],
-    aliases: ['block'],
-    syntax: {
-        positionals: [
-            { name: 'natural', schema: z.string(), rest: true, hint: 'e.g. 12am 90min, 8:30 1h, noon half hour' },
-        ],
-    },
-    input: {
-        parser: smartTimeOfDayParser,
-        schema: ScheduleTimeblockCommandSchema,
-        placeholder: 'e.g. 12am 90min',
-    },
-    run: async (opts) => {
-        const v = ScheduleTimeblockCommandSchema.parse(opts);
-        const desc: ScheduleBlockDesc = {
-            taskId: v.taskId,
-            timezone: v.timezone,
-            duration: v.duration,
-            startLocalDate: v.startLocalDate,
-            startLocalTime: v.startLocalTime,
-        };
-        await timeblockController.handleScheduleTimeblock(desc);
-    },
-};
 
 export const TimeblockCommandPaletteEntries: React.FC = () => {
+    const { mutateAsync: addBlock } = useAddBlockToDayPlanMutation(todayLocalDate());
+
     useEffect(() => {
+        const id = 'timeblock.schedule';
+        const scheduleBlockCommand: Command<ScheduleTimeblockParsed, ScheduleTimeblockAll> = {
+            id,
+            scope: 'timeblock',
+            title: 'Schedule Time Block',
+            subtitle: 'Add a time block for a task',
+            group: 'Timeblocks',
+            keywords: ['schedule', 'plan', 'block'],
+            aliases: ['block'],
+            syntax: {
+                positionals: [
+                    { name: 'natural', schema: z.string(), rest: true, hint: 'e.g. 12am 90min, 8:30 1h, noon half hour' },
+                ],
+            },
+            input: {
+                parser: smartTimeOfDayParser,
+                schema: ScheduleTimeblockCommandSchema,
+                placeholder: 'e.g. 12am 90min',
+            },
+            run: async (opts) => {
+                const v = ScheduleTimeblockCommandSchema.parse(opts);
+                const desc: ScheduleBlockDesc = {
+                    taskId: v.taskId,
+                    timezone: v.timezone,
+                    duration: v.duration,
+                    startLocalDate: v.startLocalDate,
+                    startLocalTime: v.startLocalTime,
+                };
+                try {
+                    addBlock(desc);
+                } catch (err: unknown) {
+                    // TODO toast
+                    console.error(err);
+                }
+            },
+        };
         commandPaletteController.handleRegisterCommand(scheduleBlockCommand);
-    }, []);
+    }, [addBlock]);
+
     return null;
 };

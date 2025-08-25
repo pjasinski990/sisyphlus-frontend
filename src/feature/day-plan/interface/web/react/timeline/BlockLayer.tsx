@@ -5,8 +5,9 @@ import { useBlocksByIdsQuery } from '@/feature/day-plan/interface/web/react/use-
 import { RowSkeleton } from '@/shared/util/react/components/RowSkeleton';
 import { BlockCard } from '@/feature/day-plan/interface/web/react/timeline/BlockCard';
 import { timelineConfig } from '@/feature/day-plan/entity/timeline-config';
+import { AnimatePresence, LayoutGroup } from 'framer-motion';
 
-export const TaskLayer = () => {
+export const BlockLayer = () => {
     const blockIdsQ = useDayTimeblockIdsQuery(todayLocalDate());
 
     const ids = blockIdsQ.data ?? [];
@@ -27,29 +28,31 @@ export const TaskLayer = () => {
         );
     }
 
+    const entries = blocksQ.data ? Array.from(blocksQ.data) : [];
+
     return (
-        <div className='h-full absolute inset-x-10 pointer-events-none'>
-            {(blocksQ.data ? Array.from(blocksQ.data) : []).map(([blockId, block]) => {
-                if (block) {
-                    return (
-                        <BlockCard
-                            key={blockId}
-                            cfg={timelineConfig}
-                            block={block}
-                        />
-                    );
-                }
+        <div className='inset-x-10 h-full pointer-events-none relative'>
+            <LayoutGroup id='timeline'>
+                <AnimatePresence initial={false} mode='popLayout'>
+                    {entries.map(([blockId, block]) => {
+                        if (block) {
+                            return (
+                                <BlockCard key={blockId} cfg={timelineConfig} block={block} />
+                            );
+                        }
 
-                if (hasBlocks && blocksQ.status === 'pending') {
-                    return <RowSkeleton key={blockId} />;
-                }
+                        if (hasBlocks && blocksQ.status === 'pending') {
+                            return <RowSkeleton key={blockId} />;
+                        }
 
-                if (blocksQ.isFetching) {
-                    return <RowSkeleton key={blockId} />;
-                }
+                        if (blocksQ.isFetching) {
+                            return <RowSkeleton key={blockId} />;
+                        }
 
-                return <div key={blockId} className='text-muted italic'>Task unavailable</div>;
-            })}
+                        return <div key={blockId} className='text-muted italic'>Task unavailable</div>;
+                    })}
+                </AnimatePresence>
+            </LayoutGroup>
         </div>
     );
 };

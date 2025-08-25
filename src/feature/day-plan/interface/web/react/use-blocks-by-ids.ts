@@ -4,26 +4,40 @@ import { Block } from '@/feature/day-plan/entity/block';
 import { timeblockController } from '@/feature/day-plan/interface/controller/timeblock-controller';
 import { timeblockKey } from '@/feature/day-plan/interface/web/react/use-day-timeblocks-ids';
 
+export const useBlocksByIdsKey = (ids: string[]) => {
+    return ['blocks', 'byIds', ids] as const;
+};
+
 export function useBlocksByIdsQuery(ids: string[], opts?: { enabled?: boolean }) {
     const qc = useQueryClient();
     const norm = Array.from(new Set(ids)).sort();
 
     return useQuery({
-        queryKey: ['blocks', 'byIds', norm],
+        queryKey: useBlocksByIdsKey(norm),
         enabled: (opts?.enabled ?? true) && norm.length > 0,
-        placeholderData: keepPreviousData,
         staleTime: 15_000,
         refetchOnWindowFocus: false,
+        placeholderData: keepPreviousData,
         queryFn: async () => {
-            const res = await timeblockController.handleGetByIds(norm);
-            if (!res.ok) throw new Error(res.error);
-            const list = res.value as Block[];
+            const cached = new Map<string, Block>();
+            const missing: string[] = [];
 
-            for (const t of list) {
-                qc.setQueryData(timeblockKey(t.id), t);
+            for (const id of norm) {
+                const hit = qc.getQueryData<Block>(timeblockKey(id));
+                if (hit) cached.set(id, hit);
+                else missing.push(id);
             }
 
-            return new Map(list.map(t => [t.id, t] as const));
+            if (missing.length === 0) return cached;
+
+            const res = await timeblockController.handleGetByIds(missing);
+            if (!res.ok) throw new Error(res.error);
+            const fetched = res.value as Block[];
+
+            for (const b of fetched) qc.setQueryData(timeblockKey(b.id), b);
+
+            for (const b of fetched) cached.set(b.id, b);
+            return cached;
         },
     });
 }

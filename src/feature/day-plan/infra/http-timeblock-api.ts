@@ -9,6 +9,11 @@ export class HttpTimeblockApi implements TimeblockApi {
         return res.data;
     }
 
+    async update(patch: Partial<Block> & { id: string }): Promise<Block> {
+        const res = await httpClient.put<Block>('/timeblock', patch);
+        return res.data;
+    }
+
     async getByLocalDate(localDate: string): Promise<Block[]> {
         const res = await httpClient.get<Block[]>(`/timeblock/${localDate}`);
         return res.data;

@@ -5,10 +5,9 @@ import { timelineConfig } from '@/feature/day-plan/entity/timeline-config';
 import { TimelineGridBackground } from '@/feature/day-plan/interface/web/react/timeline/GridBackground';
 import { HourRail } from '@/feature/day-plan/interface/web/react/timeline/HourRail';
 import { CurrentTimePointer } from '@/feature/day-plan/interface/web/react/timeline/CurrentTimePointer';
-import { BlockCard } from '@/feature/day-plan/interface/web/react/timeline/BlockCard';
 import { NightTint } from '@/feature/day-plan/interface/web/react/timeline/NightTint';
 import { TimeOfDay } from '@/feature/day-plan/entity/time-of-day';
-import { TaskLayer } from '@/feature/day-plan/interface/web/react/timeline/TaskLayer';
+import { BlockLayer } from '@/feature/day-plan/interface/web/react/timeline/BlockLayer';
 
 type DailyTimelineProps = {
     onRequestCreate?: (range: Range<TimeOfDay>) => void;
@@ -71,7 +70,7 @@ export const Timeline: React.FC<DailyTimelineProps> = ({ onRequestCreate }) => {
                                 <NightTint className={''} />
                                 <TimelineGridBackground />
                                 <CurrentTimePointer progress={progress} now={now} />
-                                <TaskLayer />
+                                <BlockLayer />
                                 <SelectionLayer
                                     ppm={ppm}
                                     totalMin={totalMin}

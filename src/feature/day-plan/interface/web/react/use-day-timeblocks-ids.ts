@@ -16,9 +16,10 @@ export function useDayTimeblockIdsQuery(localDate: string) {
         refetchOnWindowFocus: false,
         queryFn: async () => {
             const res = await timeblockController.handleGetDayTimeblocks(localDate);
-            if (!res.ok) throw new Error(res.error);
-            const blocks = res.value as Block[];
 
+            if (!res.ok) throw new Error(res.error);
+
+            const blocks = res.value as Block[];
             for (const t of blocks) {
                 qc.setQueryData(timeblockKey(t.id), t);
             }
