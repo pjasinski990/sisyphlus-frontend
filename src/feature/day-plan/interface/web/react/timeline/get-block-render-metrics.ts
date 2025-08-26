@@ -1,6 +1,7 @@
 import { Block } from '@/feature/day-plan/entity/block';
 import { DateTime } from 'luxon';
 
+// TODO this or time-utils iso range should be gone
 export function getBlockRenderMetrics(block: Block, hourSpan: { from: number; to: number }) {
     const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 

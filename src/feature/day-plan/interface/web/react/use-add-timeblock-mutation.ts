@@ -1,16 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { timeblockController } from '@/feature/day-plan/interface/controller/timeblock-controller';
 import { Block, TagBlock, TaskBlock } from '@/feature/day-plan/entity/block';
-import {
-    timeblockDayKey,
-    timeblockKey,
-} from '@/feature/day-plan/interface/web/react/use-day-timeblocks-ids';
+import { timeblockDayKey, timeblockKey, } from '@/feature/day-plan/interface/web/react/use-day-timeblocks-ids';
 import {
     ScheduleBlockDesc,
     ScheduleTagBlockDesc,
     ScheduleTaskBlockDesc
 } from '@/feature/day-plan/entity/schedule-block-description';
 import { v4 as uuid } from 'uuid';
+import { buildUtcInstants } from '@/shared/util/time-utils';
 
 export function useAddBlockToDayPlanMutation(localDate: string) {
     const qc = useQueryClient();
@@ -87,7 +85,7 @@ function tempBlock(desc: ScheduleBlockDesc & { id: string }): Block {
 }
 
 function tempTaskBlock(desc: ScheduleTaskBlockDesc): TaskBlock {
-    const { startUtc, endUtc } = buildOptimisticUtcInstants(desc);
+    const { startUtc, endUtc } = buildUtcInstants(desc);
     return {
         id: 'temp-block',
         taskId: desc.taskId,
@@ -103,7 +101,7 @@ function tempTaskBlock(desc: ScheduleTaskBlockDesc): TaskBlock {
 }
 
 function tempTagBlock(desc: ScheduleTagBlockDesc): TagBlock {
-    const { startUtc, endUtc } = buildOptimisticUtcInstants(desc);
+    const { startUtc, endUtc } = buildUtcInstants(desc);
     return {
         id: 'temp-block',
         tag: desc.tag,
@@ -117,33 +115,3 @@ function tempTagBlock(desc: ScheduleTagBlockDesc): TagBlock {
         endUtc,
     };
 }
-
-function buildOptimisticUtcInstants(desc: {
-    startLocalDate: string;
-    startLocalTime: string;
-    duration: string;
-}) {
-    const hhmm = normalizeHHmm(desc.startLocalTime);
-    const startLocal = new Date(`${desc.startLocalDate}T${hhmm}:00`);
-    const ms = parseIsoDurationMs(desc.duration);
-    const endLocal = new Date(startLocal.getTime() + ms);
-
-    return {
-        startUtc: startLocal.toISOString(),
-        endUtc: endLocal.toISOString(),
-    };
-}
-
-function normalizeHHmm(s: string): string {
-    if (s.includes(':')) return s;
-    if (s.length === 4) return `${s.slice(0, 2)}:${s.slice(2)}`;
-    throw new Error('Bad time format');
-}
-
-function parseIsoDurationMs(p: string): number {
-    const m = /^P(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)$/.exec(p);
-    if (!m) throw new Error('Bad ISO duration');
-    const h = Number(m[1] ?? 0), min = Number(m[2] ?? 0), s = Number(m[3] ?? 0);
-    return ((h * 60 + min) * 60 + s) * 1000;
-}
-
