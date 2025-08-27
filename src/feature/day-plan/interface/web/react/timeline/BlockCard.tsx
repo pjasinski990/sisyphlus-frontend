@@ -19,12 +19,9 @@ type DragKind = 'move' | 'resize-top' | 'resize-bottom' | null;
 export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg, block }) => {
     const wantedId =
         block.category === 'tag-block' ? (block.resolvedTaskId ?? null) : (block.taskId ?? null);
-
     const { data: taskMap, isLoading, isFetching, error } =
         useTasksByIdsQuery(wantedId ? [wantedId] : [], { enabled: !!wantedId });
-
     const task: Task | null = wantedId && taskMap ? (taskMap.get(wantedId) ?? null) : null;
-
     const updateMut = useUpdateBlockInDayPlanMutation(block.localDate);
 
     const startMin0 = hhmmToMinutes(normalizeHHmm(block.localTime));
@@ -35,7 +32,6 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
     const [dragKind, setDragKind] = React.useState<DragKind>(null);
     const [draftStartMin, setDraftStartMin] = React.useState<number | null>(null);
     const [draftDurMin, setDraftDurMin] = React.useState<number | null>(null);
-    const [visualOffsetPx, setVisualOffsetPx] = React.useState(0);
     const [dragAccumPx, setDragAccumPx] = React.useState(0);
 
     const isDrafting = dragKind !== null;
@@ -45,15 +41,6 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
     const baseMetrics = React.useMemo(() => {
         return getBlockRenderMetrics(block, cfg.hourSpan);
     }, [block, cfg.hourSpan]);
-
-    const previewMetrics = React.useMemo(() => {
-        const displayBlock: Block = {
-            ...block,
-            localTime: minutesToHHmm(displayStartMin),
-            duration: minutesToIso(displayDurMin, MIN_DURATION_MIN),
-        };
-        return getBlockRenderMetrics(displayBlock, cfg.hourSpan);
-    }, [block, cfg.hourSpan, displayDurMin, displayStartMin]);
 
     const showSkeleton = !task && (isLoading || (isFetching && !taskMap));
     const title = task
@@ -66,16 +53,12 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         setDragKind(null);
         setDraftStartMin(null);
         setDraftDurMin(null);
-        setVisualOffsetPx(0);
         setDragAccumPx(0);
     }
 
-    function splitSnapFromPx(totalDeltaPx: number, pxPerMin: number) {
+    function getSnappedMin(totalDeltaPx: number, pxPerMin: number) {
         const rawMin = totalDeltaPx / Math.max(pxPerMin, 0.0001);
-        const snappedMin = snap(Math.round(rawMin), SNAP_MIN);
-        const snappedPx = snappedMin * pxPerMin;
-        const remainderPx = totalDeltaPx - snappedPx;
-        return { snappedMin, remainderPx };
+        return snap(Math.round(rawMin), SNAP_MIN);
     }
 
     function clampMoveAccumPx(nextPx: number): number {
@@ -83,11 +66,13 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         const maxDeltaMin = (spanEndMin - durMin0) - startMin0;
         return clamp(nextPx, minDeltaMin * cfg.pixelsPerMinute, maxDeltaMin * cfg.pixelsPerMinute);
     }
+
     function clampTopResizeAccumPx(nextPx: number): number {
         const minDeltaMin = spanStartMin - startMin0;
         const maxDeltaMin = durMin0 - MIN_DURATION_MIN;
         return clamp(nextPx, minDeltaMin * cfg.pixelsPerMinute, maxDeltaMin * cfg.pixelsPerMinute);
     }
+
     function clampBottomResizeAccumPx(nextPx: number): number {
         const minDeltaMin = MIN_DURATION_MIN - durMin0;
         const maxDeltaMin = (spanEndMin - startMin0) - durMin0;
@@ -98,22 +83,22 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         setDragKind('move');
         setDraftStartMin(startMin0);
         setDraftDurMin(durMin0);
-        setVisualOffsetPx(0);
         setDragAccumPx(0);
     }
+
     function onMovePan(_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
         if (dragKind !== 'move') return;
         const nextAccum = clampMoveAccumPx(dragAccumPx + info.delta.y);
-        const { snappedMin } = splitSnapFromPx(nextAccum, cfg.pixelsPerMinute);
+        const snappedMin = getSnappedMin(nextAccum, cfg.pixelsPerMinute);
         const newStart = clamp(
             startMin0 + snappedMin,
             spanStartMin,
             Math.max(spanEndMin - durMin0, spanStartMin)
         );
         setDraftStartMin(newStart);
-        setDraftDurMin(durMin0);
         setDragAccumPx(nextAccum);
     }
+
     function onMovePanEnd() {
         if (dragKind !== 'move') return resetDraft();
         const finalStart = draftStartMin ?? startMin0;
@@ -128,14 +113,13 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         setDragKind('resize-top');
         setDraftStartMin(startMin0);
         setDraftDurMin(durMin0);
-        setVisualOffsetPx(0);
         setDragAccumPx(0);
     }
+
     function onTopResizePan(_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
         if (dragKind !== 'resize-top') return;
         const nextAccum = clampTopResizeAccumPx(dragAccumPx + info.delta.y);
-        const { snappedMin, remainderPx } = splitSnapFromPx(nextAccum, cfg.pixelsPerMinute);
-
+        const snappedMin = getSnappedMin(nextAccum, cfg.pixelsPerMinute);
         const candidateStart = startMin0 + snappedMin;
         const newStart = clamp(
             candidateStart,
@@ -147,12 +131,11 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
             MIN_DURATION_MIN,
             spanEndMin - newStart
         );
-
         setDraftStartMin(newStart);
         setDraftDurMin(newDur);
         setDragAccumPx(nextAccum);
-        setVisualOffsetPx(remainderPx);
     }
+
     function onTopResizePanEnd() {
         if (dragKind !== 'resize-top') return resetDraft();
         const ns = draftStartMin ?? startMin0;
@@ -173,18 +156,18 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         setDragKind('resize-bottom');
         setDraftStartMin(startMin0);
         setDraftDurMin(durMin0);
-        setVisualOffsetPx(0);
         setDragAccumPx(0);
     }
+
     function onBotResizePan(_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
         if (dragKind !== 'resize-bottom') return;
         const nextAccum = clampBottomResizeAccumPx(dragAccumPx + info.delta.y);
-        const { snappedMin } = splitSnapFromPx(nextAccum, cfg.pixelsPerMinute);
+        const snappedMin = getSnappedMin(nextAccum, cfg.pixelsPerMinute);
         const newDur = clamp(durMin0 + snappedMin, MIN_DURATION_MIN, spanEndMin - startMin0);
         setDraftDurMin(newDur);
-        setDraftStartMin(startMin0);
         setDragAccumPx(nextAccum);
     }
+
     function onBotResizePanEnd() {
         if (dragKind !== 'resize-bottom') return resetDraft();
         const nd = draftDurMin ?? durMin0;
@@ -197,26 +180,25 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
     const labelFrom = minutesToHHmm(displayStartMin);
     const labelTo = minutesToHHmm(displayStartMin + displayDurMin);
 
-    const { topPct, heightPct } =
-        dragKind === 'move' ? baseMetrics : previewMetrics;
-
-    const snappedDeltaMin = (draftStartMin ?? startMin0) - startMin0;
-    const liveY =
-        dragKind === 'move'
-            ? snappedDeltaMin * cfg.pixelsPerMinute
-            : dragKind === 'resize-top'
-                ? visualOffsetPx
-                : 0;
+    const dynamicStyle: React.CSSProperties = {};
+    if (dragKind === 'move') {
+        dynamicStyle.y = dragAccumPx;
+    } else if (dragKind === 'resize-top') {
+        dynamicStyle.y = dragAccumPx;
+        dynamicStyle.height = `calc(${baseMetrics.heightPct}% - ${dragAccumPx}px)`;
+    } else if (dragKind === 'resize-bottom') {
+        dynamicStyle.height = `calc(${baseMetrics.heightPct}% + ${dragAccumPx}px)`;
+    }
 
     return (
         <motion.div
             key={block.id}
             className='absolute z-40 pointer-events-auto min-w-[200px] rounded-md bg-surface-3/70 hover:bg-surface-3 border-b-2 border-surface-2/50 backdrop-blur-[2px] px-3 pt-3 pb-2 defined-shadow'
             style={{
-                top: `${topPct}%`,
-                height: `${heightPct}%`,
-                y: liveY,
-                willChange: 'transform,height',
+                top: `${baseMetrics.topPct}%`,
+                height: `${baseMetrics.heightPct}%`,
+                willChange: 'transform, height',
+                ...dynamicStyle,
             }}
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -232,7 +214,6 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
             >
                 <div className='mx-auto mt-[3px] h-[4px] w-12 rounded-full bg-surface-1/80 shadow-sm' />
             </motion.div>
-
             <motion.div
                 className='mt-4 mb-2 h-6 rounded-md bg-surface-2/60 border border-surface-1/40 flex items-center justify-center text-[11px] uppercase tracking-wide cursor-grab select-none'
                 style={{ touchAction: 'none' }}
@@ -243,7 +224,6 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
             >
                 Drag to move
             </motion.div>
-
             {showSkeleton ? (
                 <RowSkeleton />
             ) : (
@@ -260,7 +240,6 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
                     )}
                 </>
             )}
-
             <motion.div
                 className='absolute left-1 right-1 bottom-0 h-4 rounded-b-md cursor-ns-resize select-none'
                 style={{ touchAction: 'none' }}
