@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, PanInfo } from 'framer-motion';
+import { motion, MotionStyle, PanInfo } from 'framer-motion';
 import { getBlockRenderMetrics } from './get-block-render-metrics';
 import type { TimelineConfig } from '@/feature/day-plan/entity/timeline-config';
 import type { Block } from '@/feature/day-plan/entity/block';
@@ -14,7 +14,7 @@ import { snap } from '@/shared/util/snap';
 const SNAP_MIN = 15;
 const MIN_DURATION_MIN = 5;
 
-type DragKind = 'move' | 'resize-top' | 'resize-bottom' | null;
+type DragKind = 'move' | 'resize' | null;
 
 export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg, block }) => {
     const wantedId =
@@ -67,13 +67,7 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         return clamp(nextPx, minDeltaMin * cfg.pixelsPerMinute, maxDeltaMin * cfg.pixelsPerMinute);
     }
 
-    function clampTopResizeAccumPx(nextPx: number): number {
-        const minDeltaMin = spanStartMin - startMin0;
-        const maxDeltaMin = durMin0 - MIN_DURATION_MIN;
-        return clamp(nextPx, minDeltaMin * cfg.pixelsPerMinute, maxDeltaMin * cfg.pixelsPerMinute);
-    }
-
-    function clampBottomResizeAccumPx(nextPx: number): number {
+    function clampResizeAccumPx(nextPx: number): number {
         const minDeltaMin = MIN_DURATION_MIN - durMin0;
         const maxDeltaMin = (spanEndMin - startMin0) - durMin0;
         return clamp(nextPx, minDeltaMin * cfg.pixelsPerMinute, maxDeltaMin * cfg.pixelsPerMinute);
@@ -108,68 +102,25 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         resetDraft();
     }
 
-    function onTopResizePanStart(e: PointerEvent) {
+    function onResizePanStart(e: PointerEvent) {
         e.stopPropagation();
-        setDragKind('resize-top');
+        setDragKind('resize');
         setDraftStartMin(startMin0);
         setDraftDurMin(durMin0);
         setDragAccumPx(0);
     }
 
-    function onTopResizePan(_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
-        if (dragKind !== 'resize-top') return;
-        const nextAccum = clampTopResizeAccumPx(dragAccumPx + info.delta.y);
-        const snappedMin = getSnappedMin(nextAccum, cfg.pixelsPerMinute);
-        const candidateStart = startMin0 + snappedMin;
-        const newStart = clamp(
-            candidateStart,
-            spanStartMin,
-            startMin0 + durMin0 - MIN_DURATION_MIN
-        );
-        const newDur = clamp(
-            durMin0 - (newStart - startMin0),
-            MIN_DURATION_MIN,
-            spanEndMin - newStart
-        );
-        setDraftStartMin(newStart);
-        setDraftDurMin(newDur);
-        setDragAccumPx(nextAccum);
-    }
-
-    function onTopResizePanEnd() {
-        if (dragKind !== 'resize-top') return resetDraft();
-        const ns = draftStartMin ?? startMin0;
-        const nd = draftDurMin ?? durMin0;
-        if (ns !== startMin0 || nd !== durMin0) {
-            updateMut.mutate({
-                id: block.id,
-                localDate: block.localDate,
-                localTime: minutesToHHmm(ns),
-                duration: minutesToIso(nd, MIN_DURATION_MIN),
-            });
-        }
-        resetDraft();
-    }
-
-    function onBotResizePanStart(e: PointerEvent) {
-        e.stopPropagation();
-        setDragKind('resize-bottom');
-        setDraftStartMin(startMin0);
-        setDraftDurMin(durMin0);
-        setDragAccumPx(0);
-    }
-
-    function onBotResizePan(_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
-        if (dragKind !== 'resize-bottom') return;
-        const nextAccum = clampBottomResizeAccumPx(dragAccumPx + info.delta.y);
+    function onResizePan(_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
+        if (dragKind !== 'resize') return;
+        const nextAccum = clampResizeAccumPx(dragAccumPx + info.delta.y);
         const snappedMin = getSnappedMin(nextAccum, cfg.pixelsPerMinute);
         const newDur = clamp(durMin0 + snappedMin, MIN_DURATION_MIN, spanEndMin - startMin0);
         setDraftDurMin(newDur);
         setDragAccumPx(nextAccum);
     }
 
-    function onBotResizePanEnd() {
-        if (dragKind !== 'resize-bottom') return resetDraft();
+    function onResizePanEnd() {
+        if (dragKind !== 'resize') return resetDraft();
         const nd = draftDurMin ?? durMin0;
         if (nd !== durMin0) {
             updateMut.mutate({ id: block.id, localDate: block.localDate, duration: minutesToIso(nd, MIN_DURATION_MIN) });
@@ -180,20 +131,17 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
     const labelFrom = minutesToHHmm(displayStartMin);
     const labelTo = minutesToHHmm(displayStartMin + displayDurMin);
 
-    const dynamicStyle: React.CSSProperties = {};
+    const dynamicStyle: MotionStyle = {};
     if (dragKind === 'move') {
         dynamicStyle.y = dragAccumPx;
-    } else if (dragKind === 'resize-top') {
-        dynamicStyle.y = dragAccumPx;
-        dynamicStyle.height = `calc(${baseMetrics.heightPct}% - ${dragAccumPx}px)`;
-    } else if (dragKind === 'resize-bottom') {
+    } else if (dragKind === 'resize') {
         dynamicStyle.height = `calc(${baseMetrics.heightPct}% + ${dragAccumPx}px)`;
     }
 
     return (
         <motion.div
             key={block.id}
-            className='absolute z-40 pointer-events-auto min-w-[200px] rounded-md bg-surface-3/70 hover:bg-surface-3 border-b-2 border-surface-2/50 backdrop-blur-[2px] px-3 pt-3 pb-2 defined-shadow'
+            className='absolute z-40 pointer-events-auto min-w-[200px] rounded-md bg-surface-3/70 hover:bg-surface-3 border-b-2 border-surface-2/50 backdrop-blur-[2px] px-3 pt-6 pb-2 defined-shadow'
             style={{
                 top: `${baseMetrics.topPct}%`,
                 height: `${baseMetrics.heightPct}%`,
@@ -206,24 +154,22 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
             transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.6 }}
         >
             <motion.div
-                className='absolute left-1 right-1 top-0 h-3 rounded-t-md cursor-ns-resize select-none'
-                style={{ touchAction: 'none' }}
-                onPanStart={onTopResizePanStart}
-                onPan={onTopResizePan}
-                onPanEnd={onTopResizePanEnd}
-            >
-                <div className='mx-auto mt-[3px] h-[4px] w-12 rounded-full bg-surface-1/80 shadow-sm' />
-            </motion.div>
-            <motion.div
-                className='mt-4 mb-2 h-6 rounded-md bg-surface-2/60 border border-surface-1/40 flex items-center justify-center text-[11px] uppercase tracking-wide cursor-grab select-none'
+                className='absolute left-0 right-0 top-0 h-5 flex items-center justify-center cursor-grab select-none'
                 style={{ touchAction: 'none' }}
                 onPointerDown={(e) => e.stopPropagation()}
                 onPanStart={onMovePanStart}
                 onPan={onMovePan}
                 onPanEnd={onMovePanEnd}
+                aria-label='Drag to move'
+                role='button'
             >
-                Drag to move
+                <div className='flex flex-col gap-[2px]'>
+                    <div className='h-[2px] w-10 rounded-full bg-surface-1/80 shadow-sm' />
+                    <div className='h-[2px] w-10 rounded-full bg-surface-1/80 shadow-sm' />
+                    <div className='h-[2px] w-10 rounded-full bg-surface-1/80 shadow-sm' />
+                </div>
             </motion.div>
+
             {showSkeleton ? (
                 <RowSkeleton />
             ) : (
@@ -240,14 +186,15 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
                     )}
                 </>
             )}
+
             <motion.div
-                className='absolute left-1 right-1 bottom-0 h-4 rounded-b-md cursor-ns-resize select-none'
+                className='absolute left-1 right-1 bottom-0 h-3 rounded-b-md cursor-ns-resize select-none'
                 style={{ touchAction: 'none' }}
-                onPanStart={onBotResizePanStart}
-                onPan={onBotResizePan}
-                onPanEnd={onBotResizePanEnd}
+                onPanStart={onResizePanStart}
+                onPan={onResizePan}
+                onPanEnd={onResizePanEnd}
             >
-                <div className='mx-auto mb-[3px] h-[4px] w-12 rounded-full bg-surface-1/80 shadow-sm' />
+                <div className='mx-auto my-auto h-[3px] w-12 rounded-full bg-surface-1/80 shadow-sm' />
             </motion.div>
         </motion.div>
     );
