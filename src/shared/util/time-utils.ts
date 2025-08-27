@@ -28,3 +28,28 @@ export function buildUtcInstants(desc: {
         endUtc: endLocal.toISOString(),
     };
 }
+
+export function hhmmToMinutes(hhmm: string): number {
+    const [h, m] = hhmm.split(':').map(n => parseInt(n, 10));
+    const hh = Number.isFinite(h) ? h : 0;
+    const mm = Number.isFinite(m) ? m : 0;
+    return hh * 60 + mm;
+}
+
+export function minutesToHHmm(total: number): string {
+    const t = Math.max(0, Math.round(total));
+    const h = Math.floor(t / 60);
+    const m = t % 60;
+    const hs = String(h).padStart(2, '0');
+    const ms = String(m).padStart(2, '0');
+    return `${hs}:${ms}`;
+}
+
+export function minutesToIso(value: number, minimum: number): string {
+    const m = Math.max(minimum, Math.round(value));
+    const h = Math.floor(m / 60);
+    const mm = m % 60;
+    if (h > 0 && mm > 0) return `PT${h}H${mm}M`;
+    if (h > 0) return `PT${h}H`;
+    return `PT${mm}M`;
+}

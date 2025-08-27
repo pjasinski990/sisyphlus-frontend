@@ -30,8 +30,17 @@ export function useUpdateBlockInDayPlanMutation(localDate: string) {
 
             if (optimistic) {
                 qc.setQueryData(timeblockKey(id), optimistic);
-            }
 
+                for (const [qKey, data] of qc.getQueriesData<Map<string, Block>>({
+                    queryKey: ['blocks', 'byIds'],
+                })) {
+                    if (!(data instanceof Map) || !data.has(id)) continue;
+
+                    const next = new Map(data);
+                    next.set(id, optimistic);
+                    qc.setQueryData(qKey, next);
+                }
+            }
             return { id, prev };
         },
 
@@ -43,12 +52,19 @@ export function useUpdateBlockInDayPlanMutation(localDate: string) {
         onSuccess: (serverBlock, _vars, ctx) => {
             if (!ctx) return;
             qc.setQueryData(timeblockKey(ctx.id), serverBlock);
-            qc.invalidateQueries({ queryKey: ['blocks', 'byIds'] });
-        },
 
-        onSettled: () => {
+            for (const [qKey, data] of qc.getQueriesData<Map<string, Block>>({
+                queryKey: ['blocks', 'byIds'],
+            })) {
+                if (!(data instanceof Map) || !data.has(ctx.id)) continue;
+                const next = new Map(data);
+                next.set(ctx.id, serverBlock);
+                qc.setQueryData(qKey, next);
+            }
             qc.invalidateQueries({ queryKey: dayKey });
         },
+
+        onSettled: () => {},
     });
 }
 
