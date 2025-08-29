@@ -1,5 +1,6 @@
 import React from 'react';
 import { timelineConfig } from '@/feature/day-plan/entity/timeline-config';
+import { nowLocalTime } from '@/shared/util/local-date-helper';
 
 export const CurrentTimePointer: React.FC<{ progress: number; now: Date }> = ({ progress, now }) => {
     const { from: startHour, to: endHour } = timelineConfig.hourSpan;
@@ -10,7 +11,7 @@ export const CurrentTimePointer: React.FC<{ progress: number; now: Date }> = ({ 
         <div
             className='absolute inset-0 pointer-events-none z-10'
             style={{ top: `${progress}%` }}
-            aria-label={`Current time: ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+            aria-label={`Current time: ${nowLocalTime()}`}
         >
             <div className='relative'>
                 <div
@@ -21,7 +22,7 @@ export const CurrentTimePointer: React.FC<{ progress: number; now: Date }> = ({ 
                     ].join(' ')}
                 />
                 <div className='absolute -top-[12px] right-8 px-2 h-[24px] rounded-full text-[10px] bg-accent text-accent-contrast'>
-                    {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {nowLocalTime()}
                 </div>
             </div>
         </div>

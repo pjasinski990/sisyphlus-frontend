@@ -1,9 +1,11 @@
 import { InputParser } from '@/shared/feature/command-palette/entity/input-parser';
 import { parseDurationToMinutes } from '@/shared/feature/command-palette/infra/parsing/smart-duration';
+import { nowLocalTime } from '@/shared/util/local-date-helper';
 
 function parseTimeToHHmm(text: string): string | null {
     const s = text.trim().toLowerCase();
     if (!s) return null;
+    if (s === 'now') return nowLocalTime();
     if (s === 'noon') return '12:00';
     if (s === 'midday') return '12:00';
     if (s === 'midnight') return '00:00';
@@ -47,7 +49,7 @@ function parseTimeToHHmm(text: string): string | null {
 
 function extractTimeAndDuration(text: string): { time: string | null; durationMin: number | null } {
     const patterns = [
-        /\b(?:noon|midday|midnight)\b/i,
+        /\b(?:now|noon|midday|midnight)\b/i,
         /\b\d{1,2}:\d{2}\b/,
         /\b\d{1,2}\s*(?:am|pm)\b/i,
         /\b\d{1,2}:\d{2}\s*(?:am|pm)\b/i,
