@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDayTimeblockIdsQuery } from '@/feature/day-plan/interface/web/react/use-day-timeblocks-ids';
+import { useDayBlockIdsQuery } from '@/feature/day-plan/interface/web/react/use-day-timeblocks-ids';
 import { todayLocalDate } from '@/shared/util/local-date-helper';
 import { useBlocksByIdsQuery } from '@/feature/day-plan/interface/web/react/use-blocks-by-ids';
 import { RowSkeleton } from '@/shared/util/react/components/RowSkeleton';
@@ -8,7 +8,7 @@ import { timelineConfig } from '@/feature/day-plan/entity/timeline-config';
 import { AnimatePresence, LayoutGroup } from 'framer-motion';
 
 export const BlockLayer = () => {
-    const blockIdsQ = useDayTimeblockIdsQuery(todayLocalDate());
+    const blockIdsQ = useDayBlockIdsQuery(todayLocalDate());
 
     const ids = blockIdsQ.data ?? [];
     const hasBlocks = blockIdsQ.status === 'success' && ids.length > 0;

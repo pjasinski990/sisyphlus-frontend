@@ -17,7 +17,9 @@ export const InboxTaskCard: React.FC<{
         <TaskCardContainer
             onMouseOverCapture={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
-            task={task} selected={showScheduling}
+            task={task}
+            isSelected={showScheduling}
+            isMuted={displayMuted(task)}
             onSelectedMenu={
                 <SchedulingOptions
                     onSchedulePrimary={onSchedulePrimary}
@@ -65,3 +67,11 @@ const SchedulingOptions: React.FC<{
         </div>
     );
 };
+
+function displayMuted(task: Task) {
+    if (task.category === 'simple') {
+        return !!task.plannedFor;
+    } else {
+        return task.status === 'active';
+    }
+}

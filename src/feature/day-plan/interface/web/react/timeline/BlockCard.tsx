@@ -1,18 +1,28 @@
 import React from 'react';
-import { motion, MotionStyle, PanInfo } from 'framer-motion';
+import { motion, MotionStyle, PanInfo, AnimatePresence } from 'framer-motion';
 import { getBlockRenderMetrics } from './get-block-render-metrics';
 import type { TimelineConfig } from '@/feature/day-plan/entity/timeline-config';
 import type { Block } from '@/feature/day-plan/entity/block';
-import type { Task } from '@/shared/feature/task/entity/task';
+import { EnergyLevel, Task } from '@/shared/feature/task/entity/task';
 import { useTasksByIdsQuery } from '@/shared/feature/task/interface/web/react/use-tasks-by-ids';
 import { RowSkeleton } from '@/shared/util/react/components/RowSkeleton';
-import { hhmmToMinutes, minutesToIso, minutesToHHmm, normalizeHHmm, parseIsoDurationMs } from '@/shared/util/time-utils';
+import {
+    hhmmToMinutes,
+    minutesToIso,
+    minutesToHHmm,
+    normalizeHHmm,
+    parseIsoDurationMs,
+} from '@/shared/util/time-utils';
 import { useUpdateBlockInDayPlanMutation } from '../use-update-timeblock-mutation';
 import { clamp } from '@/shared/util/clamp';
 import { snap } from '@/shared/util/snap';
+import { ChevronsUpDownIcon, GripIcon } from 'lucide-react';
 
 const SNAP_MIN = 15;
 const MIN_DURATION_MIN = 5;
+
+const MIN_VISIBLE_MIN = 15;
+const COMPACT_THRESHOLD_MIN = 45;
 
 type DragKind = 'move' | 'resize' | null;
 
@@ -34,9 +44,14 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
     const [draftDurMin, setDraftDurMin] = React.useState<number | null>(null);
     const [dragAccumPx, setDragAccumPx] = React.useState(0);
 
+    const [compactLock, setCompactLock] = React.useState<boolean | null>(null);
+
     const isDrafting = dragKind !== null;
     const displayStartMin = isDrafting ? (draftStartMin ?? startMin0) : startMin0;
     const displayDurMin = isDrafting ? (draftDurMin ?? durMin0) : durMin0;
+
+    const isCompactComputed = displayDurMin < COMPACT_THRESHOLD_MIN;
+    const isCompact = compactLock ?? isCompactComputed;
 
     const baseMetrics = React.useMemo(() => {
         return getBlockRenderMetrics(block, cfg.hourSpan);
@@ -47,13 +62,16 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         ? task.title
         : block.category === 'tag-block'
             ? `Work on #${block.tag}`
-            : wantedId ? 'Loading...' : '(unspecified task)';
+            : wantedId
+                ? 'Loading...'
+                : '(unspecified task)';
 
     function resetDraft() {
         setDragKind(null);
         setDraftStartMin(null);
         setDraftDurMin(null);
         setDragAccumPx(0);
+        setCompactLock(null);
     }
 
     function getSnappedMin(totalDeltaPx: number, pxPerMin: number) {
@@ -74,12 +92,12 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
     }
 
     function onMovePanStart() {
+        setCompactLock(isCompactComputed);
         setDragKind('move');
         setDraftStartMin(startMin0);
         setDraftDurMin(durMin0);
         setDragAccumPx(0);
     }
-
     function onMovePan(_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
         if (dragKind !== 'move') return;
         const nextAccum = clampMoveAccumPx(dragAccumPx + info.delta.y);
@@ -87,23 +105,27 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         const newStart = clamp(
             startMin0 + snappedMin,
             spanStartMin,
-            Math.max(spanEndMin - durMin0, spanStartMin)
+            Math.max(spanEndMin - durMin0, spanStartMin),
         );
         setDraftStartMin(newStart);
         setDragAccumPx(nextAccum);
     }
-
     function onMovePanEnd() {
         if (dragKind !== 'move') return resetDraft();
         const finalStart = draftStartMin ?? startMin0;
         if (finalStart !== startMin0) {
-            updateMut.mutate({ id: block.id, localDate: block.localDate, localTime: minutesToHHmm(finalStart) });
+            updateMut.mutate({
+                id: block.id,
+                localDate: block.localDate,
+                localTime: minutesToHHmm(finalStart),
+            });
         }
         resetDraft();
     }
 
     function onResizePanStart(e: PointerEvent) {
         e.stopPropagation();
+        setCompactLock(isCompactComputed);
         setDragKind('resize');
         setDraftStartMin(startMin0);
         setDraftDurMin(durMin0);
@@ -123,7 +145,11 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         if (dragKind !== 'resize') return resetDraft();
         const nd = draftDurMin ?? durMin0;
         if (nd !== durMin0) {
-            updateMut.mutate({ id: block.id, localDate: block.localDate, duration: minutesToIso(nd, MIN_DURATION_MIN) });
+            updateMut.mutate({
+                id: block.id,
+                localDate: block.localDate,
+                duration: minutesToIso(nd, MIN_DURATION_MIN),
+            });
         }
         resetDraft();
     }
@@ -138,23 +164,84 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         dynamicStyle.height = `calc(${baseMetrics.heightPct}% + ${dragAccumPx}px)`;
     }
 
+    const minHeightPx = MIN_VISIBLE_MIN * cfg.pixelsPerMinute;
+
+    const bgVarName = task?.energy
+        ? COLOR_VAR_BY_LEVEL[task.energy]
+        : '--color-surface-3';
+
+    const bgBase = `color-mix(in srgb, var(${bgVarName}) 50%, transparent)`;
+    const bgHover = `color-mix(in srgb, var(${bgVarName}) 70%, transparent)`;
+
     return (
         <motion.div
             key={block.id}
-            className='absolute z-40 pointer-events-auto min-w-[200px] rounded-md bg-surface-3/70 hover:bg-surface-3 border-b-2 border-surface-2/50 backdrop-blur-[2px] px-3 pt-6 pb-2 defined-shadow'
+            className={`absolute z-40 pointer-events-auto min-w-[240px] rounded-md border-b-2 border-surface-2/50 backdrop-blur-[2px] pl-3 ${isCompact ? 'pr-12' : 'pr-5'} ${isCompact ? 'py-0' : 'py-2'} defined-shadow`}
             style={{
                 top: `${baseMetrics.topPct}%`,
                 height: `${baseMetrics.heightPct}%`,
-                willChange: 'transform, height',
+                minHeight: `${minHeightPx}px`,
+                willChange: 'transform, height, background',
+                background: bgBase,
                 ...dynamicStyle,
             }}
+            whileHover={{ background: bgHover }}
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.6 }}
         >
+            {showSkeleton ? (
+                <RowSkeleton />
+            ) : (
+                <>
+                    <AnimatePresence initial={false} mode='popLayout'>
+                        {isCompact ? (
+                            <motion.div
+                                key='compact'
+                                initial={{ opacity: 0, y: -4, scale: 0.99 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -4, scale: 0.99 }}
+                                transition={{ type: 'spring', stiffness: 380, damping: 32, mass: 0.6 }}
+                            >
+                                <div className='flex items-center justify-between gap-2'>
+                                    <div className='min-w-0'>
+                                        <div className='text-xs font-medium truncate'>
+                                            {title}{' '}
+                                            <span className='opacity-70'>
+                                                ({labelFrom}-{labelTo})
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key='full'
+                                initial={{ opacity: 0, y: 4, scale: 0.99 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 4, scale: 0.99 }}
+                                transition={{ type: 'spring', stiffness: 380, damping: 32, mass: 0.6 }}
+                            >
+                                <div>
+                                    <div className='text-sm font-medium line-clamp-2'>{title}</div>
+                                    <div className='text-xs'>
+                                        {labelFrom}–{labelTo}
+                                        {isDrafting && <span className='ml-2 text-[11px] opacity-70'>(preview)</span>}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {error && (
+                        <div className='mt-1 text-[11px] text-danger-500/80'>Failed to load task.</div>
+                    )}
+                </>
+            )}
+
             <motion.div
-                className='absolute left-0 right-0 top-0 h-5 flex items-center justify-center cursor-grab select-none'
+                className={`absolute ${isCompact ? 'right-6' : 'right-1' } ${isCompact ? 'top-0' : 'top-1' } h-5 w-5 flex items-center justify-center cursor-grab select-none`}
                 style={{ touchAction: 'none' }}
                 onPointerDown={(e) => e.stopPropagation()}
                 onPanStart={onMovePanStart}
@@ -163,39 +250,26 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
                 aria-label='Drag to move'
                 role='button'
             >
-                <div className='flex flex-col gap-[2px]'>
-                    <div className='h-[2px] w-10 rounded-full bg-surface-1/80 shadow-sm' />
-                    <div className='h-[2px] w-10 rounded-full bg-surface-1/80 shadow-sm' />
-                    <div className='h-[2px] w-10 rounded-full bg-surface-1/80 shadow-sm' />
-                </div>
+                <GripIcon className='w-4 h-4' />
             </motion.div>
 
-            {showSkeleton ? (
-                <RowSkeleton />
-            ) : (
-                <>
-                    <div className='text-sm font-medium line-clamp-2'>{title}</div>
-                    <div className='text-xs'>
-                        {labelFrom}–{labelTo}
-                        {isDrafting && <span className='ml-2 text-[11px] opacity-70'>(preview)</span>}
-                    </div>
-                    {error && (
-                        <div className='mt-1 text-[11px] text-danger-500/80'>
-                            Failed to load task.
-                        </div>
-                    )}
-                </>
-            )}
-
             <motion.div
-                className='absolute left-1 right-1 bottom-0 h-3 rounded-b-md cursor-ns-resize select-none'
+                className={`absolute right-1 ${isCompact ? 'top-0' : 'bottom-1' } h-5 w-5 flex items-center justify-center cursor-ns-resize select-none`}
                 style={{ touchAction: 'none' }}
                 onPanStart={onResizePanStart}
                 onPan={onResizePan}
                 onPanEnd={onResizePanEnd}
+                aria-label='Drag to resize'
+                role='button'
             >
-                <div className='mx-auto my-auto h-[3px] w-12 rounded-full bg-surface-1/80 shadow-sm' />
+                <ChevronsUpDownIcon className='w-4 h-4' />
             </motion.div>
         </motion.div>
     );
+};
+
+const COLOR_VAR_BY_LEVEL: Record<EnergyLevel, string> = {
+    low: '--color-low-energy',
+    medium: '--color-medium-energy',
+    high: '--color-high-energy',
 };

@@ -6,7 +6,7 @@ import { Block } from '@/feature/day-plan/entity/block';
 export const timeblockDayKey = (localDate: string) => ['blocks', localDate] as const;
 export const timeblockKey = (id: string) => ['block', id] as const;
 
-export function useDayTimeblockIdsQuery(localDate: string) {
+export function useDayBlockIdsQuery(localDate: string) {
     const qc = useQueryClient();
 
     return useQuery({

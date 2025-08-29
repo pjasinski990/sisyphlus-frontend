@@ -51,9 +51,14 @@ export const CommandPalette: React.FC<{ initialValue?: string, context?: Command
     const autosize = React.useCallback(() => {
         const el = inputRef.current;
         if (!el) return;
-        el.style.height = '0px';
-        const next = Math.min(el.scrollHeight, 220);
-        el.style.height = `${next}px`;
+
+        requestAnimationFrame(() => {
+            el.style.height = 'auto';
+            const next = Math.min(el.scrollHeight, 220);
+            if (el.style.height !== `${next}px`) {
+                el.style.height = `${next}px`;
+            }
+        });
     }, []);
 
     React.useLayoutEffect(() => {

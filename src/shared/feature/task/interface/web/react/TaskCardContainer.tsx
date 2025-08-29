@@ -9,36 +9,37 @@ import { MarkdownRenderer } from '@/shared/util/react/components/MarkdownRendere
 
 export const TaskCardContainer: React.FC<{
     task: Task,
-    selected: boolean,
+    isSelected: boolean,
+    isMuted?: boolean,
     onSelectedMenu?: ReactNode,
     topBarExtra?: ReactNode,
     bottomBarExtra?: ReactNode,
-} & React.HTMLAttributes<HTMLDivElement>> = ({ task, selected, topBarExtra, onSelectedMenu, bottomBarExtra, ...rest }) => {
+} & React.HTMLAttributes<HTMLDivElement>> = ({ task, isSelected, isMuted, topBarExtra, onSelectedMenu, bottomBarExtra, ...rest }) => {
+    const mutedBackgroundStyle = `color-mix(in oklch, var(--color-surface-2) 70%, var(--color-${task.energy}-energy) 3%)`;
+    const activeBackgroundStyle = `radial-gradient(circle at 20px 20px, transparent 0%, color-mix(in oklch, var(--color-${task.energy}-energy) 20%, transparent) 100%),
+                    color-mix(in oklch, var(--color-surface-2) 70%, var(--color-${task.energy}-energy) 15%)`;
     return (
         <div
             className='stone-texture py-3 px-4 rounded-sm defined-shadow shrink-0'
-            style={{ background:
-                    `radial-gradient(circle at 20px 20px, transparent 0%, color-mix(in oklch, var(--color-${task.energy}-energy) 20%, transparent) 100%),
-                    color-mix(in oklch, var(--color-surface-2) 70%, var(--color-${task.energy}-energy) 15%)`
-            }}
+            style={{ background: isMuted ? mutedBackgroundStyle : activeBackgroundStyle }}
             {...rest}
         >
             <div className={'flex justify-between'}>
                 <div>
-                    <TopInfoRow task={task} extra={topBarExtra} />
+                    <TopInfoRow task={task} extra={topBarExtra} isMuted={isMuted} />
                     <p className={'font-bold'}>
                         {task.title}
                     </p>
                     <MarkdownRenderer content={task.description} />
                     <BottomInfoRow task={task} extra={bottomBarExtra} />
                 </div>
-                <OnSelectedColumn selected={selected} content={onSelectedMenu} />
+                <OnSelectedColumn selected={isSelected} content={onSelectedMenu} />
             </div>
         </div>
     );
 };
 
-const TopInfoRow: React.FC<{ task: Task, extra: React.ReactNode }> = ({ task, extra }) => {
+const TopInfoRow: React.FC<{ task: Task, extra: React.ReactNode, isMuted?: boolean }> = ({ task, extra, isMuted }) => {
     const extraFlat = React.Children.toArray(extra);
 
     const randomPeriod = Random.int(1.1, 2.2);
@@ -49,9 +50,14 @@ const TopInfoRow: React.FC<{ task: Task, extra: React.ReactNode }> = ({ task, ex
             <Tooltip tooltip={`${task.energy} energy`}>
                 <InfoTile>
                     <div className={'bg-surface-1/50 px-1 py-0.5 rounded-full'}>
-                        {task.energy === 'low' && <LowEnergyIcon wavePeriod={flameIconWavePeriod} />}
-                        {task.energy === 'medium' && <MediumEnergyIcon wavePeriod={flameIconWavePeriod} />}
-                        {task.energy === 'high' && <HighEnergyIcon wavePeriod={flameIconWavePeriod} />}
+                        {isMuted ? <MutedEnergyIcon lvl={task.energy} /> :
+                            <>
+                                {task.energy === 'low' && <LowEnergyIcon wavePeriod={flameIconWavePeriod} />}
+                                {task.energy === 'medium' && <MediumEnergyIcon wavePeriod={flameIconWavePeriod} />}
+                                {task.energy === 'high' && <HighEnergyIcon wavePeriod={flameIconWavePeriod} />}
+                            </>
+                        }
+
                     </div>
                 </InfoTile>
             </Tooltip>
@@ -134,6 +140,13 @@ function getEnergyIconClass(level: EnergyLevel) {
     };
     return colors[level];
 }
+
+export const MutedEnergyIcon: React.FC<{ lvl: EnergyLevel }> = ({ lvl }) => {
+    const cls = getEnergyIconClass(lvl);
+    return (
+        <FlameIcon className={`${cls} opacity-50 w-5 h-5 pt-[2px] mb-1`} />
+    );
+};
 
 export const LowEnergyIcon: React.FC<{ wavePeriod: string}> = ({ wavePeriod }) => (
     <Wavy amp={'0.05rem'} shakeMin={'0.05rem'} period={wavePeriod } shakeMax={'0.15rem'}>
