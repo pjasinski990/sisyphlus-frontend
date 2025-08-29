@@ -13,7 +13,6 @@ export async function openInbox() {
     await dialogController.handleOpen({
         key: 'custom',
         payload: { children: <Inbox /> },
-        options: { modal: true, dismissible: true },
     });
 }
 

@@ -10,7 +10,6 @@ export async function openCommandPalette(withCommand?: string, context?: Command
     await dialogController.handleOpen({
         key: 'custom',
         payload: { children: <CommandPalette context={context} initialValue={withCommand ?? ''} /> },
-        options: { modal: true, dismissible: true },
     });
 }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 import { getDialogTemplate } from '@/shared/feature/dialog/infra/web/react/DialogTemplate';
+import { CenteredDialogInstance } from '@/shared/feature/dialog/entity/dialog-instance';
 import { useShortcutScope } from '@/shared/feature/keyboard/infra/web/react/useShortcutScope';
 
 function AutoHeight({ children }: { children: React.ReactNode }) {
@@ -13,7 +14,7 @@ function AutoHeight({ children }: { children: React.ReactNode }) {
         if (!el) return;
         const ro = new ResizeObserver(([entry]) => {
             const next = Math.ceil(entry.contentRect.height);
-            setH(prev => (prev === 'auto' ? next : next));
+            setH(() => next);
         });
         ro.observe(el);
         return () => ro.disconnect();
@@ -31,26 +32,31 @@ function AutoHeight({ children }: { children: React.ReactNode }) {
     );
 }
 
-export const DialogHost: React.FC = () => {
+export const CenteredDialogHost: React.FC = () => {
     const [state, setState] = React.useState(dialogController.handleGetRegistry().getState());
     React.useEffect(() => dialogController.handleGetRegistry().subscribe(setState), []);
-    const hasModal = state.stack.some(d => d.modal);
+
+    const centered = React.useMemo(
+        () => state.stack.filter(d => d.options.variant === 'centered') as CenteredDialogInstance[],
+        [state.stack]
+    );
+
+    const hasModal = centered.some(d => d.options.modal);
 
     return (
         <>
             {hasModal && (<MountModalShortcuts />)}
             <AnimatePresence>
-                {state.stack.map((d, index) => {
+                {centered.map((d, index) => {
                     const DialogTemplate = getDialogTemplate(d.key);
                     if (!DialogTemplate) return null;
 
-                    const baseZ = 50;
-                    const zIndex = (d.zIndex ?? baseZ) + index;
+                    const zIndex = d.options.zIndex + index;
 
                     return (
                         <React.Fragment key={d.id}>
                             <LayoutGroup id={d.id}>
-                                {d.modal && (
+                                {d.options.modal && (
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 0.5 }}
@@ -76,7 +82,7 @@ export const DialogHost: React.FC = () => {
                                         <div className='pointer-events-auto bg-surface-3 rounded-2xl shadow-xl overflow-hidden'>
                                             <AutoHeight>
                                                 {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
-                                                <div onMouseDown={(e) => e.stopPropagation()} role='dialog' aria-modal={d.modal}>
+                                                <div onMouseDown={(e) => e.stopPropagation()} role='dialog' aria-modal={d.options.modal}>
                                                     <DialogTemplate id={d.id} payload={d.payload} />
                                                 </div>
                                             </AutoHeight>

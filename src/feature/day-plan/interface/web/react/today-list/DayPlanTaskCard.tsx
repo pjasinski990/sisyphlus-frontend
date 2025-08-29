@@ -6,7 +6,7 @@ import { useDayBlockIdsQuery } from '@/feature/day-plan/interface/web/react/use-
 import { todayLocalDate } from '@/shared/util/local-date-helper';
 import { useBlocksByIdsQuery } from '@/feature/day-plan/interface/web/react/use-blocks-by-ids';
 import { Block } from '@/feature/day-plan/entity/block';
-import { parseIsoDurationMs } from '@/shared/util/time-utils'; // for ISO -> minutes
+import { parseIsoDurationMs } from '@/shared/util/time-utils';
 
 export const DayPlanTaskCard: React.FC<{
     task: Task;

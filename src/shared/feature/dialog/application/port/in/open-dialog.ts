@@ -1,11 +1,9 @@
+import { DialogOptions } from '@/shared/feature/dialog/entity/dialog-instance';
+
 export type OpenDialogCommand = {
     key: string;
     payload?: unknown;
-    options?: {
-        modal?: boolean;
-        dismissible?: boolean;
-        zIndex?: number;
-    };
+    options?: DialogOptions;
 };
 
 export interface OpenDialog {

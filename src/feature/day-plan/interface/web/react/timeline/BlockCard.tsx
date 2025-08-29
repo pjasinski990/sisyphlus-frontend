@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, MotionStyle, PanInfo, AnimatePresence } from 'framer-motion';
 import { getBlockRenderMetrics } from './get-block-render-metrics';
 import type { TimelineConfig } from '@/feature/day-plan/entity/timeline-config';
@@ -17,6 +17,7 @@ import { useUpdateBlockInDayPlanMutation } from '../use-update-timeblock-mutatio
 import { clamp } from '@/shared/util/clamp';
 import { snap } from '@/shared/util/snap';
 import { ChevronsUpDownIcon, GripIcon } from 'lucide-react';
+import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 
 const SNAP_MIN = 15;
 const MIN_DURATION_MIN = 5;
@@ -43,6 +44,7 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
     const [draftStartMin, setDraftStartMin] = React.useState<number | null>(null);
     const [draftDurMin, setDraftDurMin] = React.useState<number | null>(null);
     const [dragAccumPx, setDragAccumPx] = React.useState(0);
+    const cardRef = useRef<HTMLDivElement>(null);
 
     const [compactLock, setCompactLock] = React.useState<boolean | null>(null);
 
@@ -175,8 +177,9 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
 
     return (
         <motion.div
+            ref={cardRef}
             key={block.id}
-            className={`absolute z-40 pointer-events-auto min-w-[240px] rounded-md border-b-2 border-surface-2/50 backdrop-blur-[2px] pl-3 ${isCompact ? 'pr-12' : 'pr-5'} ${isCompact ? 'py-0' : 'py-2'} defined-shadow`}
+            className={`absolute z-40 inset-0 pointer-events-auto min-w-[240px] rounded-md border-b-2 border-surface-2/50 backdrop-blur-[2px] pl-3 ${isCompact ? 'pr-12' : 'pr-5'} ${isCompact ? 'py-0' : 'py-2'} defined-shadow`}
             style={{
                 top: `${baseMetrics.topPct}%`,
                 height: `${baseMetrics.heightPct}%`,
@@ -194,7 +197,7 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
             {showSkeleton ? (
                 <RowSkeleton />
             ) : (
-                <>
+                <div>
                     <AnimatePresence initial={false} mode='popLayout'>
                         {isCompact ? (
                             <motion.div
@@ -229,6 +232,38 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
                                         {labelFrom}–{labelTo}
                                         {isDrafting && <span className='ml-2 text-[11px] opacity-70'>(preview)</span>}
                                     </div>
+                                    <button
+                                        onClick={() => {
+                                            console.log('opened');
+                                            void dialogController.handleOpen({
+                                                key: 'context-menu',
+                                                payload: {
+                                                    children: (
+                                                        <div className='p-2'>
+                                                            <ul className='text-sm'>
+                                                                <li className='px-3 py-2 hover:bg-surface-4 rounded-md cursor-pointer'>Rename</li>
+                                                                <li className='px-3 py-2 hover:bg-surface-4 rounded-md cursor-pointer'>Duplicate</li>
+                                                                <li className='px-3 py-2 hover:bg-surface-4 rounded-md text-red-500'>Delete</li>
+                                                            </ul>
+                                                        </div>
+                                                    ),
+                                                },
+                                                options: {
+                                                    variant: 'anchored',
+                                                    anchor: { getRect: () => cardRef.current?.getBoundingClientRect() ?? null },
+                                                    side: 'auto',
+                                                    align: 'start',
+                                                    offset: 8,
+                                                    matchWidth: true,
+                                                    dismissible: true,
+                                                    modal: false,
+                                                    zIndex: 120,
+                                                },
+                                            });
+                                        }}
+                                    >
+                                        Open menu
+                                    </button>
                                 </div>
                             </motion.div>
                         )}
@@ -237,7 +272,7 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
                     {error && (
                         <div className='mt-1 text-[11px] text-danger-500/80'>Failed to load task.</div>
                     )}
-                </>
+                </div>
             )}
 
             <motion.div

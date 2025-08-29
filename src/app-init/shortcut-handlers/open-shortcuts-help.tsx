@@ -10,7 +10,6 @@ export async function openShortcutsHelp() {
             title: 'Keyboard shortcuts',
             children: <ShortcutsList />,
         },
-        options: { modal: true, dismissible: true },
     });
 }
 

@@ -5,12 +5,13 @@ import { AuthProvider } from '@/shared/feature/auth/interface/web/react/auth/con
 import { Layout } from '@/shared/util/react/components/Layout';
 import { KeyboardProvider } from '@/shared/feature/keyboard/infra/web/react/KeyboardProvider';
 import { registerDefaultDialogs } from '@/shared/feature/dialog/infra/web/react/bootstrap-dialogs';
-import { DialogHost } from '@/shared/feature/dialog/infra/web/react/DialogHost';
+import { CenteredDialogHost } from '@/shared/feature/dialog/infra/web/react/CenteredDialogHost';
 import { DialogShortcuts, GlobalShortcuts } from '@/app-init/react/global-shortcuts';
 import { GlobalCommandPaletteEntries } from '@/app-init/react/global-command-palette-entries';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { bootstrapCache } from '@/app-init/react/bootstrap-cache';
 import { TimeblockCommandPaletteEntries } from '@/feature/day-plan/interface/web/react/today-list/TodayList';
+import { AnchoredDialogsHost } from '@/shared/feature/dialog/infra/web/react/AnchoredDialogHost';
 
 const qc = new QueryClient();
 registerDefaultDialogs();
@@ -26,7 +27,8 @@ export function App() {
                     <TimeblockCommandPaletteEntries />
                     <GlobalShortcuts />
                     <DialogShortcuts />
-                    <DialogHost />
+                    <CenteredDialogHost />
+                    <AnchoredDialogsHost />
                     <Layout>
                         {routing}
                     </Layout>
