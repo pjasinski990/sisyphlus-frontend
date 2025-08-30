@@ -21,7 +21,7 @@ export function GlobalShortcuts() {
 export function DialogShortcuts() {
     const { closeTop } = useDialog();
     useShortcutScope('global', true);
-    useShortcut('modal', [
+    useShortcut('dialog', [
         { combos: ['Escape'], handler: closeTop, description: 'Dismiss dialog', group: 'Navigation' },
         { combos: ['Enter'], handler: resolveTopDialog, description: 'Resolve dialog', group: 'Navigation' },
     ]);

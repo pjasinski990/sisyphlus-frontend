@@ -12,7 +12,7 @@ type ConfirmPayload = {
 
 export const ConfirmDialog: React.FC<{ id: string; payload?: unknown }> = ({ id, payload }) => {
     const { resolve, dismiss } = useDialog();
-    const p = payload as ConfirmPayload ?? { title: 'Are you sure?' };
+    const p = (payload as ConfirmPayload) ?? { title: 'Are you sure?' };
 
     return (
         <div className='p-4 md:p-5'>
@@ -20,21 +20,19 @@ export const ConfirmDialog: React.FC<{ id: string; payload?: unknown }> = ({ id,
             {p.message ? <p className='mt-2 text-sm opacity-80'>{p.message}</p> : null}
 
             <div className='mt-5 flex items-center justify-end gap-4'>
-                <ButtonSecondary
-                    onClick={() => dismiss(id)}
-                >
+                <ButtonSecondary onClick={() => dismiss(id)}>
                     {p.cancelText ?? 'Cancel'}
                 </ButtonSecondary>
-                { p.danger
-                    ?
-                    <ButtonDanger onClick={() => resolve(id, { confirmed: true })} >
-                        {p.confirmText}
+
+                {p.danger ? (
+                    <ButtonDanger onClick={() => resolve(id, { confirmed: true })}>
+                        {p.confirmText ?? 'Confirm'}
                     </ButtonDanger>
-                    :
-                    <ButtonSuccess onClick={() => resolve(id, { confirmed: false })} >
-                        {p.confirmText}
+                ) : (
+                    <ButtonSuccess onClick={() => resolve(id, { confirmed: true })}>
+                        {p.confirmText ?? 'Confirm'}
                     </ButtonSuccess>
-                }
+                )}
             </div>
         </div>
     );

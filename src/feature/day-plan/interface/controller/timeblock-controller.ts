@@ -10,6 +10,8 @@ import { GetTimeblocksByIds } from '../../application/port/in/get-timeblocks-by-
 import { GetTimeblocksByIdsUseCase } from '@/feature/day-plan/application/use-case/get-timeblocks-by-ids-use-case';
 import { UpdateTimeblock } from '../../application/port/in/update-timeblock';
 import { UpdateTimeblockUseCase } from '@/feature/day-plan/application/use-case/update-timeblock-use-case';
+import { RemoveTimeblockUseCase } from '@/feature/day-plan/application/use-case/remove-timeblock-use-case';
+import { RemoveTimeblock } from '@/feature/day-plan/application/port/in/remove-timeblock';
 
 export class TimeblockController {
     constructor(
@@ -17,6 +19,7 @@ export class TimeblockController {
         private readonly updateTimeblock: UpdateTimeblock,
         private readonly getDayTimeblocks: GetDayTimeblocks,
         private readonly getTimeblocksByIds: GetTimeblocksByIds,
+        private readonly removeTimeblock: RemoveTimeblock,
     ) { }
 
     handleSchedule(desc: ScheduleBlockDesc): AsyncResult<string, Block> {
@@ -25,6 +28,10 @@ export class TimeblockController {
 
     handleUpdate(patch: Partial<Block> & { id: string }): AsyncResult<string, Block> {
         return this.updateTimeblock.execute(patch);
+    }
+
+    handleRemove(blockId: string): AsyncResult<string, Block> {
+        return this.removeTimeblock.execute(blockId);
     }
 
     handleGetDayTimeblocks(localDate: string): AsyncResult<string, Block[]> {
@@ -41,10 +48,12 @@ const scheduleTimeblock = new ScheduleTimeblockUseCase(timeblockApi);
 const updateTimeblock = new UpdateTimeblockUseCase(timeblockApi);
 const getDayTimeblocks = new GetDayTimeblocksUseCase(timeblockApi);
 const getBlocksByIds = new GetTimeblocksByIdsUseCase(timeblockApi);
+const removeTimeblock = new RemoveTimeblockUseCase(timeblockApi);
 
 export const timeblockController = new TimeblockController(
     scheduleTimeblock,
     updateTimeblock,
     getDayTimeblocks,
     getBlocksByIds,
+    removeTimeblock,
 );

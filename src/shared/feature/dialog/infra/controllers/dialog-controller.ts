@@ -18,7 +18,7 @@ export class DialogController {
         private readonly closeTop: CloseTopDialog,
     ) { }
 
-    handleOpen<T>(cmd: OpenDialogCommand) {
+    handleOpen<T>(cmd: OpenDialogCommand): Promise<T | undefined> {
         return this.open.execute<T>(cmd);
     }
 

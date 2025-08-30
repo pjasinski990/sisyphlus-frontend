@@ -4,6 +4,7 @@ import { ScheduleBlockDesc } from '@/feature/day-plan/entity/schedule-block-desc
 export interface TimeblockApi {
     create(desc: ScheduleBlockDesc): Promise<Block>;
     update(patch: Partial<Block> & { id: string }): Promise<Block>;
+    remove(blockId: string): Promise<Block>;
     getByLocalDate(localDate: string): Promise<Block[]>;
     getByIds(ids: string[]): Promise<Block[]>;
 }

@@ -1,13 +1,20 @@
 import React from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
 import { getDialogTemplate } from '@/shared/feature/dialog/infra/web/react/DialogTemplate';
 import { AnchoredDialogInstance } from '@/shared/feature/dialog/entity/dialog-instance';
+import { useShortcutScope } from '@/shared/feature/keyboard/infra/web/react/useShortcutScope';
 
 type XYWH = { x: number; y: number; width: number; height: number };
 
 function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
+}
+
+function shallowEqRect(a: XYWH | null, b: XYWH | null) {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 }
 
 function useAnchorRect(getRect: () => DOMRect | null) {
@@ -16,26 +23,33 @@ function useAnchorRect(getRect: () => DOMRect | null) {
         return r ? { x: r.left, y: r.top, width: r.width, height: r.height } : null;
     });
 
+    const update = React.useCallback(() => {
+        const r = getRect();
+        const next: XYWH | null = r ? { x: r.left, y: r.top, width: r.width, height: r.height } : null;
+        setRect(prev => (shallowEqRect(prev, next) ? prev : next));
+    }, [getRect]);
+
     React.useLayoutEffect(() => {
-        let raf = 0;
-        const update = () => {
-            const r = getRect();
-            if (r) setRect({ x: r.left, y: r.top, width: r.width, height: r.height });
-            else setRect(null);
-            raf = requestAnimationFrame(update);
+        let ticking = false;
+        const onScrollOrResize = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                ticking = false;
+                update();
+            });
         };
+
         update();
 
-        const onWin = () => { cancelAnimationFrame(raf); update(); };
-        window.addEventListener('resize', onWin, { passive: true });
-        window.addEventListener('scroll', onWin, true);
+        window.addEventListener('resize', onScrollOrResize, { passive: true });
+        window.addEventListener('scroll', onScrollOrResize, true);
 
         return () => {
-            cancelAnimationFrame(raf);
-            window.removeEventListener('resize', onWin);
-            window.removeEventListener('scroll', onWin, true);
+            window.removeEventListener('resize', onScrollOrResize as EventListener);
+            window.removeEventListener('scroll', onScrollOrResize, true);
         };
-    }, [getRect]);
+    }, [update]);
 
     return rect;
 }
@@ -58,8 +72,10 @@ export const AnchoredDialogsHost: React.FC = () => {
 
                 const insideContent = el ? el.contains(e.target as Node) : false;
                 const insideAnchor = anchorRect
-                    ? e.clientX >= anchorRect.left && e.clientX <= anchorRect.right &&
-                    e.clientY >= anchorRect.top && e.clientY <= anchorRect.bottom
+                    ? e.clientX >= anchorRect.left &&
+                    e.clientX <= anchorRect.right &&
+                    e.clientY >= anchorRect.top &&
+                    e.clientY <= anchorRect.bottom
                     : false;
 
                 if (!insideContent && !insideAnchor && d.dismissible) {
@@ -71,28 +87,21 @@ export const AnchoredDialogsHost: React.FC = () => {
         return () => document.removeEventListener('mousedown', onDown, true);
     }, [anchored]);
 
-    React.useEffect(() => {
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && anchored.length) {
-                const top = anchored[anchored.length - 1];
-                if (top?.dismissible) dialogController.handleDismiss(top.id);
-            }
-        };
-        document.addEventListener('keydown', onKey, true);
-        return () => document.removeEventListener('keydown', onKey, true);
-    }, [anchored]);
-
+    const hasDialog = anchored.length > 0;
     return (
-        <AnimatePresence>
-            {anchored.map((d, index) => (
-                <AnchoredItem
-                    key={d.id}
-                    d={d}
-                    index={index}
-                    setContentRef={(el) => contentRefs.current.set(d.id, el)}
-                />
-            ))}
-        </AnimatePresence>
+        <>
+            {hasDialog && (<MountDialogShortcuts />)}
+            <AnimatePresence>
+                {anchored.map((d, index) => (
+                    <AnchoredItem
+                        key={d.id}
+                        d={d}
+                        index={index}
+                        setContentRef={el => contentRefs.current.set(d.id, el)}
+                    />
+                ))}
+            </AnimatePresence>
+        </>
     );
 };
 
@@ -102,9 +111,8 @@ const AnchoredItem: React.FC<{
     setContentRef: (el: HTMLElement | null) => void;
 }> = ({ d, index, setContentRef }) => {
     const zIndex = d.options.zIndex + index;
-    const getRect = d.options.anchor.getRect;
-    const rect = useAnchorRect(getRect);
 
+    const rect = useAnchorRect(d.options.anchor.getRect);
     const [contentH, setContentH] = React.useState(0);
     const contentElRef = React.useRef<HTMLElement | null>(null);
 
@@ -128,18 +136,19 @@ const AnchoredItem: React.FC<{
         }
     }, [rect, d.dismissible, d.id]);
 
-    if (!rect) return null;
-
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 0;
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
 
     const offset = d.options.offset ?? 8;
     const matchWidth = d.options.matchWidth ?? true;
-    const width = matchWidth ? rect.width : undefined;
+    const width = rect && matchWidth ? rect.width : undefined;
 
-    const preferredSide = d.options.side === 'top' || d.options.side === 'bottom' ? d.options.side : 'auto';
-    const side: 'top' | 'bottom' =
-        preferredSide === 'top'
+    const preferredSide =
+        d.options.side === 'top' || d.options.side === 'bottom' ? d.options.side : 'auto';
+
+    const computedSide: 'top' | 'bottom' = !rect
+        ? 'bottom'
+        : preferredSide === 'top'
             ? 'top'
             : preferredSide === 'bottom'
                 ? 'bottom'
@@ -149,44 +158,70 @@ const AnchoredItem: React.FC<{
 
     const align: 'start' | 'center' | 'end' = d.options.align ?? 'start';
 
-    let left = rect.x;
-    if (align === 'center') left = rect.x + rect.width / 2 - (width ?? 0) / 2;
-    if (align === 'end') left = rect.x + rect.width - (width ?? 0);
-    left = clamp(left, 0, vw - 8 - (width ?? 280));
+    let left = rect ? rect.x : 0;
+    if (rect) {
+        if (align === 'center') left = rect.x + rect.width / 2 - (width ?? 0) / 2;
+        if (align === 'end') left = rect.x + rect.width - (width ?? 0);
+        left = clamp(left, 0, Math.max(0, vw - 8 - (width ?? 280)));
+    }
 
-    const top = side === 'bottom'
-        ? rect.y + rect.height + offset
-        : rect.y - contentH - offset;
+    const top = rect
+        ? computedSide === 'bottom'
+            ? rect.y + rect.height + offset
+            : rect.y - contentH - offset
+        : 0;
 
-    const safeTop = clamp(top, 8, vh - 8 - contentH);
+    const safeTop = rect ? clamp(top, 8, Math.max(8, vh - 8 - contentH)) : 0;
 
     const Template = getDialogTemplate(d.key);
-    if (!Template) return null;
+
+    const controls = useAnimationControls();
+    React.useEffect(() => {
+        if (!rect || !Template) return;
+        controls.set({
+            opacity: 0,
+            y: computedSide === 'bottom' ? -20 : 20,
+        });
+        void controls.start({
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.12, type: 'tween' },
+        });
+    }, [computedSide, rect, Template, controls]);
+
+    if (!rect || !Template) return null;
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: side === 'bottom' ? -4 : 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: side === 'bottom' ? -4 : 4 }}
-            transition={{ duration: 0.12, type: 'tween' }}
+            initial={false}
+            animate={controls}
+            exit={{
+                opacity: 0,
+                y: computedSide === 'bottom' ? -20 : 20,
+                transition: { duration: 0.12, type: 'tween' },
+            }}
             className='fixed'
             style={{ top: safeTop, left, width, zIndex }}
-            role='presentation'
             aria-hidden={false}
         >
             <menu
-                ref={(el) => {
+                ref={el => {
                     contentElRef.current = el;
                     setContentRef(el);
                 }}
-                className='pointer-events-auto bg-surface-3 rounded-xl shadow-xl overflow-hidden'
+                className='pointer-events-auto'
                 aria-modal='false'
             >
                 {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-                <div onMouseDown={(e) => e.stopPropagation()}>
+                <div onMouseDown={e => e.stopPropagation()}>
                     <Template id={d.id} payload={d.payload} />
                 </div>
             </menu>
         </motion.div>
     );
+};
+
+export const MountDialogShortcuts: React.FC = () => {
+    useShortcutScope('dialog', true);
+    return null;
 };

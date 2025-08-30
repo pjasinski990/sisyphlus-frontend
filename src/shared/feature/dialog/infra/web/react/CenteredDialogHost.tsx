@@ -41,11 +41,10 @@ export const CenteredDialogHost: React.FC = () => {
         [state.stack]
     );
 
-    const hasModal = centered.some(d => d.options.modal);
-
+    const hasDialog = centered.length > 0;
     return (
         <>
-            {hasModal && (<MountModalShortcuts />)}
+            {hasDialog && (<MountDialogShortcuts />)}
             <AnimatePresence>
                 {centered.map((d, index) => {
                     const DialogTemplate = getDialogTemplate(d.key);
@@ -98,7 +97,7 @@ export const CenteredDialogHost: React.FC = () => {
     );
 };
 
-export const MountModalShortcuts: React.FC = () => {
-    useShortcutScope('modal', true);
+export const MountDialogShortcuts: React.FC = () => {
+    useShortcutScope('dialog', true);
     return null;
 };

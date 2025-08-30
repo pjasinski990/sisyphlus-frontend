@@ -14,6 +14,11 @@ export class HttpTimeblockApi implements TimeblockApi {
         return res.data;
     }
 
+    async remove(blockId: string): Promise<Block> {
+        const res = await httpClient.delete<Block>(`/timeblock/${blockId}`);
+        return res.data;
+    }
+
     async getByLocalDate(localDate: string): Promise<Block[]> {
         const res = await httpClient.get<Block[]>(`/timeblock/${localDate}`);
         return res.data;

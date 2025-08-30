@@ -57,7 +57,7 @@ const config = {
     predefinedScopes: [
         { id: 'global', priority: 10, exclusive: false, enabled: true },
         { id: 'page', priority: 50, exclusive: false, enabled: false },
-        { id: 'modal', priority: 100, exclusive: true, enabled: false },
+        { id: 'dialog', priority: 100, exclusive: true, enabled: false },
     ],
 };
 

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, MotionStyle, PanInfo, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion, MotionStyle, PanInfo } from 'framer-motion';
 import { getBlockRenderMetrics } from './get-block-render-metrics';
 import type { TimelineConfig } from '@/feature/day-plan/entity/timeline-config';
 import type { Block } from '@/feature/day-plan/entity/block';
@@ -8,16 +8,19 @@ import { useTasksByIdsQuery } from '@/shared/feature/task/interface/web/react/us
 import { RowSkeleton } from '@/shared/util/react/components/RowSkeleton';
 import {
     hhmmToMinutes,
-    minutesToIso,
     minutesToHHmm,
+    minutesToIso,
     normalizeHHmm,
     parseIsoDurationMs,
 } from '@/shared/util/time-utils';
 import { useUpdateBlockInDayPlanMutation } from '../use-update-timeblock-mutation';
 import { clamp } from '@/shared/util/clamp';
 import { snap } from '@/shared/util/snap';
-import { ChevronsUpDownIcon, GripIcon } from 'lucide-react';
+import { CheckCheckIcon, CheckIcon, ChevronsUpDownIcon, GripIcon, Trash2Icon } from 'lucide-react';
 import { dialogController } from '@/shared/feature/dialog/infra/controllers/dialog-controller';
+import { Tooltip } from '@/shared/util/react/components/Tooltip';
+import { useRemoveTimeblockMutation } from '@/feature/day-plan/interface/web/react/use-remove-timeblock-mutation';
+import { todayLocalDate } from '@/shared/util/local-date-helper';
 
 const SNAP_MIN = 15;
 const MIN_DURATION_MIN = 5;
@@ -45,6 +48,7 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
     const [draftDurMin, setDraftDurMin] = React.useState<number | null>(null);
     const [dragAccumPx, setDragAccumPx] = React.useState(0);
     const cardRef = useRef<HTMLDivElement>(null);
+    const contextOpenRef = React.useRef(false);
 
     const [compactLock, setCompactLock] = React.useState<boolean | null>(null);
 
@@ -156,6 +160,69 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         resetDraft();
     }
 
+    const { mutateAsync } = useRemoveTimeblockMutation(todayLocalDate());
+    const openContextMenu = React.useCallback(() => {
+        if (dragKind) return;
+        if (contextOpenRef.current) return;
+        contextOpenRef.current = true;
+        void dialogController
+            .handleOpen({
+                key: 'context-menu',
+                payload: {
+                    children: (
+                        <div className='rounded-md bg-surface-3 px-4 py-2 flex flex-1 justify-between gap-4 defined-shadow'>
+                            <Tooltip tooltip={'Remove'}>
+                                <button
+                                    className={'flex items-center p-2 bg-surface-2/50 hover:bg-surface-2 transition-colors rounded-sm cursor-pointer'}
+                                    onClick={async () => {
+                                        const res = await dialogController.handleOpen<{ confirmed: boolean }>({
+                                            key: 'confirm',
+                                            payload: {
+                                                title: 'Confirmation',
+                                                message: 'Really remove block?',
+                                                danger: true,
+                                            }
+                                        });
+                                        if (!res?.confirmed) return;
+                                        await mutateAsync(block.id);
+                                    }}
+                                >
+                                    <Trash2Icon className='w-4 h-4 inline' />
+                                    <span className={'ml-1 font-mono text-xs'}>[x]</span>
+                                </button>
+                            </Tooltip>
+                            <Tooltip tooltip={'Mark block completed'}>
+                                <button className={'flex items-center p-2 bg-surface-2/50 hover:bg-surface-2 transition-colors rounded-sm cursor-pointer'}>
+                                    <CheckIcon className='w-4 h-4 inline' />
+                                    <span className={'ml-1 font-mono text-xs'}>[c]</span>
+                                </button>
+                            </Tooltip>
+                            <Tooltip tooltip={'Mark block and task completed'}>
+                                <button className={'flex items-center p-2 bg-surface-2/50 hover:bg-surface-2 transition-colors rounded-sm cursor-pointer'}>
+                                    <CheckCheckIcon className='w-4 h-4 inline' />
+                                    <span className={'ml-1 font-mono text-xs'}>[C]</span>
+                                </button>
+                            </Tooltip>
+                        </div>
+                    ),
+                },
+                options: {
+                    variant: 'anchored',
+                    anchor: { getRect: () => cardRef.current?.getBoundingClientRect() ?? null },
+                    side: 'auto',
+                    align: 'start',
+                    offset: 4,
+                    matchWidth: true,
+                    dismissible: true,
+                    modal: false,
+                    zIndex: 50,
+                },
+            })
+            .finally(() => {
+                contextOpenRef.current = false;
+            });
+    }, [block.id, dragKind, mutateAsync]);
+
     const labelFrom = minutesToHHmm(displayStartMin);
     const labelTo = minutesToHHmm(displayStartMin + displayDurMin);
 
@@ -179,7 +246,7 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
         <motion.div
             ref={cardRef}
             key={block.id}
-            className={`absolute z-40 inset-0 pointer-events-auto min-w-[240px] rounded-md border-b-2 border-surface-2/50 backdrop-blur-[2px] pl-3 ${isCompact ? 'pr-12' : 'pr-5'} ${isCompact ? 'py-0' : 'py-2'} defined-shadow`}
+            className={`absolute z-40 inset-0 pointer-events-auto min-w-[240px] rounded-md backdrop-blur-[2px] pl-3 ${isCompact ? 'pr-12' : 'pr-5'} ${isCompact ? 'py-0' : 'py-2'} defined-shadow cursor-pointer`}
             style={{
                 top: `${baseMetrics.topPct}%`,
                 height: `${baseMetrics.heightPct}%`,
@@ -193,6 +260,9 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.6 }}
+            onClick={openContextMenu}
+            role='button'
+            aria-label='Open block menu'
         >
             {showSkeleton ? (
                 <RowSkeleton />
@@ -232,38 +302,6 @@ export const BlockCard: React.FC<{ cfg: TimelineConfig; block: Block }> = ({ cfg
                                         {labelFrom}–{labelTo}
                                         {isDrafting && <span className='ml-2 text-[11px] opacity-70'>(preview)</span>}
                                     </div>
-                                    <button
-                                        onClick={() => {
-                                            console.log('opened');
-                                            void dialogController.handleOpen({
-                                                key: 'context-menu',
-                                                payload: {
-                                                    children: (
-                                                        <div className='p-2'>
-                                                            <ul className='text-sm'>
-                                                                <li className='px-3 py-2 hover:bg-surface-4 rounded-md cursor-pointer'>Rename</li>
-                                                                <li className='px-3 py-2 hover:bg-surface-4 rounded-md cursor-pointer'>Duplicate</li>
-                                                                <li className='px-3 py-2 hover:bg-surface-4 rounded-md text-red-500'>Delete</li>
-                                                            </ul>
-                                                        </div>
-                                                    ),
-                                                },
-                                                options: {
-                                                    variant: 'anchored',
-                                                    anchor: { getRect: () => cardRef.current?.getBoundingClientRect() ?? null },
-                                                    side: 'auto',
-                                                    align: 'start',
-                                                    offset: 8,
-                                                    matchWidth: true,
-                                                    dismissible: true,
-                                                    modal: false,
-                                                    zIndex: 120,
-                                                },
-                                            });
-                                        }}
-                                    >
-                                        Open menu
-                                    </button>
                                 </div>
                             </motion.div>
                         )}

@@ -1,7 +1,7 @@
 import { OpenDialog, OpenDialogCommand } from '../port/in/open-dialog';
 import { DialogRegistry } from '../port/out/dialog-registry';
 import { v4 as uuid } from 'uuid';
-import { CenteredDialogOptions } from '@/shared/feature/dialog/entity/dialog-instance';
+import { CenteredDialogOptions, DialogInstance } from '@/shared/feature/dialog/entity/dialog-instance';
 
 export class OpenDialogUseCase implements OpenDialog {
     constructor(private readonly reg: DialogRegistry) {}
@@ -18,7 +18,7 @@ export class OpenDialogUseCase implements OpenDialog {
             payload: cmd.payload ?? {},
             dismissible: options.dismissible ?? true,
             options,
-        });
+        } as DialogInstance);
 
         const { promise } = this.reg.createDeferred(id);
         const result = await promise;
